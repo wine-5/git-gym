@@ -62,7 +62,11 @@ export const TitleBar = observer(() => {
         <>
           <div className={styles.steps} title="章内の進み具合">
             {found.chapter.lessons.map((l, i) => (
-              <i key={l.id} className={i < found.index ? styles.done : i === found.index ? styles.now : undefined} />
+              <i
+                key={l.id}
+                title={l.title}
+                className={i === found.index ? styles.now : appModel.progress.isDone(l.id) ? styles.done : undefined}
+              />
             ))}
           </div>
           <button

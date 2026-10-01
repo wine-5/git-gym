@@ -1,4 +1,9 @@
 import { app, BrowserWindow } from 'electron';
+import { GitRunner } from './git/GitRunner';
+import { resolveGitPath } from './git/gitPath';
+import { registerIpc } from './ipc';
+import { PracticeFolders } from './workspace/PracticeFolders';
+import { WorkspaceHub } from './workspace/WorkspaceHub';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -23,6 +28,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  registerIpc(new WorkspaceHub(new PracticeFolders(), new GitRunner(resolveGitPath())));
   createWindow();
 
   app.on('activate', () => {

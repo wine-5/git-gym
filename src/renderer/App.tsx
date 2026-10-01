@@ -2,11 +2,11 @@ import { observer } from 'mobx-react-lite';
 import { appModel } from '@models/AppModel';
 import { TitleBar } from '@components/layout/TitleBar';
 import { StatusBar } from '@components/layout/StatusBar';
-import { ComingSoon } from '@components/layout/ComingSoon';
 import { LanguageSelectView } from '@components/language/LanguageSelectView';
 import { HomeView } from '@components/home/HomeView';
 import { LessonView } from '@components/lesson/LessonView';
 import { DictionaryView } from '@components/dictionary/DictionaryView';
+import { SandboxView } from '@components/sandbox/SandboxView';
 import styles from './App.module.css';
 
 const Screen = observer(() => {
@@ -18,7 +18,7 @@ const Screen = observer(() => {
     case 'lesson':
       return <LessonView />;
     case 'sandbox':
-      return <ComingSoon title="フリー練習" />;
+      return <SandboxView />;
     case 'dictionary':
       return <DictionaryView />;
   }

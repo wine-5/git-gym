@@ -9,6 +9,8 @@ const COL_W = 22;
 const PAD_X = 18;
 const NODE_R = 6;
 const CORNER = 8;
+/** 1つのコミットに並べるラベルの数（多いと切れて読めなくなるので、残りは +N にまとめる） */
+const MAX_REFS = 3;
 const LANE_COLORS = ['#5aa9ff', '#b48cff', '#4cc38a', '#e8c46a', '#ff8fab', '#4fd1c5'];
 
 const REF_ICONS: Record<RefKind, LucideIcon> = {
@@ -118,9 +120,14 @@ export function CommitGraph({ repo }: Props) {
           <div key={c.hash} className={styles.row} style={{ height: ROW_H }} title={c.message}>
             {c.refs.length > 0 && (
               <div className={styles.refs}>
-                {c.refs.map((r) => (
+                {c.refs.slice(0, MAX_REFS).map((r) => (
                   <RefBadge key={r.name} commitRef={r} color={laneColor(c.col)} />
                 ))}
+                {c.refs.length > MAX_REFS && (
+                  <span className={styles.moreRefs} title={c.refs.slice(MAX_REFS).map((r) => r.name).join('\n')}>
+                    +{c.refs.length - MAX_REFS}
+                  </span>
+                )}
               </div>
             )}
             <div className={styles.message}>

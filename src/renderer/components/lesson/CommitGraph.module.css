@@ -83,3 +83,16 @@
   font-size: 11px;
   color: var(--text-mute);
 }
+
+.moreRefs {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 17px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--bg-elev);
+  color: var(--text-dim);
+  cursor: help;
+  flex: none;
+}

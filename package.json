@@ -13,13 +13,15 @@
     "make": "electron-forge make",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:icon": "node -e \"delete process.env.ELECTRON_RUN_AS_NODE; require('child_process').execSync('npx electron tools/icon/build.cjs',{stdio:'inherit'})\""
   },
   "config": {
     "forge": {
       "packagerConfig": {
         "name": "Git Gym",
-        "asar": true
+        "asar": true,
+        "icon": "./assets/icon/icon"
       },
       "makers": [
         {

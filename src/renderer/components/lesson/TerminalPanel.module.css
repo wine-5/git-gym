@@ -34,7 +34,7 @@
   color: var(--text-mute);
 }
 
-.clear {
+.iconButton {
   background: none;
   border: none;
   color: var(--text-mute);
@@ -44,7 +44,7 @@
   border-radius: 4px;
 }
 
-.clear:hover {
+.iconButton:hover {
   color: var(--text);
   background: var(--bg-elev);
 }
@@ -136,4 +136,26 @@
 
 .input::placeholder {
   color: var(--text-mute);
+}
+
+.block {
+  display: flex;
+  gap: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.blockIcon {
+  flex: none;
+  margin-top: 4px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

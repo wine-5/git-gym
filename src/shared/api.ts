@@ -22,6 +22,9 @@ export const IPC = {
   workspaceReveal: 'workspace:reveal',
   terminalExecute: 'terminal:execute',
   repoSnapshot: 'repo:snapshot',
+  filesList: 'files:list',
+  filesRead: 'files:read',
+  filesWrite: 'files:write',
 } as const;
 
 /** preload からレンダラーへ公開する API */
@@ -41,5 +44,12 @@ export interface GitGymApi {
   repo: {
     /** コミットグラフとファイルの居場所に使う状態を読む */
     snapshot(ref: WorkspaceRef): Promise<RepoSnapshot>;
+  };
+  files: {
+    /** .git を除いたファイルの一覧（/ 区切りの相対パス） */
+    list(ref: WorkspaceRef): Promise<string[]>;
+    /** 無ければ null */
+    read(ref: WorkspaceRef, path: string): Promise<string | null>;
+    write(ref: WorkspaceRef, path: string, content: string): Promise<void>;
   };
 }

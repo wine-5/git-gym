@@ -1,0 +1,92 @@
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+.logoMark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+}
+
+.nav {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+}
+
+.nav button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--text-dim);
+}
+
+.nav button:hover {
+  color: var(--text);
+}
+
+.nav button.active {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+.breadcrumb {
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.breadcrumb strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.steps {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.steps i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.steps i.done {
+  background: var(--green);
+}
+
+.steps i.now {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}

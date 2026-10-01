@@ -92,25 +92,25 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
 
       {layout.sideOpen && <Splitter direction="columns" {...side.splitter(true)} />}
       {layout.sideOpen && (
-      <section className={styles.side}>
-        <div className="panel-head">
-          <span className={styles.headLabel}>
-            <GitGraph size={13} /> コミットグラフ
-          </span>
-        </div>
-        <div className={styles.graphScroll}>
-          <CommitGraph repo={repo} />
-        </div>
-        <Splitter direction="rows" {...areasHeight.splitter(true)} />
-        <div className={styles.areas} style={{ height: areasHeight.size }}>
+        <section className={styles.side}>
           <div className="panel-head">
             <span className={styles.headLabel}>
-              <FolderTree size={13} /> ファイルの居場所
+              <GitGraph size={13} /> コミットグラフ
             </span>
           </div>
-          <FileAreas repo={repo} />
-        </div>
-      </section>
+          <div className={styles.graphScroll}>
+            <CommitGraph repo={repo} />
+          </div>
+          <Splitter direction="rows" {...areasHeight.splitter(true)} />
+          <div className={styles.areas} style={{ height: areasHeight.size }}>
+            <div className="panel-head">
+              <span className={styles.headLabel}>
+                <FolderTree size={13} /> ファイルの居場所
+              </span>
+            </div>
+            <FileAreas repo={repo} />
+          </div>
+        </section>
       )}
     </main>
   );

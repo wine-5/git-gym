@@ -6,8 +6,9 @@ import { CHAPTERS, findLesson, lessonSetup } from '@data/lessons';
 import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 import { ProgressModel } from './ProgressModel';
+import { SettingsModel } from './SettingsModel';
 
-export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary';
+export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary' | 'settings';
 
 const LANGUAGE_KEY = 'git-gym.language';
 
@@ -25,6 +26,7 @@ export class AppModel {
   screen: Screen = this.language ? 'home' : 'language';
   currentLessonId = CHAPTERS[0].lessons[0].id;
   readonly progress = new ProgressModel();
+  readonly settings = new SettingsModel();
   /** コマンド辞典で開いているコマンド */
   dictionaryCommand = 'init';
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
@@ -32,7 +34,7 @@ export class AppModel {
   private readonly sandboxes = new Map<string, PracticeSession>();
 
   constructor() {
-    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false });
+    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false, settings: false });
     void this.progress.load().then(() => {
       const last = this.progress.lastLessonId;
       if (last && findLesson(last)) this.setCurrentLesson(last);

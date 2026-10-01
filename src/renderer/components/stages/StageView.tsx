@@ -53,6 +53,9 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
       const result = starsFor(runner.failedCount, hintLevel >= 2);
       setStars(result);
       appModel.progress.setStars(stage.id, result);
+      // ファンファーレのあと、星のアニメーションに合わせて1つずつ鳴らす
+      appModel.sound.play('stageClear');
+      for (let n = 1; n <= result; n++) setTimeout(() => appModel.sound.play('star'), 500 + n * 150);
     }
   }, [runner.completed, stars, hintLevel, runner, stage.id]);
 

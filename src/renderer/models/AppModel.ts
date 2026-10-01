@@ -75,6 +75,15 @@ export class AppModel {
     this.screen = screen;
   }
 
+  /** 今のレッスンの練習用フォルダを初期状態に戻して、最初からやり直す */
+  async resetLesson(): Promise<void> {
+    const entry = this.currentLesson;
+    if (!entry) return;
+    entry.runner.restart();
+    await entry.session.reset();
+    await entry.runner.evaluate();
+  }
+
   openLesson(lessonId: string): void {
     this.currentLessonId = lessonId;
     this.screen = 'lesson';

@@ -82,7 +82,11 @@ export const TitleBar = observer(() => {
           </button>
         </>
       )}
-      <button className="btn" title="設定">
+      <button
+        className={appModel.screen === 'settings' ? `btn ${styles.settingsActive}` : 'btn'}
+        title="設定"
+        onClick={() => appModel.navigate('settings')}
+      >
         <Settings size={15} />
       </button>
     </header>

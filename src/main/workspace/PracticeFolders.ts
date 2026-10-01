@@ -1,8 +1,7 @@
 import { app, shell } from 'electron';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-
-export type PracticeKind = 'lessons' | 'stages' | 'sandbox';
+import type { PracticeKind } from '../../shared/api';
 
 const ROOT_README = `Git Gym の練習用フォルダです。
 

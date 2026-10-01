@@ -1,0 +1,106 @@
+:root {
+  --bg: #1e1f24;
+  --bg-panel: #25262c;
+  --bg-elev: #2d2e35;
+  --bg-editor: #1b1c20;
+  --bg-terminal: #141518;
+  --border: #3a3b44;
+  --text: #e4e4e8;
+  --text-dim: #9a9ba6;
+  --text-mute: #6c6d78;
+  --accent: #f05033;
+  --accent-soft: rgba(240, 80, 51, 0.14);
+  --green: #4cc38a;
+  --blue: #5aa9ff;
+  --purple: #b48cff;
+  --yellow: #e8c46a;
+  --red: #ff6b6b;
+  --font: 'Segoe UI', 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  --mono: 'Cascadia Code', Consolas, Menlo, 'Noto Sans Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 共通ボタン */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 6px;
+}
+
+.btn:hover {
+  border-color: var(--text-mute);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 説明文中の `code` */
+.inline-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg-elev);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--yellow);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

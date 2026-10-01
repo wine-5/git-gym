@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+import * as path from 'path';
 import { GitRunner } from './git/GitRunner';
 import { resolveGitPath } from './git/gitPath';
 import { registerIpc } from './ipc';
@@ -16,6 +17,8 @@ function createWindow(): void {
     minWidth: 1100,
     minHeight: 700,
     title: 'Git Gym',
+    // 開発中もタスクバーにアプリのアイコンを出す（配布版は実行ファイルのアイコンが使われる）
+    icon: app.isPackaged ? undefined : path.join(app.getAppPath(), 'assets', 'icon', 'icon.png'),
     backgroundColor: '#1e1f24',
     autoHideMenuBar: true,
     webPreferences: {

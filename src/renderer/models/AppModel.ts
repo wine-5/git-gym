@@ -24,6 +24,8 @@ export class AppModel {
   screen: Screen = this.language ? 'home' : 'language';
   currentLessonId = CHAPTERS[0].lessons[0].id;
   readonly progress = new ProgressModel();
+  /** コマンド辞典で開いているコマンド */
+  dictionaryCommand = 'init';
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
   private readonly lessons = new Map<string, { session: PracticeSession; runner: LessonRunner }>();
 
@@ -99,6 +101,11 @@ export class AppModel {
   learnFrom(line: string, exitCode: number): void {
     const [head, sub] = line.trim().split(/\s+/);
     if (exitCode === 0 && head === 'git' && sub && /^[a-z][a-z-]*$/.test(sub)) this.progress.markLearned(sub);
+  }
+
+  openDictionary(command?: string): void {
+    if (command) this.dictionaryCommand = command;
+    this.screen = 'dictionary';
   }
 
   openLesson(lessonId: string): void {

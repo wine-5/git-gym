@@ -6,6 +6,7 @@ import { CHAPTERS, type Chapter } from '@data/lessons';
 export class ProgressModel {
   completed = new Set<string>();
   lastLessonId: string | null = null;
+  learned = new Set<string>();
   loaded = false;
 
   constructor() {
@@ -17,6 +18,7 @@ export class ProgressModel {
     runInAction(() => {
       this.completed = new Set(data.completedLessons);
       this.lastLessonId = data.lastLessonId;
+      this.learned = new Set(data.learnedCommands);
       this.loaded = true;
     });
   }
@@ -51,6 +53,13 @@ export class ProgressModel {
     void this.save();
   }
 
+  /** 成功した git コマンドを「習得済み」にする */
+  markLearned(subcommand: string): void {
+    if (this.learned.has(subcommand)) return;
+    this.learned.add(subcommand);
+    void this.save();
+  }
+
   setLast(lessonId: string): void {
     this.lastLessonId = lessonId;
     void this.save();
@@ -61,6 +70,7 @@ export class ProgressModel {
       version: 1,
       completedLessons: [...this.completed],
       lastLessonId: this.lastLessonId,
+      learnedCommands: [...this.learned],
     };
     await window.gitGym?.progress.save(data);
   }

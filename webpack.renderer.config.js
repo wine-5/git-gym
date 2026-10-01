@@ -14,7 +14,7 @@ module.exports = {
         type: 'asset/resource',
       },
       {
-        test: /\.(png|jpe?g|gif|svg|webp)$/,
+        test: /\.(png|jpe?g|gif|svg|webp|wav|mp3|ogg)$/,
         type: 'asset/resource',
         generator: { filename: 'assets/[name].[contenthash:8][ext]' },
       },

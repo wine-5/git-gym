@@ -36,7 +36,7 @@ export const TitleBar = observer(() => {
             <button
               key={item.screen}
               className={appModel.screen === item.screen || (item.screen === 'stages' && appModel.screen === 'stage') ? styles.active : undefined}
-              onClick={() => appModel.navigate(item.screen)}
+              onClick={() => (appModel.sound.play('click'), appModel.navigate(item.screen))}
             >
               <item.icon size={15} />
               {item.label}

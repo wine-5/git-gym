@@ -1,4 +1,3 @@
-import * as path from 'path';
 import { EMPTY_REPO, type RepoSnapshot } from '../../shared/repo';
 import type { GitRunner } from './GitRunner';
 import { LOG_ARGS, parseLog } from './parseLog';
@@ -7,8 +6,9 @@ import { STATUS_ARGS, parseStatus } from './parseStatus';
 /** 練習用フォルダのリポジトリ状態（グラフ・ファイルの居場所）をまとめて読む */
 export async function readRepo(git: GitRunner, dir: string, env: Record<string, string>): Promise<RepoSnapshot> {
   // 親フォルダのリポジトリを拾わないよう、このフォルダ自身がリポジトリのときだけ読む
-  const top = await git.run(['rev-parse', '--show-toplevel'], dir, { env });
-  if (top.exitCode !== 0 || path.resolve(top.stdout.trim()) !== path.resolve(dir)) {
+  // --show-cdup はリポジトリのルートにいるとき空文字を返す（パス比較だと 8.3 形式の差でずれる）
+  const top = await git.run(['rev-parse', '--show-cdup'], dir, { env });
+  if (top.exitCode !== 0 || top.stdout.trim() !== '') {
     return EMPTY_REPO;
   }
 

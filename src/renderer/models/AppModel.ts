@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
+import { PracticeSession } from './PracticeSession';
 import { WorkspaceModel } from './WorkspaceModel';
 
 export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary';
@@ -21,10 +22,24 @@ export class AppModel {
   screen: Screen = this.language ? 'home' : 'language';
   currentLessonId = '2-3';
   readonly workspace = new WorkspaceModel();
+  /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
+  private readonly sessions = new Map<string, PracticeSession>();
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable<AppModel, 'sessions'>(this, { sessions: false });
     if (this.language) this.workspace.load(PROJECTS[this.language]);
+  }
+
+  /** 今のレッスンの練習用リポジトリ。言語ごとにフォルダを分ける */
+  get lessonSession(): PracticeSession | null {
+    if (!this.language || !this.project) return null;
+    const id = `${this.currentLessonId}-${this.language}`;
+    let session = this.sessions.get(id);
+    if (!session) {
+      session = new PracticeSession({ kind: 'lessons', id }, this.project.name);
+      this.sessions.set(id, session);
+    }
+    return session;
   }
 
   get project() {

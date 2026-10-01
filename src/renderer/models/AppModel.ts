@@ -55,7 +55,8 @@ export class AppModel {
       const session = new PracticeSession({ kind: 'lessons', id }, this.project, lessonSetup(found.lesson, this.project));
       const runner = new LessonRunner(found.lesson, this.project, session);
       const lessonId = this.currentLessonId;
-      session.onCommand = async () => {
+      session.onCommand = async (line) => {
+        runner.recordCommand(line);
         for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
         if (runner.completed) this.progress.markDone(lessonId);
       };

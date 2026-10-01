@@ -1,4 +1,39 @@
+import type { CommandResult } from './terminal';
+
+export type PracticeKind = 'lessons' | 'stages' | 'sandbox';
+
+/** 練習用リポジトリ1つを指す */
+export interface WorkspaceRef {
+  kind: PracticeKind;
+  id: string;
+}
+
+export interface WorkspaceInfo {
+  /** 実際のフォルダの絶対パス */
+  path: string;
+  /** ターミナルの表示用カレントディレクトリ */
+  cwd: string;
+}
+
+export const IPC = {
+  workspaceOpen: 'workspace:open',
+  workspaceReset: 'workspace:reset',
+  workspaceReveal: 'workspace:reveal',
+  terminalExecute: 'terminal:execute',
+} as const;
+
 /** preload からレンダラーへ公開する API */
 export interface GitGymApi {
   platform: string;
+  workspace: {
+    /** フォルダが無ければ作ってターミナルを用意する */
+    open(ref: WorkspaceRef, displayName: string): Promise<WorkspaceInfo>;
+    /** フォルダを空にして作り直す */
+    reset(ref: WorkspaceRef): Promise<WorkspaceInfo>;
+    /** エクスプローラー / Finder で開く */
+    reveal(ref: WorkspaceRef): Promise<void>;
+  };
+  terminal: {
+    execute(ref: WorkspaceRef, line: string): Promise<CommandResult>;
+  };
 }

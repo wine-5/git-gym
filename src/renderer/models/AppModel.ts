@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { autorun, makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
 import { initialRepo } from '@data/setupHelpers';
@@ -8,6 +8,7 @@ import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 import { ProgressModel } from './ProgressModel';
 import { SettingsModel } from './SettingsModel';
+import { SoundManager } from './SoundManager';
 
 export type Screen = 'language' | 'home' | 'lesson' | 'stages' | 'stage' | 'sandbox' | 'dictionary' | 'settings';
 
@@ -28,6 +29,7 @@ export class AppModel {
   currentLessonId = CHAPTERS[0].lessons[0].id;
   readonly progress = new ProgressModel();
   readonly settings = new SettingsModel();
+  readonly sound = new SoundManager(this.settings);
   /** 練習モードで遊んでいるステージ */
   currentStageId = ALL_STAGES[0].id;
   /** コマンド辞典で開いているコマンド */
@@ -37,7 +39,12 @@ export class AppModel {
   private readonly sandboxes = new Map<string, PracticeSession>();
 
   constructor() {
-    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false, settings: false });
+    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false, settings: false, sound: false });
+    // 練習中は控えめな BGM、それ以外はホームの BGM
+    autorun(() => {
+      const practicing = ['lesson', 'stage', 'sandbox'].includes(this.screen);
+      this.sound.setBgm(this.screen === 'language' ? null : practicing ? 'practice' : 'home');
+    });
     void this.progress.load().then(() => {
       const last = this.progress.lastLessonId;
       if (last && findLesson(last)) this.setCurrentLesson(last);
@@ -61,7 +68,10 @@ export class AppModel {
         { kind: 'remote' },
         { kind: 'git', args: ['push', '-u', 'origin', 'main'] },
       ]);
-      session.onCommand = async (line, result) => this.learnFrom(line, result.exitCode);
+      session.onCommand = async (line, result) => {
+        this.learnFrom(line, result.exitCode);
+        if (result.exitCode !== 0) this.sound.play('error');
+      };
       this.sandboxes.set(id, session);
     }
     return session;
@@ -82,7 +92,10 @@ export class AppModel {
     const found = findLesson(this.currentLessonId);
     if (!found) return null;
     const lessonId = this.currentLessonId;
-    return this.practiceEntry('lessons', found.lesson, () => this.progress.markDone(lessonId));
+    return this.practiceEntry('lessons', found.lesson, () => {
+      if (!this.progress.isDone(lessonId)) this.sound.play('mission');
+      this.progress.markDone(lessonId);
+    });
   }
 
   /**
@@ -106,7 +119,10 @@ export class AppModel {
         // 失敗したコマンドは ran では数えない（git log がエラーでも達成扱いにならないように）
         runner.recordCommand(line, result.exitCode === 0);
         this.learnFrom(line, result.exitCode);
-        for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
+        if (result.exitCode !== 0) this.sound.play('error');
+        const newlyDone = await runner.evaluate();
+        for (const i of newlyDone) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
+        if (newlyDone.length > 0 && !runner.completed) this.sound.play('success');
         if (runner.completed) onCompleted();
       };
       entry = { session, runner };

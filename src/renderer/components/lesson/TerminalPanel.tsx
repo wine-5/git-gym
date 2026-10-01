@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { observer } from 'mobx-react-lite';
-import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2 } from 'lucide-react';
+import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame } from 'lucide-react';
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
 import styles from './TerminalPanel.module.css';
 
@@ -42,6 +42,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
         <span className={styles.tab}>
           <TerminalSquare size={13} /> ターミナル
         </span>
+        {terminal.streak >= 3 && (
+          <span key={terminal.streak} className={styles.combo} title="失敗せずに続けて成功したコマンドの数">
+            <Flame size={13} /> {terminal.streak} COMBO
+          </span>
+        )}
         <span className={styles.cwd}>{terminal.cwd}</span>
         {onReveal && (
           <button className={styles.iconButton} onClick={onReveal} title="フォルダを開く">

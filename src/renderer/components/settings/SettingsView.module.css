@@ -120,3 +120,21 @@
   font-size: 12px;
   line-height: 1.7;
 }
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume input {
+  width: 160px;
+  accent-color: var(--accent);
+}
+
+.volume span {
+  min-width: 28px;
+  text-align: right;
+  font-family: var(--mono);
+  color: var(--text-dim);
+}

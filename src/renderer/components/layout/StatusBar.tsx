@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { GitBranch, FilePen, Layers } from 'lucide-react';
+import { GitBranch, FilePen, Layers, Volume2, VolumeX } from 'lucide-react';
 import { appModel } from '@models/AppModel';
 import { getLanguage } from '@data/languages';
 import styles from './StatusBar.module.css';
@@ -30,6 +30,13 @@ export const StatusBar = observer(() => {
         </>
       )}
       <div className={styles.spacer} />
+      <button
+        className={styles.language}
+        onClick={() => appModel.settings.toggleMuted()}
+        title={appModel.settings.muted ? '音を出す' : '音を消す'}
+      >
+        {appModel.settings.muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+      </button>
       {language && (
         <button className={styles.language} onClick={() => appModel.navigate('language')} title="言語を変更">
           <img src={language.icon} alt="" />

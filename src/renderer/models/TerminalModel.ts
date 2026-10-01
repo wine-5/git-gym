@@ -22,6 +22,8 @@ export class TerminalModel {
   lines: TerminalLine[] = [];
   cwd = '';
   running = false;
+  /** 連続で成功したコマンドの数（失敗すると 0 に戻る） */
+  streak = 0;
   private history: string[] = [];
   private historyIndex = 0;
 
@@ -56,6 +58,7 @@ export class TerminalModel {
     runInAction(() => {
       this.running = false;
       this.cwd = result.cwd;
+      this.streak = result.exitCode === 0 ? this.streak + 1 : 0;
       if (result.clear) {
         this.lines = [];
       } else {

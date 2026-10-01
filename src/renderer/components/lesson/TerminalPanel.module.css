@@ -159,3 +159,25 @@
     transform: rotate(360deg);
   }
 }
+
+/* 連続成功のコンボ表示（数が変わるたびに弾む） */
+.combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffb347;
+  background: rgba(255, 140, 50, 0.14);
+  animation: comboPop 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes comboPop {
+  from {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+}

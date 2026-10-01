@@ -8,9 +8,10 @@ interface Props {
   terminal: TerminalModel;
   branch?: string;
   onReveal?: () => void;
+  fontSize?: number;
 }
 
-export const TerminalPanel = observer(({ terminal, branch, onReveal }: Props) => {
+export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }: Props) => {
   const [input, setInput] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +52,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal }: Props) =>
           <Trash2 size={13} />
         </button>
       </div>
-      <div className={styles.body} ref={bodyRef} onClick={() => inputRef.current?.focus()}>
+      <div className={styles.body} style={{ fontSize }} ref={bodyRef} onClick={() => inputRef.current?.focus()}>
         {terminal.lines.map((line, i) => (
           <Line key={i} line={line} />
         ))}

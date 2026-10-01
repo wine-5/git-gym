@@ -14,6 +14,7 @@ export class ProgressStore {
         ...EMPTY_PROGRESS,
         completedLessons: Array.isArray(data.completedLessons) ? data.completedLessons.filter((x) => typeof x === 'string') : [],
         lastLessonId: typeof data.lastLessonId === 'string' ? data.lastLessonId : null,
+        learnedCommands: Array.isArray(data.learnedCommands) ? data.learnedCommands.filter((x) => typeof x === 'string') : [],
       };
     } catch {
       return EMPTY_PROGRESS;

@@ -35,6 +35,10 @@ export async function runSetup(steps: SetupStep[], ctx: SetupContext): Promise<v
         await git(ctx, ctx.remoteDir, ['init', '--bare', '-b', 'main']);
         await git(ctx, ctx.dir, ['remote', 'add', step.name ?? 'origin', toUrl(ctx.remoteDir)]);
         break;
+      case 'clear':
+        await fs.rm(ctx.dir, { recursive: true, force: true });
+        await fs.mkdir(ctx.dir, { recursive: true });
+        break;
       case 'teammate':
         await pushAsTeammate(ctx, step.message, step.files);
         break;

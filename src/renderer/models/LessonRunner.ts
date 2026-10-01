@@ -33,7 +33,12 @@ export class LessonRunner {
   }
 
   get vars(): Record<string, string> {
-    return { mainFile: this.project.mainFile, featureFile: this.project.featureFile };
+    return {
+      mainFile: this.project.mainFile,
+      featureFile: this.project.featureFile,
+      // 練習用のリモート（GitGym/remotes/<id>.git）を、練習用フォルダからの相対パスで示す
+      remoteUrl: `../../remotes/${this.session.ref.id}.git`,
+    };
   }
 
   label(index: number): string {

@@ -11,5 +11,7 @@ export type SetupStep =
   | { kind: 'git'; args: string[] }
   /** GitGym/remotes に bare リポジトリを作り、origin として登録する */
   | { kind: 'remote'; name?: string }
+  /** 練習用リポジトリの中身（.git も含む）を空にする。remote だけ用意して clone させるとき用 */
+  | { kind: 'clear' }
   /** 「チームメイト」として remote に直接コミットを積む（pull の練習用） */
   | { kind: 'teammate'; message: string; files: { path: string; content: string }[] };

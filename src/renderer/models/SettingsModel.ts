@@ -5,9 +5,14 @@ const KEY = 'git-gym.settings';
 interface SettingsData {
   editorFontSize: number;
   terminalFontSize: number;
+  /** 0〜1 */
+  bgmVolume: number;
+  /** 0〜1 */
+  seVolume: number;
+  muted: boolean;
 }
 
-const DEFAULTS: SettingsData = { editorFontSize: 14, terminalFontSize: 13 };
+const DEFAULTS: SettingsData = { editorFontSize: 14, terminalFontSize: 13, bgmVolume: 0.35, seVolume: 0.7, muted: false };
 
 export const FONT_SIZE_RANGE = { min: 11, max: 24 };
 
@@ -19,15 +24,21 @@ function load(): SettingsData {
   }
 }
 
-/** 見た目の設定（この PC のこのアプリだけに保存） */
+/** 見た目と音の設定（この PC のこのアプリだけに保存） */
 export class SettingsModel {
   editorFontSize: number;
   terminalFontSize: number;
+  bgmVolume: number;
+  seVolume: number;
+  muted: boolean;
 
   constructor() {
     const data = load();
     this.editorFontSize = data.editorFontSize;
     this.terminalFontSize = data.terminalFontSize;
+    this.bgmVolume = data.bgmVolume;
+    this.seVolume = data.seVolume;
+    this.muted = data.muted;
     makeAutoObservable(this);
   }
 
@@ -38,6 +49,21 @@ export class SettingsModel {
 
   setTerminalFontSize(size: number): void {
     this.terminalFontSize = clamp(size);
+    this.save();
+  }
+
+  setBgmVolume(volume: number): void {
+    this.bgmVolume = clamp01(volume);
+    this.save();
+  }
+
+  setSeVolume(volume: number): void {
+    this.seVolume = clamp01(volume);
+    this.save();
+  }
+
+  toggleMuted(): void {
+    this.muted = !this.muted;
     this.save();
   }
 
@@ -54,7 +80,13 @@ export class SettingsModel {
 
   private save(): void {
     try {
-      const data: SettingsData = { editorFontSize: this.editorFontSize, terminalFontSize: this.terminalFontSize };
+      const data: SettingsData = {
+        editorFontSize: this.editorFontSize,
+        terminalFontSize: this.terminalFontSize,
+        bgmVolume: this.bgmVolume,
+        seVolume: this.seVolume,
+        muted: this.muted,
+      };
       localStorage.setItem(KEY, JSON.stringify(data));
     } catch {
       // 保存できなくても今回は使える
@@ -64,4 +96,8 @@ export class SettingsModel {
 
 function clamp(size: number): number {
   return Math.min(FONT_SIZE_RANGE.max, Math.max(FONT_SIZE_RANGE.min, Math.round(size)));
+}
+
+function clamp01(volume: number): number {
+  return Math.min(1, Math.max(0, volume));
 }

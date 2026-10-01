@@ -138,3 +138,32 @@
   font-family: var(--mono);
   color: var(--text-dim);
 }
+
+.shortcuts {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.shortcuts td {
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcuts tr:last-child td {
+  border-bottom: none;
+}
+
+.shortcuts td:first-child {
+  width: 45%;
+}
+
+.shortcuts kbd {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+}

@@ -27,6 +27,7 @@ import { getLanguage } from '@data/languages';
 import { CHAPTERS } from '@data/lessons';
 import { COMMANDS } from '@data/commands';
 import { downloadText, progressCsv } from '@data/exportProgress';
+import { VSCODE_SHORTCUTS } from '../../hooks/useVsCodeShortcuts';
 import styles from './SettingsView.module.css';
 
 export const SettingsView = observer(() => {
@@ -131,6 +132,21 @@ export const SettingsView = observer(() => {
               リセット
             </button>
           </Row>
+        </Group>
+
+        <Group title="ショートカット（VS Code と同じ）">
+          <table className={styles.shortcuts}>
+            <tbody>
+              {VSCODE_SHORTCUTS.map((s) => (
+                <tr key={s.keys}>
+                  <td>
+                    <kbd>{s.keys}</kbd>
+                  </td>
+                  <td>{s.action}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </Group>
 
         <Group title="アプリについて">

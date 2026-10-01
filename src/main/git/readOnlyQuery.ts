@@ -26,7 +26,7 @@ export function isReadOnlyQuery(args: string[]): boolean {
     case 'branch':
     case 'tag':
       // 名前を渡すと作成になるので、オプションだけ許可する（-d などの変更系は除く）
-      return rest.every((a) => a.startsWith('-') && !/^-(d|D|m|M|c|C|f)$|^--(delete|move|copy|force)/.test(a));
+      return rest.every((a) => a.startsWith('-') && !/^-(d|D|m|M|c|C|f|u)$|^--(delete|move|copy|force|set-upstream|unset-upstream|edit-description)/.test(a));
     case 'stash':
       return rest[0] === 'list';
     case 'remote':

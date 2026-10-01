@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
-import { findLesson, lessonSetup } from '@data/lessons';
+import { CHAPTERS, findLesson, lessonSetup } from '@data/lessons';
 import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 import { ProgressModel } from './ProgressModel';
@@ -22,7 +22,7 @@ function loadLanguage(): LanguageId | null {
 export class AppModel {
   language: LanguageId | null = loadLanguage();
   screen: Screen = this.language ? 'home' : 'language';
-  currentLessonId = '2-3';
+  currentLessonId = CHAPTERS[0].lessons[0].id;
   readonly progress = new ProgressModel();
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
   private readonly lessons = new Map<string, { session: PracticeSession; runner: LessonRunner }>();

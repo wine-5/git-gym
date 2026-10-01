@@ -31,7 +31,7 @@ function focusTerminalSoon(): void {
 
 /** 「`」キー。JIS 配列では同じ位置のキーが「@」なので両方受け付ける（VS Code も同じ挙動） */
 function isBackquote(e: KeyboardEvent): boolean {
-  return e.code === 'Backquote' || e.key === '`' || e.key === '@' || e.code === 'BracketLeft';
+  return e.code === 'Backquote' || e.key === '`' || e.key === '@';
 }
 
 /**

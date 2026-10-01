@@ -1,12 +1,27 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import { IPC, type WorkspaceRef } from '../shared/api';
 import type { ProgressData } from '../shared/progress';
 import type { SetupStep } from '../shared/setup';
 import type { ProgressStore } from './progressStore';
+import type { GitRunner } from './git/GitRunner';
+import type { PracticeFolders } from './workspace/PracticeFolders';
 import type { WorkspaceHub } from './workspace/WorkspaceHub';
 
 /** レンダラーからの呼び出しを WorkspaceHub につなぐ */
-export function registerIpc(hub: WorkspaceHub, progress: ProgressStore): void {
+export function registerIpc(
+  hub: WorkspaceHub,
+  progress: ProgressStore,
+  info: { git: GitRunner; gitPath: string; folders: PracticeFolders },
+): void {
+  ipcMain.handle(IPC.appInfo, async () => {
+    const r = await info.git.run(['--version'], info.folders.root).catch(() => null);
+    return {
+      version: app.getVersion(),
+      gitVersion: r && r.exitCode === 0 ? r.stdout.trim() : null,
+      gitBundled: info.gitPath !== 'git',
+      practiceRoot: info.folders.root,
+    };
+  });
   ipcMain.handle(IPC.workspaceOpen, (_e, ref: WorkspaceRef, displayName: string, setup?: SetupStep[]) =>
     hub.open(ref, displayName, setup),
   );

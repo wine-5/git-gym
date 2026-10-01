@@ -13,6 +13,8 @@ export interface RunResult {
 export interface RunOptions {
   timeoutMs?: number;
   maxOutputBytes?: number;
+  /** 追加・上書きする環境変数 */
+  env?: Record<string, string>;
 }
 
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -41,6 +43,7 @@ export class GitRunner {
       GIT_AUTHOR_EMAIL: 'student@git-gym.local',
       GIT_COMMITTER_NAME: 'Git Gym',
       GIT_COMMITTER_EMAIL: 'student@git-gym.local',
+      ...options.env,
     };
 
     return new Promise((resolve) => {

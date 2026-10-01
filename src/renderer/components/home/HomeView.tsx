@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { appModel } from '@models/AppModel';
 import { CHAPTERS, findLesson, nextLesson, type Chapter } from '@data/lessons';
@@ -14,6 +15,7 @@ import {
   FlaskConical,
   BookOpen,
   Swords,
+  AlertTriangle,
   type LucideIcon,
 } from 'lucide-react';
 import styles from './HomeView.module.css';
@@ -28,6 +30,11 @@ const CHAPTER_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
 };
 
 export const HomeView = observer(() => {
+  // Git が使えない PC（Mac で Command Line Tools が未インストールなど）では、先に案内を出す
+  const [gitMissing, setGitMissing] = useState(false);
+  useEffect(() => {
+    void window.gitGym?.app.info().then((info) => setGitMissing(info.gitVersion === null));
+  }, []);
   const { progress } = appModel;
   // 最後に開いたレッスンをクリア済みなら、その次から続ける
   const lastId = appModel.currentLessonId;
@@ -44,6 +51,18 @@ export const HomeView = observer(() => {
   return (
     <main className={styles.home}>
       <div className={styles.inner}>
+        {gitMissing && (
+          <div className={styles.gitMissing}>
+            <AlertTriangle size={20} />
+            <div>
+              <b>Git が見つかりません</b>
+              <span>
+                Mac の場合は「ターミナル」アプリで <code>xcode-select --install</code> を実行して Git をインストールしてから、Git Gym を開き直してください。
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className={styles.hero}>
           <div>
             <h1>Git Gym</h1>

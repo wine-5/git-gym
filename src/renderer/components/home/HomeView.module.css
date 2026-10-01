@@ -245,3 +245,35 @@
   font-size: 18px;
   flex: none;
 }
+
+.gitMissing {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  color: var(--red);
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.gitMissing svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.gitMissing div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gitMissing span {
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.gitMissing code {
+  font-family: var(--mono);
+  color: var(--yellow);
+}

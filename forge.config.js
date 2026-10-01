@@ -6,6 +6,8 @@ const bundledGit = path.join(__dirname, 'resources', 'git');
 const extraResource = fs.existsSync(bundledGit) ? [bundledGit] : [];
 
 module.exports = {
+  // 出力先（既定は out）。古い出力が他のアプリに掴まれて消せないときに別の場所へ出せるようにする
+  outDir: process.env.GITGYM_OUT_DIR || 'out',
   packagerConfig: {
     name: 'Git Gym',
     executableName: 'git-gym',

@@ -1,8 +1,9 @@
-import type { WorkspaceInfo, WorkspaceRef } from '../../shared/api';
+import type { QueryResult, WorkspaceInfo, WorkspaceRef } from '../../shared/api';
 import type { RepoSnapshot } from '../../shared/repo';
 import type { SetupStep } from '../../shared/setup';
 import type { CommandResult } from '../../shared/terminal';
 import type { GitRunner } from '../git/GitRunner';
+import { isReadOnlyQuery } from '../git/readOnlyQuery';
 import { readRepo } from '../git/readRepo';
 import { TerminalSession } from '../terminal/TerminalSession';
 import type { PracticeFolders } from './PracticeFolders';
@@ -55,6 +56,12 @@ export class WorkspaceHub {
 
   snapshot(ref: WorkspaceRef): Promise<RepoSnapshot> {
     return readRepo(this.git, this.get(ref).path, this.gitEnv);
+  }
+
+  async query(ref: WorkspaceRef, args: string[]): Promise<QueryResult> {
+    if (!isReadOnlyQuery(args)) throw new Error(`読み取り専用ではないコマンドです: git ${args.join(' ')}`);
+    const result = await this.git.run(['-c', 'core.quotePath=false', ...args], this.get(ref).path, { env: this.gitEnv });
+    return { stdout: result.stdout, exitCode: result.exitCode };
   }
 
   listFiles(ref: WorkspaceRef): Promise<string[]> {

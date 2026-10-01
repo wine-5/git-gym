@@ -2,6 +2,8 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { WorkspaceRef } from '@shared/api';
 import { EMPTY_REPO, type FileState, type RepoSnapshot } from '@shared/repo';
 import type { SetupStep } from '@shared/setup';
+import type { CommandResult } from '@shared/terminal';
+import { hintFor } from '@data/commandHints';
 import type { ProjectTemplate } from '@data/projects';
 import { TerminalModel } from './TerminalModel';
 import { WorkspaceModel } from './WorkspaceModel';
@@ -15,6 +17,8 @@ export class PracticeSession {
   ready = false;
   readonly terminal: TerminalModel;
   readonly workspace: WorkspaceModel;
+  /** コマンド実行と再読み込みのあとに呼ばれる（レッスンの達成判定など） */
+  onCommand?: (line: string, result: CommandResult) => Promise<void>;
 
   constructor(
     readonly ref: WorkspaceRef,
@@ -25,7 +29,7 @@ export class PracticeSession {
     this.workspace = new WorkspaceModel(ref, [project.featureFile, project.mainFile]);
     this.terminal = new TerminalModel(ref, {
       beforeExecute: () => this.workspace.flush(),
-      afterExecute: () => void this.refresh(),
+      afterExecute: (line, result) => void this.afterCommand(line, result),
     });
     makeAutoObservable<PracticeSession, 'project' | 'setup'>(this, {
       ref: false,
@@ -33,6 +37,7 @@ export class PracticeSession {
       setup: false,
       terminal: false,
       workspace: false,
+      onCommand: false,
     });
   }
 
@@ -71,6 +76,13 @@ export class PracticeSession {
 
   reveal(): void {
     void window.gitGym?.workspace.reveal(this.ref);
+  }
+
+  private async afterCommand(line: string, result: CommandResult): Promise<void> {
+    await this.refresh();
+    const hint = hintFor(line, result);
+    if (hint) this.terminal.push('hint', hint);
+    await this.onCommand?.(line, result);
   }
 
   private async refreshRepo(): Promise<void> {

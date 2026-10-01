@@ -16,12 +16,24 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /** Enter を押したときにターミナルにフォーカスがあったか（実行後にフォーカスを戻すため） */
+  const refocusAfterRun = useRef(false);
+
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
   }, [terminal.lines.length, terminal.running]);
 
+  // 実行が終わったら入力欄にフォーカスを戻して、続けてコマンドを打てるようにする
+  useEffect(() => {
+    if (!terminal.running && refocusAfterRun.current) {
+      refocusAfterRun.current = false;
+      inputRef.current?.focus();
+    }
+  }, [terminal.running]);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      refocusAfterRun.current = true;
       void terminal.execute(input, branch);
       setInput('');
     } else if (e.key === 'ArrowUp') {
@@ -66,11 +78,12 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
             <Loader2 size={14} className={styles.spin} /> 実行中…
           </div>
         )}
-        {/* 実行中も入力欄は残す（作り直すとフォーカスがエディタから奪われるため） */}
-        <div className={styles.inputRow} style={terminal.running ? { visibility: 'hidden' } : undefined}>
+        {/* 実行中も入力欄は残す。visibility: hidden にするとフォーカスが外れるので、透明にするだけにする */}
+        <div className={styles.inputRow} style={terminal.running ? { opacity: 0 } : undefined}>
           <Prompt cwd={terminal.cwd} branch={branch} />
           <input
             ref={inputRef}
+            data-terminal-input
             className={styles.input}
             value={input}
             onChange={(e) => setInput(e.target.value)}

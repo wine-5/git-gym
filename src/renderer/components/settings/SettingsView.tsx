@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
+import type { AppInfo } from '@shared/api';
 import {
   Settings,
   Type,
@@ -13,6 +15,9 @@ import {
   Music,
   Volume2,
   VolumeX,
+  Info,
+  GitBranch,
+  FolderOpen,
   type LucideIcon,
 } from 'lucide-react';
 import { appModel } from '@models/AppModel';
@@ -24,6 +29,10 @@ import { downloadText, progressCsv } from '@data/exportProgress';
 import styles from './SettingsView.module.css';
 
 export const SettingsView = observer(() => {
+  const [info, setInfo] = useState<AppInfo | null>(null);
+  useEffect(() => {
+    void window.gitGym?.app.info().then(setInfo);
+  }, []);
   const { settings, progress } = appModel;
   const language = appModel.language ? getLanguage(appModel.language) : null;
   const totalLessons = CHAPTERS.reduce((n, c) => n + c.lessons.length, 0);
@@ -111,8 +120,24 @@ export const SettingsView = observer(() => {
           </Row>
         </Group>
 
+        <Group title="アプリについて">
+          <Row icon={Info} label={`Git Gym ${info?.version ?? ''}`} note="Git のコマンドを体験しながら覚える学習アプリ">
+            <span />
+          </Row>
+          <Row
+            icon={GitBranch}
+            label={info?.gitVersion ?? 'Git が見つかりません'}
+            note={info?.gitBundled ? 'アプリに同梱した Git を使っています' : 'この PC にインストールされている Git を使っています'}
+          >
+            <span />
+          </Row>
+          <Row icon={FolderOpen} label="練習用フォルダ" note={info?.practiceRoot ?? ''}>
+            <span />
+          </Row>
+        </Group>
+
         <p className={styles.footer}>
-          練習用のリポジトリは「ドキュメント / GitGym」フォルダに保存されています。エクスプローラーや SourceTree でも開けます。
+          練習用のリポジトリはすべて本物の Git リポジトリです。エクスプローラーや SourceTree でも開けます。
         </p>
       </div>
     </main>

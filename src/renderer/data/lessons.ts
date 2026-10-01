@@ -140,3 +140,10 @@ export function findLesson(lessonId: string): { chapter: Chapter; lesson: Lesson
 export function fillPlaceholders(text: string, vars: Record<string, string>): string {
   return text.replace(/\{(\w+)\}/g, (match, key: string) => vars[key] ?? match);
 }
+
+/** 全章を通した次のレッスン（最後なら undefined） */
+export function nextLesson(lessonId: string): Lesson | undefined {
+  const all = CHAPTERS.flatMap((c) => c.lessons);
+  const index = all.findIndex((l) => l.id === lessonId);
+  return index >= 0 ? all[index + 1] : undefined;
+}

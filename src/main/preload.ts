@@ -15,6 +15,11 @@ const api: GitGymApi = {
   repo: {
     snapshot: (ref) => ipcRenderer.invoke(IPC.repoSnapshot, ref),
   },
+  files: {
+    list: (ref) => ipcRenderer.invoke(IPC.filesList, ref),
+    read: (ref, file) => ipcRenderer.invoke(IPC.filesRead, ref, file),
+    write: (ref, file, content) => ipcRenderer.invoke(IPC.filesWrite, ref, file, content),
+  },
 };
 
 contextBridge.exposeInMainWorld('gitGym', api);

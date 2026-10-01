@@ -1,4 +1,4 @@
-import type { WorkspaceInfo, WorkspaceRef } from '../../shared/api';
+import type { SeedFile, WorkspaceInfo, WorkspaceRef } from '../../shared/api';
 import type { RepoSnapshot } from '../../shared/repo';
 import type { CommandResult } from '../../shared/terminal';
 import type { GitRunner } from '../git/GitRunner';
@@ -22,10 +22,13 @@ export class WorkspaceHub {
     private readonly git: GitRunner,
   ) {}
 
-  async open(ref: WorkspaceRef, displayName: string): Promise<WorkspaceInfo> {
+  async open(ref: WorkspaceRef, displayName: string, seed: SeedFile[] = []): Promise<WorkspaceInfo> {
     await this.folders.ensureRoot();
     const dir = this.folders.repoPath(ref.kind, ref.id);
-    if (!(await this.folders.exists(dir))) await this.folders.reset(dir);
+    if (!(await this.folders.exists(dir))) {
+      await this.folders.reset(dir);
+      for (const file of seed) await writeFile(dir, file.path, file.content);
+    }
 
     this.displayNames.set(key(ref), displayName);
     const workspace = this.createSession(ref, dir);

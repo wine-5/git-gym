@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 const PREFIX = 'git-gym.panel.';
 
@@ -33,5 +33,15 @@ export function usePanelSize(key: string, initial: number, min: number, max: num
 
   const reset = useCallback(() => setSize(initial), [initial, setSize]);
 
-  return { size, setSize, reset };
+  /** Splitter に渡す props。invert は「境目を左（上）に動かすと大きくなる」パネル用 */
+  const base = useRef(size);
+  const splitter = (invert = false) => ({
+    onDragStart: () => {
+      base.current = size;
+    },
+    onDrag: (delta: number) => setSize(base.current + (invert ? -delta : delta)),
+    onReset: reset,
+  });
+
+  return { size, setSize, reset, splitter };
 }

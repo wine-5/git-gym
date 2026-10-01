@@ -287,3 +287,9 @@ export function nextStage(id: string): Stage | undefined {
   const index = ALL_STAGES.findIndex((s) => s.id === id);
   return index >= 0 ? ALL_STAGES[index + 1] : undefined;
 }
+
+/** 星の数：失敗なしで 3、2回までなら 2、それ以上は 1。答えのコマンドを見たら最大 2 */
+export function starsFor(failed: number, sawAnswer: boolean): number {
+  const base = failed === 0 ? 3 : failed <= 2 ? 2 : 1;
+  return sawAnswer ? Math.min(base, 2) : base;
+}

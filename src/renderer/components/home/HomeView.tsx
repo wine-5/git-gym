@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { appModel } from '@models/AppModel';
-import { CHAPTERS, findLesson } from '@data/lessons';
+import { CHAPTERS, findLesson, type Chapter } from '@data/lessons';
 import {
   Footprints,
   GitBranch,
@@ -26,15 +26,16 @@ const CHAPTER_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
   team: { icon: Users, color: '#ff8fab' },
 };
 
-// 進捗の保存はまだ無いので仮の値
-const MOCK_DONE: Record<string, number> = { basics: 6, branch: 2 };
-const CURRENT_CHAPTER = 'branch';
-
 export const HomeView = observer(() => {
+  const { progress } = appModel;
   const current = findLesson(appModel.currentLessonId);
-  const total = CHAPTERS.reduce((sum, c) => sum + c.lessons.length, 0);
-  const done = Object.values(MOCK_DONE).reduce((a, b) => a + b, 0);
-  const percent = Math.round((done / total) * 100);
+  const percent = progress.percent;
+
+  /** 章の中で最初の未クリアのレッスンを開く */
+  const openChapter = (chapter: Chapter) => {
+    const lesson = chapter.lessons.find((l) => !progress.isDone(l.id)) ?? chapter.lessons[0];
+    appModel.openLesson(lesson.id);
+  };
 
   return (
     <main className={styles.home}>
@@ -69,17 +70,23 @@ export const HomeView = observer(() => {
 
         <div className={styles.sectionTitle}>コース</div>
         <div className={styles.chapters}>
-          {CHAPTERS.map((chapter, i) => {
-            const doneCount = MOCK_DONE[chapter.id] ?? 0;
-            const isCurrent = chapter.id === CURRENT_CHAPTER;
-            const locked = i > 2;
+          {CHAPTERS.map((chapter) => {
+            const doneCount = progress.doneCount(chapter);
+            const isCurrent = chapter.id === current?.chapter.id;
+            const locked = !progress.isUnlocked(chapter);
             const completed = doneCount === chapter.lessons.length;
             const { icon: Icon, color } = CHAPTER_ICONS[chapter.id];
             const className = [styles.chapterCard, isCurrent && styles.current, locked && styles.locked]
               .filter(Boolean)
               .join(' ');
             return (
-              <div key={chapter.id} className={className}>
+              <button
+                key={chapter.id}
+                className={className}
+                disabled={locked}
+                title={locked ? '前の章をすべてクリアすると開きます' : undefined}
+                onClick={() => openChapter(chapter)}
+              >
                 <div className={styles.cardHead}>
                   <div className={styles.chapterIcon} style={{ color, background: `${color}22` }}>
                     {locked ? <Lock size={22} /> : <Icon size={22} />}
@@ -105,7 +112,7 @@ export const HomeView = observer(() => {
                   </div>
                   {doneCount}/{chapter.lessons.length}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

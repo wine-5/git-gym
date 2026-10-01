@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
+import { initialRepo } from '@data/setupHelpers';
 import { CHAPTERS, findLesson, lessonSetup } from '@data/lessons';
 import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
@@ -28,9 +29,10 @@ export class AppModel {
   dictionaryCommand = 'init';
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
   private readonly lessons = new Map<string, { session: PracticeSession; runner: LessonRunner }>();
+  private readonly sandboxes = new Map<string, PracticeSession>();
 
   constructor() {
-    makeAutoObservable<AppModel, 'lessons'>(this, { lessons: false, progress: false });
+    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false });
     void this.progress.load().then(() => {
       const last = this.progress.lastLessonId;
       if (last && findLesson(last)) this.setCurrentLesson(last);
@@ -40,6 +42,24 @@ export class AppModel {
   /** 今のレッスンの練習用リポジトリ。言語ごとにフォルダを分ける */
   get lessonSession(): PracticeSession | null {
     return this.currentLesson?.session ?? null;
+  }
+
+  /** フリー練習の練習用リポジトリ（言語ごと）。リモートも用意して push / pull も試せるようにする */
+  get sandboxSession(): PracticeSession | null {
+    if (!this.language || !this.project) return null;
+    const id = `free-${this.language}`;
+    let session = this.sandboxes.get(id);
+    if (!session) {
+      const project = this.project;
+      session = new PracticeSession({ kind: 'sandbox', id }, project, [
+        ...initialRepo(project),
+        { kind: 'remote' },
+        { kind: 'git', args: ['push', '-u', 'origin', 'main'] },
+      ]);
+      session.onCommand = async (line, result) => this.learnFrom(line, result.exitCode);
+      this.sandboxes.set(id, session);
+    }
+    return session;
   }
 
   /** 今のレッスンの達成状況 */

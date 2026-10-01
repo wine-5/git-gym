@@ -1,16 +1,9 @@
 import { FolderOpen, PackageCheck, Archive, ArrowRight, type LucideIcon } from 'lucide-react';
 import { iconForPath } from '@data/languages';
-import type { FileChange, FileState, RepoSnapshot } from '@shared/repo';
+import type { FileChange, RepoSnapshot } from '@shared/repo';
+import { FILE_STATE_MARKS } from '../fileStates';
 import styles from './FileAreas.module.css';
 
-const STATE_MARK: Record<FileState, { letter: string; label: string; className: string }> = {
-  modified: { letter: 'M', label: '変更あり', className: styles.modified },
-  untracked: { letter: 'U', label: '新しいファイル（まだ Git が知らない）', className: styles.untracked },
-  added: { letter: 'A', label: '追加', className: styles.added },
-  deleted: { letter: 'D', label: '削除', className: styles.deleted },
-  renamed: { letter: 'R', label: '名前を変更', className: styles.added },
-  conflicted: { letter: '!', label: 'コンフリクト（衝突）', className: styles.deleted },
-};
 
 export function FileAreas({ repo }: { repo: RepoSnapshot }) {
   return (
@@ -50,13 +43,15 @@ function Area({ files, ...head }: { icon: LucideIcon; color: string; title: stri
         <div className={styles.empty}>からっぽ</div>
       ) : (
         files.map((f) => {
-          const mark = STATE_MARK[f.state];
+          const mark = FILE_STATE_MARKS[f.state];
           const icon = iconForPath(f.path);
           return (
             <div key={f.path} className={styles.chip} title={mark.label}>
               {icon && <img src={icon} alt="" />}
               <span className={styles.chipName}>{f.path}</span>
-              <span className={`${styles.mark} ${mark.className}`}>{mark.letter}</span>
+              <span className={styles.mark} style={{ color: mark.color }}>
+                {mark.letter}
+              </span>
             </div>
           );
         })

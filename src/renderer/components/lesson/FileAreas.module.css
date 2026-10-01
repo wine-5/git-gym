@@ -83,18 +83,6 @@
   flex: none;
 }
 
-.modified {
-  color: var(--yellow);
-}
-
-.untracked,
-.added {
-  color: var(--green);
-}
-
-.deleted {
-  color: var(--red);
-}
 
 .repoCount {
   display: flex;

@@ -1,0 +1,122 @@
+.settings {
+  overflow: auto;
+}
+
+.inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 36px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inner h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+}
+
+.group h2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.row + .row {
+  border-top: 1px solid var(--border);
+}
+
+.rowIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--bg-elev);
+  color: var(--text-dim);
+  flex: none;
+}
+
+.dangerIcon {
+  color: var(--red);
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.langIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.rowText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowText span {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stepper button {
+  background: var(--bg-elev);
+  border: none;
+  width: 32px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stepper span {
+  min-width: 40px;
+  text-align: center;
+  font-family: var(--mono);
+}
+
+.danger {
+  color: var(--red);
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.danger:hover {
+  background: rgba(255, 107, 107, 0.12);
+  border-color: var(--red);
+}
+
+.footer {
+  color: var(--text-mute);
+  font-size: 12px;
+  line-height: 1.7;
+}

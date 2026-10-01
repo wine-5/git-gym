@@ -20,7 +20,8 @@ monaco.editor.defineTheme('git-gym', {
 /** コンフリクトの「今のブランチ側」「取り込む側」を色分けし、目印の行に説明を添える */
 function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IModelDeltaDecoration[] {
   const whole = (line: number, className: string, note?: string): monaco.editor.IModelDeltaDecoration => ({
-    range: new monaco.Range(line, 1, line, 1),
+    // 説明は行末に出すので、範囲は行全体にする（空の範囲だと after が描画されない）
+    range: new monaco.Range(line, 1, line, model.getLineMaxColumn(line)),
     options: {
       isWholeLine: true,
       className,

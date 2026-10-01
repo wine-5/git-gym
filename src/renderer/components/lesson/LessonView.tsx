@@ -24,8 +24,7 @@ export const LessonView = observer(() => {
 
   if (!found || !project || !session) return null;
 
-  const { workspace } = appModel;
-  const { repo } = session;
+  const { workspace, repo, fileStates } = session;
 
   return (
     <main className={styles.lesson}>
@@ -39,9 +38,9 @@ export const LessonView = observer(() => {
 
       <section className={styles.center}>
         <div className={styles.editorArea}>
-          <FileTree workspace={workspace} />
+          <FileTree workspace={workspace} projectName={project.name} fileStates={fileStates} />
           <div className={styles.editor}>
-            <EditorTabs workspace={workspace} />
+            <EditorTabs workspace={workspace} fileStates={fileStates} />
             {workspace.activePath ? (
               <CodeEditor
                 path={workspace.activePath}

@@ -1,7 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
-import { writeProject } from '@data/setupHelpers';
+import { findLesson, lessonSetup } from '@data/lessons';
+import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 
 export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary';
@@ -22,22 +23,38 @@ export class AppModel {
   screen: Screen = this.language ? 'home' : 'language';
   currentLessonId = '2-3';
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
-  private readonly sessions = new Map<string, PracticeSession>();
+  private readonly lessons = new Map<string, { session: PracticeSession; runner: LessonRunner }>();
 
   constructor() {
-    makeAutoObservable<AppModel, 'sessions'>(this, { sessions: false });
+    makeAutoObservable<AppModel, 'lessons'>(this, { lessons: false });
   }
 
   /** 今のレッスンの練習用リポジトリ。言語ごとにフォルダを分ける */
   get lessonSession(): PracticeSession | null {
-    if (!this.language || !this.project) return null;
+    return this.currentLesson?.session ?? null;
+  }
+
+  /** 今のレッスンの達成状況 */
+  get lessonRunner(): LessonRunner | null {
+    return this.currentLesson?.runner ?? null;
+  }
+
+  private get currentLesson(): { session: PracticeSession; runner: LessonRunner } | null {
+    const found = findLesson(this.currentLessonId);
+    if (!this.language || !this.project || !found) return null;
+
     const id = `${this.currentLessonId}-${this.language}`;
-    let session = this.sessions.get(id);
-    if (!session) {
-      session = new PracticeSession({ kind: 'lessons', id }, this.project, writeProject(this.project));
-      this.sessions.set(id, session);
+    let entry = this.lessons.get(id);
+    if (!entry) {
+      const session = new PracticeSession({ kind: 'lessons', id }, this.project, lessonSetup(found.lesson, this.project));
+      const runner = new LessonRunner(found.lesson, this.project, session);
+      session.onCommand = async () => {
+        for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
+      };
+      entry = { session, runner };
+      this.lessons.set(id, entry);
     }
-    return session;
+    return entry;
   }
 
   get project() {

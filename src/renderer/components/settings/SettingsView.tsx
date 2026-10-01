@@ -18,6 +18,7 @@ import {
   Info,
   GitBranch,
   FolderOpen,
+  MousePointerClick,
   type LucideIcon,
 } from 'lucide-react';
 import { appModel } from '@models/AppModel';
@@ -81,6 +82,18 @@ export const SettingsView = observer(() => {
           <Row icon={settings.muted ? VolumeX : Volume2} label="すべての音を消す" note="授業中など、音を出せないときに">
             <button className={settings.muted ? 'btn primary' : 'btn'} onClick={() => settings.toggleMuted()}>
               {settings.muted ? 'ミュート中' : 'ミュートする'}
+            </button>
+          </Row>
+        </Group>
+
+        <Group title="学習のサポート">
+          <Row
+            icon={MousePointerClick}
+            label="SourceTree との対応を表示する"
+            note="コマンド辞典や解説に「SourceTree でいうと、どのボタンの操作か」を出します"
+          >
+            <button className={settings.showSourceTree ? 'btn primary' : 'btn'} onClick={() => settings.toggleSourceTree()}>
+              {settings.showSourceTree ? '表示中' : '表示しない'}
             </button>
           </Row>
         </Group>

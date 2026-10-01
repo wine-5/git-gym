@@ -85,4 +85,4 @@
 
 ## 余裕があれば
 
-- [ ] SourceTree の操作との対応表示（設定で ON/OFF）
+- [x] SourceTree の操作との対応表示（設定で ON/OFF）

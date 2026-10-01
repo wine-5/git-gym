@@ -25,6 +25,8 @@ export interface GitCommand {
   caution?: string;
   /** 関連するコマンド */
   related: string[];
+  /** SourceTree でいうとどの操作か（設定で表示を ON にしたときだけ出す） */
+  sourcetree?: string;
 }
 
 export const CATEGORIES: { id: CommandCategory; label: string; color: string }[] = [
@@ -47,6 +49,7 @@ export const COMMANDS: GitCommand[] = [
     examples: [{ command: 'git init', description: '今のフォルダで Git を使い始める' }],
     options: [{ flag: '-b <名前>', description: '最初のブランチ名を決める（例: -b main）' }],
     related: ['status', 'clone'],
+    sourcetree: '「新規」→「ローカルリポジトリを作成」',
   },
   {
     name: 'status',
@@ -61,6 +64,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [{ flag: '-s, --short', description: '短い表示にする' }],
     related: ['add', 'diff'],
+    sourcetree: '左の「ファイルステータス」画面',
   },
   {
     name: 'add',
@@ -78,6 +82,7 @@ export const COMMANDS: GitCommand[] = [
       { flag: '-A', description: '削除も含めてすべての変更' },
     ],
     related: ['commit', 'restore'],
+    sourcetree: 'ファイルの「ステージに移動」（チェックを付ける）',
   },
   {
     name: 'commit',
@@ -98,6 +103,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     caution: 'メッセージは「何をしたか」が後から分かるように書きましょう。「修正」だけだと何の修正か分かりません。',
     related: ['add', 'log'],
+    sourcetree: '上の「コミット」ボタン → メッセージを書いて「コミット」',
   },
   {
     name: 'log',
@@ -117,6 +123,7 @@ export const COMMANDS: GitCommand[] = [
       { flag: '-n <数>', description: '新しいものから指定した数だけ表示' },
     ],
     related: ['show', 'reflog'],
+    sourcetree: '左の「履歴」画面',
   },
   {
     name: 'diff',
@@ -132,6 +139,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [{ flag: '--staged（--cached）', description: 'ステージに乗った変更を表示' }],
     related: ['status', 'add'],
+    sourcetree: 'ファイルを選ぶと右下に出る差分',
   },
   {
     name: 'show',
@@ -145,6 +153,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [],
     related: ['log'],
+    sourcetree: '「履歴」でコミットを選ぶ',
   },
   {
     name: 'branch',
@@ -165,6 +174,7 @@ export const COMMANDS: GitCommand[] = [
       { flag: '-D', description: 'マージしていなくても強制的に消す（注意）' },
     ],
     related: ['switch', 'merge'],
+    sourcetree: '上の「ブランチ」ボタン / 左のブランチ一覧',
   },
   {
     name: 'switch',
@@ -179,6 +189,7 @@ export const COMMANDS: GitCommand[] = [
     options: [{ flag: '-c', description: '新しいブランチを作って切り替える' }],
     caution: 'まだコミットしていない変更があると切り替えられないことがあります。先にコミットするか stash しましょう。',
     related: ['branch', 'checkout', 'stash'],
+    sourcetree: '左のブランチ一覧でブランチをダブルクリック',
   },
   {
     name: 'checkout',
@@ -190,6 +201,7 @@ export const COMMANDS: GitCommand[] = [
     examples: [{ command: 'git checkout -b feature/menu', description: 'git switch -c と同じ' }],
     options: [{ flag: '-b', description: '新しいブランチを作って切り替える' }],
     related: ['switch', 'restore'],
+    sourcetree: '左のブランチ一覧でブランチをダブルクリック',
   },
   {
     name: 'merge',
@@ -208,6 +220,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     caution: 'コンフリクトしたら、<<<<<<< 〜 >>>>>>> の部分を直して add → commit でマージ完了です。',
     related: ['branch', 'rebase', 'pull'],
+    sourcetree: '上の「マージ」ボタン',
   },
   {
     name: 'clone',
@@ -221,6 +234,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [],
     related: ['remote', 'pull'],
+    sourcetree: '「新規」→「URL からクローン」',
   },
   {
     name: 'remote',
@@ -234,6 +248,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [{ flag: '-v', description: 'URL も表示する' }],
     related: ['clone', 'push'],
+    sourcetree: '「設定」→「リモート」',
   },
   {
     name: 'push',
@@ -248,6 +263,7 @@ export const COMMANDS: GitCommand[] = [
     options: [{ flag: '-u', description: 'リモートのブランチと結び付ける（次から git push だけで送れる）' }],
     caution: '`--force` は他の人の変更を消してしまうことがあります。チームでは使わないようにしましょう。',
     related: ['pull', 'fetch'],
+    sourcetree: '上の「プッシュ」ボタン',
   },
   {
     name: 'pull',
@@ -258,6 +274,7 @@ export const COMMANDS: GitCommand[] = [
     examples: [{ command: 'git pull', description: '今のブランチを最新にする' }],
     options: [{ flag: '--rebase', description: 'merge の代わりに rebase で取り込む' }],
     related: ['fetch', 'merge', 'push'],
+    sourcetree: '上の「プル」ボタン',
   },
   {
     name: 'fetch',
@@ -271,6 +288,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [],
     related: ['pull', 'merge'],
+    sourcetree: '上の「フェッチ」ボタン',
   },
   {
     name: 'restore',
@@ -285,6 +303,7 @@ export const COMMANDS: GitCommand[] = [
     options: [{ flag: '--staged', description: 'ステージから下ろす' }],
     caution: '`--staged` を付けない restore は変更を消します。元には戻せないので注意！',
     related: ['add', 'reset'],
+    sourcetree: 'ファイルを右クリック →「破棄」/「ステージから外す」',
   },
   {
     name: 'reset',
@@ -304,6 +323,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     caution: 'push 済みのコミットを reset すると、チームの履歴とずれてしまいます。push 後は revert を使いましょう。',
     related: ['revert', 'reflog'],
+    sourcetree: '「履歴」でコミットを右クリック →「このコミットまで現在のブランチを戻す」',
   },
   {
     name: 'revert',
@@ -314,6 +334,7 @@ export const COMMANDS: GitCommand[] = [
     examples: [{ command: 'git revert HEAD', description: '最新のコミットを打ち消す' }],
     options: [],
     related: ['reset'],
+    sourcetree: '「履歴」でコミットを右クリック →「コミットを打ち消し」',
   },
   {
     name: 'stash',
@@ -328,6 +349,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [],
     related: ['switch'],
+    sourcetree: '上の「スタッシュ」ボタン',
   },
   {
     name: 'reflog',
@@ -341,6 +363,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [],
     related: ['reset', 'log'],
+    sourcetree: '（SourceTree には直接の画面はありません。コマンドならではの機能です）',
   },
   {
     name: 'rebase',
@@ -358,6 +381,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     caution: 'push 済みのブランチを rebase するのは避けましょう。自分だけのブランチで使います。',
     related: ['merge', 'cherry-pick'],
+    sourcetree: 'ブランチを右クリック →「リベース」',
   },
   {
     name: 'cherry-pick',
@@ -368,6 +392,7 @@ export const COMMANDS: GitCommand[] = [
     examples: [{ command: 'git cherry-pick a1b2c3d', description: 'そのコミットの変更を今のブランチに適用' }],
     options: [],
     related: ['rebase', 'log'],
+    sourcetree: '「履歴」でコミットを右クリック →「チェリーピック」',
   },
   {
     name: 'tag',
@@ -382,6 +407,7 @@ export const COMMANDS: GitCommand[] = [
     ],
     options: [{ flag: '-a -m "<説明>"', description: '説明付きのタグを作る' }],
     related: ['show'],
+    sourcetree: '上の「タグ」ボタン',
   },
   {
     name: 'config',
@@ -397,6 +423,7 @@ export const COMMANDS: GitCommand[] = [
     options: [{ flag: '--global', description: 'この PC の全リポジトリに適用' }],
     caution: 'このアプリの中での設定は、練習用の設定ファイルに保存されます（PC 本来の設定は変わりません）。',
     related: ['init'],
+    sourcetree: '「ツール」→「オプション」（Mac は「環境設定」）',
   },
 ];
 

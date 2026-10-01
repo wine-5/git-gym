@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { TerminalSquare, Copy, Check, AlertTriangle, Link2, SlidersHorizontal, BookOpenText } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
+import { TerminalSquare, Copy, Check, AlertTriangle, Link2, SlidersHorizontal, BookOpenText, MousePointerClick } from 'lucide-react';
+import { appModel } from '@models/AppModel';
 import { CATEGORIES, type GitCommand } from '@data/commands';
 import { InlineText } from '../InlineText';
 import styles from './CommandDetail.module.css';
@@ -12,7 +14,7 @@ interface Props {
 }
 
 /** 1つの git コマンドの解説 */
-export function CommandDetail({ command, onSelectRelated, compact }: Props) {
+export const CommandDetail = observer(({ command, onSelectRelated, compact }: Props) => {
   const category = CATEGORIES.find((c) => c.id === command.category)!;
 
   return (
@@ -61,6 +63,16 @@ export function CommandDetail({ command, onSelectRelated, compact }: Props) {
         </Section>
       )}
 
+      {appModel.settings.showSourceTree && command.sourcetree && (
+        <div className={styles.sourcetree}>
+          <MousePointerClick size={16} />
+          <span>
+            <b>SourceTree でいうと：</b>
+            {command.sourcetree}
+          </span>
+        </div>
+      )}
+
       {command.caution && (
         <div className={styles.caution}>
           <AlertTriangle size={16} />
@@ -83,7 +95,7 @@ export function CommandDetail({ command, onSelectRelated, compact }: Props) {
       )}
     </article>
   );
-}
+});
 
 function Section({ icon: Icon, title, children }: { icon: typeof BookOpenText; title: string; children: React.ReactNode }) {
   return (

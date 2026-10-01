@@ -7,6 +7,7 @@ export class ProgressModel {
   completed = new Set<string>();
   lastLessonId: string | null = null;
   learned = new Set<string>();
+  stageStars = new Map<string, number>();
   loaded = false;
 
   constructor() {
@@ -19,6 +20,7 @@ export class ProgressModel {
       this.completed = new Set(data.completedLessons);
       this.lastLessonId = data.lastLessonId;
       this.learned = new Set(data.learnedCommands);
+      this.stageStars = new Map(Object.entries(data.stageStars));
       this.loaded = true;
     });
   }
@@ -60,10 +62,18 @@ export class ProgressModel {
     void this.save();
   }
 
+  /** ステージの星を記録する（前より良いときだけ上書き） */
+  setStars(stageId: string, stars: number): void {
+    if ((this.stageStars.get(stageId) ?? 0) >= stars) return;
+    this.stageStars.set(stageId, stars);
+    void this.save();
+  }
+
   /** 進み具合をすべて消して最初からにする */
   resetAll(): void {
     this.completed = new Set();
     this.learned = new Set();
+    this.stageStars = new Map();
     this.lastLessonId = null;
     void this.save();
   }
@@ -79,6 +89,7 @@ export class ProgressModel {
       completedLessons: [...this.completed],
       lastLessonId: this.lastLessonId,
       learnedCommands: [...this.learned],
+      stageStars: Object.fromEntries(this.stageStars),
     };
     await window.gitGym?.progress.save(data);
   }

@@ -81,7 +81,7 @@
 - [x] Windows 向けパッケージ（MinGit 同梱）
 - [x] Mac 向けパッケージ
 - [x] 配布用の README（起動方法・動作環境）
-- [ ] GitHub Releases に Windows の exe（と Mac 版）を公開
+- [x] GitHub Releases に Windows の exe（と Mac 版）を公開
 
 ## 余裕があれば
 

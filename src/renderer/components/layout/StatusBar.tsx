@@ -7,7 +7,11 @@ import styles from './StatusBar.module.css';
 export const StatusBar = observer(() => {
   const language = appModel.language ? getLanguage(appModel.language) : null;
   const session =
-    appModel.screen === 'lesson' ? appModel.lessonSession : appModel.screen === 'sandbox' ? appModel.sandboxSession : null;
+    appModel.screen === 'lesson' ? appModel.lessonSession : appModel.screen === 'sandbox'
+        ? appModel.sandboxSession
+        : appModel.screen === 'stage'
+          ? appModel.stageEntry?.session
+          : null;
   const repo = session?.repo;
 
   return (

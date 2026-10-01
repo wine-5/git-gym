@@ -132,7 +132,11 @@ export const branchChapter: Chapter = {
         { label: '`git merge feature/hp` でマージしてみる', test: (_q, c) => c.ran(/^git merge feature\/hp/) },
         {
           label: 'エディタで `<<<<<<<` 〜 `>>>>>>>` を消して直し、`git add` する',
-          test: (q, c) => q.isStaged(c.project.featureFile) && !q.snapshot.working.some((f) => f.state === 'conflicted'),
+          // main 側をそのまま残すと HEAD と同じ内容になりステージに差分が出ないので、衝突が消えたかと add したかで見る
+          test: async (q, c) =>
+            c.ran(/^git merge feature\/hp/) &&
+            !q.snapshot.working.some((f) => f.state === 'conflicted') &&
+            (c.ran(/^git add/) || (await q.parentCount('HEAD')) === 2),
         },
         { label: 'コミットしてマージを完了する', test: async (q) => (await q.parentCount('HEAD')) === 2 },
       ],

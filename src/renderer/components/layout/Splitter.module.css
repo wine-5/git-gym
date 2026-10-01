@@ -1,0 +1,64 @@
+.columns,
+.rows {
+  position: relative;
+  background: var(--border);
+  flex: none;
+  z-index: 5;
+  transition: background 0.15s;
+}
+
+.columns {
+  width: 1px;
+  cursor: col-resize;
+}
+
+.rows {
+  height: 1px;
+  cursor: row-resize;
+}
+
+/* 1px の線でも掴みやすいよう、当たり判定を広げる */
+.columns::after,
+.rows::after {
+  content: '';
+  position: absolute;
+}
+
+.columns::after {
+  inset: 0 -4px;
+}
+
+.rows::after {
+  inset: -4px 0;
+}
+
+.columns:hover,
+.rows:hover,
+.columns:active,
+.rows:active {
+  background: var(--accent);
+  transition-delay: 0.1s;
+}
+
+.columns:hover,
+.columns:active {
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.rows:hover,
+.rows:active {
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* ドラッグ中はカーソルを固定し、エディタなどが文字を選択しないようにする */
+.draggingColumns,
+.draggingColumns * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+.draggingRows,
+.draggingRows * {
+  cursor: row-resize !important;
+  user-select: none !important;
+}

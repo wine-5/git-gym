@@ -1,7 +1,7 @@
 // 画面確認用: 起動中の Electron を CDP で操作してスクリーンショットを撮る
 // 1. npx electron-forge start -- --remote-debugging-port=9334
 // 2. node scripts/ui-check.mjs 9334 <出力フォルダ> <steps.json>
-// steps: {eval, print} / {term: "git status"} / {editor: "テキスト"} / {type} / {key} / {wait} / {shot: "名前"}
+// steps: {drag, dx, dy} / {eval, print} / {term: "git status"} / {editor: "テキスト"} / {type} / {key} / {wait} / {shot: "名前"}
 import { writeFileSync, readFileSync } from 'node:fs';
 const [port, out, stepsFile] = process.argv.slice(2);
 const steps = JSON.parse(readFileSync(stepsFile, 'utf8'));
@@ -28,6 +28,14 @@ for (const s of steps) {
   if (s.eval) { const r = await send('Runtime.evaluate', { expression: s.eval, awaitPromise: true, returnByValue: true }); if (s.print) console.log(JSON.stringify(r.result?.result?.value ?? r.result)); }
   if (s.type) { for (const ch of s.type) await send('Input.insertText', { text: ch }); }
   if (s.key) { await send('Input.dispatchKeyEvent', { type: 'keyDown', key: s.key, code: s.key, windowsVirtualKeyCode: s.key === 'Enter' ? 13 : 0 }); await send('Input.dispatchKeyEvent', { type: 'keyUp', key: s.key, code: s.key }); }
+  if (s.drag !== undefined) {
+    // {drag: 境目の番号, dx, dy}: role=separator の要素をマウスでドラッグする
+    const r = await send('Runtime.evaluate', { expression: `(()=>{const b=document.querySelectorAll('[role=separator]')[${s.drag}].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`, returnByValue: true });
+    const [x, y] = r.result.result.value;
+    await send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
+    for (let i = 1; i <= 10; i++) await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x + ((s.dx ?? 0) * i) / 10, y: y + ((s.dy ?? 0) * i) / 10, button: 'left', buttons: 1 });
+    await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x + (s.dx ?? 0), y: y + (s.dy ?? 0), button: 'left', clickCount: 1 });
+  }
   if (s.wait) await sleep(s.wait);
   if (s.shot) { const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${out}/${s.shot}.png`, Buffer.from(r.result.data, 'base64')); }
 }

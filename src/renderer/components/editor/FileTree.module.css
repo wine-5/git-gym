@@ -1,6 +1,5 @@
 .tree {
   background: var(--bg-panel);
-  border-right: 1px solid var(--border);
   overflow: auto;
   min-height: 0;
 }

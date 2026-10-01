@@ -1,21 +1,19 @@
+/* 列・行の大きさは LessonView でドラッグに合わせて style から指定する */
 .lesson {
   display: grid;
-  grid-template-columns: 290px minmax(0, 1fr) 360px;
   min-height: 0;
 }
 
 .center {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) 250px;
   min-height: 0;
+  min-width: 0;
   background: var(--bg-editor);
 }
 
 .editorArea {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
   min-height: 0;
-  border-bottom: 4px solid var(--border);
 }
 
 .editor {
@@ -37,10 +35,10 @@
 
 .side {
   background: var(--bg-panel);
-  border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
 }
 
 .headLabel {
@@ -56,6 +54,6 @@
 }
 
 .areas {
-  border-top: 1px solid var(--border);
   flex: none;
+  overflow: auto;
 }

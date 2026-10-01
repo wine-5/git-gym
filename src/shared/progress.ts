@@ -7,6 +7,8 @@ export interface ProgressData {
   lastLessonId: string | null;
   /** 成功させたことのある git のサブコマンド（コマンド辞典の「習得済み」表示用） */
   learnedCommands: string[];
+  /** 練習モードのステージごとの星（1〜3） */
+  stageStars: Record<string, number>;
 }
 
 export const EMPTY_PROGRESS: ProgressData = {
@@ -14,4 +16,5 @@ export const EMPTY_PROGRESS: ProgressData = {
   completedLessons: [],
   lastLessonId: null,
   learnedCommands: [],
+  stageStars: {},
 };

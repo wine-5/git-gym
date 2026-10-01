@@ -5,7 +5,8 @@ import { appModel } from '@models/AppModel';
 import { TerminalModel } from '@models/TerminalModel';
 import type { WorkspaceRef } from '@shared/api';
 import { findLesson } from '@data/lessons';
-import { createMockRepo, type RepoSnapshot } from '@data/mockRepo';
+import { createMockRepo } from '@data/mockRepo';
+import type { RepoSnapshot } from '@shared/repo';
 import { CodeEditor } from '../editor/CodeEditor';
 import { EditorTabs } from '../editor/EditorTabs';
 import { FileTree } from '../editor/FileTree';
@@ -66,7 +67,7 @@ export const LessonView = observer(() => {
             )}
           </div>
         </div>
-        <TerminalPanel terminal={terminal} branch={repo.branch} onReveal={() => void window.gitGym?.workspace.reveal(ref)} />
+        <TerminalPanel terminal={terminal} branch={repo.branch ?? undefined} onReveal={() => void window.gitGym?.workspace.reveal(ref)} />
       </section>
 
       <section className={styles.side}>

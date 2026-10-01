@@ -1,4 +1,4 @@
-import type { Commit } from '@data/mockRepo';
+import type { Commit } from '@shared/repo';
 
 /**
  * コミットグラフのレイアウト計算（git-tool の graph-layout.ts を移植）。

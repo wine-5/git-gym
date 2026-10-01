@@ -1,39 +1,9 @@
-/**
- * Git 連携を実装するまでの仮データ。
- * 後で `git log --all --format=...` / `git status --porcelain` の結果からこの形を作る。
- */
-export type FileState = 'modified' | 'untracked' | 'added' | 'deleted';
+import type { RepoSnapshot } from '@shared/repo';
 
-export type RefKind = 'head' | 'local' | 'remote' | 'tag';
-
-export interface CommitRef {
-  name: string;
-  kind: RefKind;
-}
-
-export interface Commit {
-  hash: string;
-  message: string;
-  /** 新しい順。先頭が第一親 */
-  parents: string[];
-  refs: CommitRef[];
-}
-
-export interface FileChange {
-  path: string;
-  state: FileState;
-}
-
-export interface RepoSnapshot {
-  branch: string;
-  /** 新しい順（git log の並び） */
-  commits: Commit[];
-  working: FileChange[];
-  staged: FileChange[];
-}
-
+/** Git 連携を実装するまでの仮データ */
 export function createMockRepo(featureFile: string): RepoSnapshot {
   return {
+    initialized: true,
     branch: 'feature/jump',
     commits: [
       {

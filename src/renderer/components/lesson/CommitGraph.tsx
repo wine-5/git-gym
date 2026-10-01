@@ -1,5 +1,5 @@
 import { MapPin, GitBranch, Cloud, Tag, PencilLine, GitMerge, type LucideIcon } from 'lucide-react';
-import type { CommitRef, RefKind, RepoSnapshot } from '@data/mockRepo';
+import type { CommitRef, RefKind, RepoSnapshot } from '@shared/repo';
 import { assignColumns, type LaidOutCommit } from './graphLayout';
 import styles from './CommitGraph.module.css';
 

@@ -25,7 +25,11 @@ export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, on
             <PartyPopper size={18} /> ミッションクリア！
           </div>
           <div className={styles.title}>{lessonTitle}</div>
-          <p className={styles.message}>よくできました。Git の操作が1つ身につきました。</p>
+          <p className={styles.message}>
+            {onNext
+              ? 'よくできました。Git の操作が1つ身につきました。'
+              : '全コース修了です！おめでとうございます。もう実際のチーム開発で Git を使えます。フリー練習やコマンド辞典で復習もしてみましょう。'}
+          </p>
 
           <div className={styles.actions}>
             {onNext && nextTitle && (

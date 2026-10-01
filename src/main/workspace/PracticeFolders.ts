@@ -15,6 +15,17 @@ remotes/  練習用のリモートリポジトリ（GitHub の代わり）
 アプリの「リセット」を押すと、そのレッスンのフォルダは作り直されます。
 `;
 
+/** 学生 PC の本来の ~/.gitconfig を汚さないよう、練習用の global 設定はここに置く */
+const DEFAULT_GITCONFIG = `[user]
+	name = Git Gym Student
+	email = student@git-gym.local
+[init]
+	defaultBranch = main
+[core]
+	autocrlf = false
+	quotePath = false
+`;
+
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/i;
 
 /**
@@ -23,11 +34,13 @@ const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/i;
  */
 export class PracticeFolders {
   readonly root = path.join(app.getPath('documents'), 'GitGym');
+  readonly globalConfig = path.join(this.root, '.gitconfig');
 
   async ensureRoot(): Promise<void> {
     await fs.mkdir(this.root, { recursive: true });
     const readme = path.join(this.root, 'README.txt');
     await fs.writeFile(readme, ROOT_README, { flag: 'wx' }).catch(() => undefined);
+    await fs.writeFile(this.globalConfig, DEFAULT_GITCONFIG, { flag: 'wx' }).catch(() => undefined);
   }
 
   repoPath(kind: PracticeKind, id: string): string {

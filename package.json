@@ -11,7 +11,9 @@
     "dev": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "config": {
     "forge": {
@@ -76,6 +78,7 @@
     "monaco-editor-webpack-plugin": "^7.1.1",
     "style-loader": "^3.3.4",
     "ts-loader": "^9.6.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
   }
 }

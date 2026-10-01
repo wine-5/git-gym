@@ -16,6 +16,8 @@ export interface ProjectTemplate {
   mainFile: string;
   /** レッスンで主に編集させるファイル */
   featureFile: string;
+  /** HP の初期値（100）が書いてあるファイル。C++ だけヘッダーにあるので分けて持つ */
+  hpFile: string;
   files: ProjectFile[];
 }
 
@@ -29,6 +31,7 @@ const csharp: ProjectTemplate = {
   name: 'my-game',
   mainFile: 'Program.cs',
   featureFile: 'Player.cs',
+  hpFile: 'Player.cs',
   files: [
     {
       path: 'Player.cs',
@@ -84,6 +87,7 @@ const cpp: ProjectTemplate = {
   name: 'my-game',
   mainFile: 'main.cpp',
   featureFile: 'player.cpp',
+  hpFile: 'player.h',
   files: [
     {
       path: 'player.h',
@@ -145,6 +149,7 @@ const python: ProjectTemplate = {
   name: 'my-game',
   mainFile: 'main.py',
   featureFile: 'player.py',
+  hpFile: 'player.py',
   files: [
     {
       path: 'player.py',
@@ -184,6 +189,7 @@ const javascript: ProjectTemplate = {
   name: 'my-game',
   mainFile: 'main.js',
   featureFile: 'player.js',
+  hpFile: 'player.js',
   files: [
     {
       path: 'player.js',
@@ -221,6 +227,7 @@ const typescript: ProjectTemplate = {
   name: 'my-game',
   mainFile: 'main.ts',
   featureFile: 'player.ts',
+  hpFile: 'player.ts',
   files: [
     {
       path: 'player.ts',
@@ -257,6 +264,7 @@ const java: ProjectTemplate = {
   name: 'my-game',
   mainFile: 'Main.java',
   featureFile: 'Player.java',
+  hpFile: 'Player.java',
   files: [
     {
       path: 'Player.java',

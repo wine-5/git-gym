@@ -4,8 +4,8 @@ import { appendAndCommit, comment, commitAll, git, initialRepo, write } from '..
 
 const fileOf = (p: ProjectTemplate, path: string) => p.files.find((f) => f.path === path)?.content ?? '';
 
-/** featureFile の HP 初期値を書き換えた内容（コンフリクトを起こすため、同じ行を変える） */
-const withHp = (p: ProjectTemplate, hp: number) => fileOf(p, p.featureFile).replace('100', String(hp));
+/** HP の初期値を書き換えた内容（コンフリクトを起こすため、同じ行を変える） */
+const withHp = (p: ProjectTemplate, hp: number) => fileOf(p, p.hpFile).replace('100', String(hp));
 
 export const branchChapter: Chapter = {
   id: 'branch',
@@ -117,15 +117,15 @@ export const branchChapter: Chapter = {
       id: '2-5',
       title: 'コンフリクトを解決しよう',
       description:
-        '`main` と `feature/hp` の両方で、同じ行（HP の初期値）が別々に変更されています。\n' +
+        '`main` と `feature/hp` の両方で、`{hpFile}` の同じ行（HP の初期値）が別々に変更されています。\n' +
         'マージすると Git はどちらを選ぶか決められず「コンフリクト（衝突）」になります。エディタで直してマージを完了させましょう。',
       setup: (p) => [
         ...initialRepo(p),
         git('switch', '-c', 'feature/hp'),
-        write(p.featureFile, withHp(p, 150)),
+        write(p.hpFile, withHp(p, 150)),
         ...commitAll('HP を 150 に増やす'),
         git('switch', 'main'),
-        write(p.featureFile, withHp(p, 120)),
+        write(p.hpFile, withHp(p, 120)),
         ...commitAll('HP を 120 に調整'),
       ],
       checks: [
@@ -143,7 +143,7 @@ export const branchChapter: Chapter = {
       hints: [
         '`<<<<<<< HEAD` から `=======` までが今のブランチ（main）、`=======` から `>>>>>>>` までが取り込もうとしたブランチの内容です。',
         'どちらの値にするか決めて、`<<<<<<<` `=======` `>>>>>>>` の行も含めて消し、正しい1行だけを残します。',
-        '直したら `git add {featureFile}`、最後に `git commit` でマージ完了です（メッセージは自動で入ります）。',
+        '直したら `git add {hpFile}`、最後に `git commit` でマージ完了です（メッセージは自動で入ります）。',
       ],
     },
   ],

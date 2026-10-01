@@ -4,17 +4,11 @@ import { Swords, Lightbulb, Star, ArrowRight, RotateCcw, Map as MapIcon, Target,
 import { appModel } from '@models/AppModel';
 import type { LessonRunner } from '@models/LessonRunner';
 import { fillPlaceholders } from '@data/lessons';
-import { findStage, nextStage, type Stage, type World } from '@data/stages';
+import { findStage, nextStage, starsFor, type Stage, type World } from '@data/stages';
 import { PracticeLayout } from '../workspace/PracticeLayout';
 import { InlineText } from '../InlineText';
 import { Confetti } from '../effects/Confetti';
 import styles from './StageView.module.css';
-
-/** 星の数：失敗なしで 3、2回までなら 2、それ以上は 1。答えのコマンドを見たら最大 2 */
-function starsFor(failed: number, sawAnswer: boolean): number {
-  const base = failed === 0 ? 3 : failed <= 2 ? 2 : 1;
-  return sawAnswer ? Math.min(base, 2) : base;
-}
 
 export const StageView = observer(() => {
   const found = findStage(appModel.currentStageId);

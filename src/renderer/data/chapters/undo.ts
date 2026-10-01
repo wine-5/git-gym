@@ -9,7 +9,7 @@ const fileOf = (p: ProjectTemplate, path: string) => p.files.find((f) => f.path 
 const withLine = (p: ProjectTemplate, text: string, base = fileOf(p, p.featureFile)) => `${base}${comment(p, text)}\n`;
 
 /** HP の初期値を 0 にしてしまう「バグ」入りの内容 */
-const buggy = (p: ProjectTemplate) => fileOf(p, p.featureFile).replace('100', '0');
+const buggy = (p: ProjectTemplate) => fileOf(p, p.hpFile).replace('100', '0');
 
 const readmeWith = (p: ProjectTemplate, text: string) => `${fileOf(p, 'README.md')}\n${text}\n`;
 
@@ -19,13 +19,13 @@ const pushedBug = (p: ProjectTemplate): SetupStep[] => [
   { kind: 'remote' },
   write('README.md', readmeWith(p, '## バージョン\n0.2')),
   ...commitAll('README にバージョンを追加'),
-  write(p.featureFile, buggy(p)),
+  write(p.hpFile, buggy(p)),
   ...commitAll('HP の初期値を変更'),
   git('push', '-u', 'origin', 'main'),
 ];
 
 const hpRestored = async (q: { fileAt: (rev: string, path: string) => Promise<string | null> }, p: ProjectTemplate) =>
-  (await q.fileAt('HEAD', p.featureFile))?.includes('100') ?? false;
+  (await q.fileAt('HEAD', p.hpFile))?.includes('100') ?? false;
 
 export const undoChapter: Chapter = {
   id: 'undo',
@@ -38,18 +38,18 @@ export const undoChapter: Chapter = {
       id: '4-1',
       title: '変更を取り消そう（restore）',
       description:
-        '`{featureFile}` をうっかり壊してしまいました（HP が 0 に…）。さらに README.md を間違ってステージに乗せています。\n' +
+        '`{hpFile}` をうっかり壊してしまいました（HP が 0 に…）。さらに README.md を間違ってステージに乗せています。\n' +
         '`git restore` で、ファイルの変更とステージをそれぞれ元に戻しましょう。',
       setup: (p) => [
         ...initialRepo(p),
-        write(p.featureFile, buggy(p)),
+        write(p.hpFile, buggy(p)),
         write('README.md', readmeWith(p, 'メモ：まだ書きかけ')),
         git('add', 'README.md'),
       ],
       checks: [
         {
-          label: '`{featureFile}` の変更を取り消して、最後のコミットの状態に戻す',
-          test: (q, c) => !q.isModified(c.project.featureFile) && !q.isStaged(c.project.featureFile),
+          label: '`{hpFile}` の変更を取り消して、最後のコミットの状態に戻す',
+          test: (q, c) => !q.isModified(c.project.hpFile) && !q.isStaged(c.project.hpFile),
         },
         {
           label: 'README.md をステージから下ろす（変更は残す）',
@@ -58,7 +58,7 @@ export const undoChapter: Chapter = {
       ],
       hints: [
         '`git status` に、どう取り消せばいいかのヒントが英語で書いてあります。',
-        '`git restore {featureFile}` で、ファイルを最後のコミットの状態に戻せます（変更は消えるので注意！）。',
+        '`git restore {hpFile}` で、ファイルを最後のコミットの状態に戻せます（変更は消えるので注意！）。',
         '`git restore --staged README.md` で、変更は残したままステージから下ろせます。',
       ],
     },

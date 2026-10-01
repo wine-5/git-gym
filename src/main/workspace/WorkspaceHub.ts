@@ -5,6 +5,7 @@ import type { GitRunner } from '../git/GitRunner';
 import { readRepo } from '../git/readRepo';
 import { TerminalSession } from '../terminal/TerminalSession';
 import type { PracticeFolders } from './PracticeFolders';
+import { listFiles, readFile, writeFile } from './repoFiles';
 
 interface OpenWorkspace {
   path: string;
@@ -48,6 +49,18 @@ export class WorkspaceHub {
 
   snapshot(ref: WorkspaceRef): Promise<RepoSnapshot> {
     return readRepo(this.git, this.get(ref).path, this.gitEnv);
+  }
+
+  listFiles(ref: WorkspaceRef): Promise<string[]> {
+    return listFiles(this.get(ref).path);
+  }
+
+  readFile(ref: WorkspaceRef, file: string): Promise<string | null> {
+    return readFile(this.get(ref).path, file);
+  }
+
+  writeFile(ref: WorkspaceRef, file: string, content: string): Promise<void> {
+    return writeFile(this.get(ref).path, file, content);
   }
 
   private get gitEnv(): Record<string, string> {

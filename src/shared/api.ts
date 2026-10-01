@@ -9,6 +9,12 @@ export interface WorkspaceRef {
   id: string;
 }
 
+/** 練習用フォルダを新しく作ったときに置くファイル */
+export interface SeedFile {
+  path: string;
+  content: string;
+}
+
 export interface WorkspaceInfo {
   /** 実際のフォルダの絶対パス */
   path: string;
@@ -31,8 +37,8 @@ export const IPC = {
 export interface GitGymApi {
   platform: string;
   workspace: {
-    /** フォルダが無ければ作ってターミナルを用意する */
-    open(ref: WorkspaceRef, displayName: string): Promise<WorkspaceInfo>;
+    /** フォルダが無ければ作って seed のファイルを置き、ターミナルを用意する */
+    open(ref: WorkspaceRef, displayName: string, seed?: SeedFile[]): Promise<WorkspaceInfo>;
     /** フォルダを空にして作り直す */
     reset(ref: WorkspaceRef): Promise<WorkspaceInfo>;
     /** エクスプローラー / Finder で開く */

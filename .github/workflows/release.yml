@@ -1,0 +1,80 @@
+# v から始まるタグ（例: v0.1.0）を push すると、Windows と Mac のアプリを作って GitHub Releases に公開する
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: macos-latest
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: 型チェックとテスト
+        run: |
+          npm run lint
+          npm test
+
+      - name: MinGit を同梱する（Windows のみ）
+        if: runner.os == 'Windows'
+        run: node tools/fetch-mingit.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: アプリを作る
+        run: npm run make -- --arch=${{ matrix.arch }}
+
+      - name: 配布ファイルの名前をそろえる
+        shell: bash
+        run: |
+          mkdir dist
+          version="${GITHUB_REF_NAME#v}"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cp out/make/squirrel.windows/x64/GitGym-Setup.exe "dist/GitGym-${version}-Windows-Setup.exe"
+            cp out/make/zip/win32/x64/*.zip "dist/GitGym-${version}-Windows-portable.zip"
+          else
+            cp out/make/zip/darwin/${{ matrix.arch }}/*.zip "dist/GitGym-${version}-Mac-${{ matrix.arch }}.zip"
+          fi
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: git-gym-${{ runner.os }}-${{ matrix.arch }}
+          path: dist/*
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

@@ -9,6 +9,8 @@ export class LessonRunner {
   /** チェックごとの達成。一度達成したら戻らない（切り替えて戻した、などで消えないように） */
   done: boolean[];
   completed = false;
+  /** クリア画面を見終わった（開き直しても毎回は出さない） */
+  celebrated = false;
 
   constructor(
     readonly lesson: Lesson,
@@ -46,9 +48,14 @@ export class LessonRunner {
     return newlyDone;
   }
 
+  markCelebrated(): void {
+    this.celebrated = true;
+  }
+
   /** リセットしたときなど、最初からやり直す */
   restart(): void {
     this.done = this.lesson.checks.map(() => false);
     this.completed = false;
+    this.celebrated = false;
   }
 }

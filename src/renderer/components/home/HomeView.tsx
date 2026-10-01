@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { appModel } from '@models/AppModel';
-import { CHAPTERS, findLesson, type Chapter } from '@data/lessons';
+import { CHAPTERS, findLesson, nextLesson, type Chapter } from '@data/lessons';
 import {
   Footprints,
   GitBranch,
@@ -28,7 +28,10 @@ const CHAPTER_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
 
 export const HomeView = observer(() => {
   const { progress } = appModel;
-  const current = findLesson(appModel.currentLessonId);
+  // 最後に開いたレッスンをクリア済みなら、その次から続ける
+  const lastId = appModel.currentLessonId;
+  const continueId = progress.isDone(lastId) ? nextLesson(lastId)?.id ?? lastId : lastId;
+  const current = findLesson(continueId);
   const percent = progress.percent;
 
   /** 章の中で最初の未クリアのレッスンを開く */

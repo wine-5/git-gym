@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { fillPlaceholders, type Lesson } from '@data/lessons';
+import { fillPlaceholders, type CheckContext, type Lesson } from '@data/lessons';
 import type { ProjectTemplate } from '@data/projects';
 import type { PracticeSession } from './PracticeSession';
 import { RepoQuery } from './RepoQuery';
@@ -11,6 +11,8 @@ export class LessonRunner {
   completed = false;
   /** クリア画面を見終わった（開き直しても毎回は出さない） */
   celebrated = false;
+  /** このレッスンで打ったコマンド */
+  private commands: string[] = [];
 
   constructor(
     readonly lesson: Lesson,
@@ -18,7 +20,12 @@ export class LessonRunner {
     private readonly session: PracticeSession,
   ) {
     this.done = lesson.checks.map(() => false);
-    makeAutoObservable<LessonRunner, 'session'>(this, { lesson: false, project: false, session: false });
+    makeAutoObservable<LessonRunner, 'session' | 'commands'>(this, {
+      lesson: false,
+      project: false,
+      session: false,
+      commands: false,
+    });
   }
 
   get doneCount(): number {
@@ -33,11 +40,21 @@ export class LessonRunner {
     return fillPlaceholders(this.lesson.checks[index].label, this.vars);
   }
 
+  recordCommand(line: string): void {
+    this.commands.push(line.trim().replace(/\s+/g, ' '));
+  }
+
   /** 判定し直して、新しく達成したチェックの番号を返す */
   async evaluate(): Promise<number[]> {
     const query = new RepoQuery(this.session.ref, this.session.repo);
+    const commands = [...this.commands];
+    const ctx: CheckContext = {
+      project: this.project,
+      commands,
+      ran: (pattern) => commands.some((c) => pattern.test(c)),
+    };
     const results = await Promise.all(
-      this.lesson.checks.map(async (check, i) => this.done[i] || (await check.test(query, this.project))),
+      this.lesson.checks.map(async (check, i) => this.done[i] || (await check.test(query, ctx))),
     );
 
     const newlyDone = results.flatMap((ok, i) => (ok && !this.done[i] ? [i] : []));
@@ -57,5 +74,6 @@ export class LessonRunner {
     this.done = this.lesson.checks.map(() => false);
     this.completed = false;
     this.celebrated = false;
+    this.commands = [];
   }
 }

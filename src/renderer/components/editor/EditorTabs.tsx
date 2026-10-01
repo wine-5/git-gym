@@ -1,10 +1,17 @@
 import { observer } from 'mobx-react-lite';
 import { X } from 'lucide-react';
+import type { FileState } from '@shared/repo';
 import type { WorkspaceModel } from '@models/WorkspaceModel';
+import { FILE_STATE_MARKS } from '../fileStates';
 import { FileIcon } from './FileIcon';
 import styles from './EditorTabs.module.css';
 
-export const EditorTabs = observer(({ workspace }: { workspace: WorkspaceModel }) => (
+interface Props {
+  workspace: WorkspaceModel;
+  fileStates: Map<string, FileState>;
+}
+
+export const EditorTabs = observer(({ workspace, fileStates }: Props) => (
   <div className={styles.tabs}>
     {workspace.openTabs.map((path) => (
       <div
@@ -14,7 +21,13 @@ export const EditorTabs = observer(({ workspace }: { workspace: WorkspaceModel }
       >
         <FileIcon path={path} size={14} />
         {path}
-        {workspace.isModified(path) && <span className={styles.dot} title="変更あり" />}
+        {fileStates.has(path) && (
+          <span
+            className={styles.dot}
+            style={{ background: FILE_STATE_MARKS[fileStates.get(path)!].color }}
+            title={FILE_STATE_MARKS[fileStates.get(path)!].label}
+          />
+        )}
         <button
           className={styles.close}
           title="閉じる"

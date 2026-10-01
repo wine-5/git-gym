@@ -1,11 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { GitGraph, FolderTree, MousePointerClick } from 'lucide-react';
 import { appModel } from '@models/AppModel';
-import { TerminalModel } from '@models/TerminalModel';
-import type { WorkspaceRef } from '@shared/api';
 import { findLesson } from '@data/lessons';
-import { createMockRepo, type RepoSnapshot } from '@data/mockRepo';
 import { CodeEditor } from '../editor/CodeEditor';
 import { EditorTabs } from '../editor/EditorTabs';
 import { FileTree } from '../editor/FileTree';
@@ -18,24 +15,16 @@ import styles from './LessonView.module.css';
 export const LessonView = observer(() => {
   const found = findLesson(appModel.currentLessonId);
   const project = appModel.project;
-  const ref = useMemo<WorkspaceRef>(() => ({ kind: 'lessons', id: appModel.currentLessonId }), [appModel.currentLessonId]);
-  const terminal = useMemo(() => new TerminalModel(ref), [ref]);
+  const session = appModel.lessonSession;
 
   // 実フォルダ（ドキュメント/GitGym/lessons/<id>）を用意してターミナルをつなぐ
   useEffect(() => {
-    if (!project || !window.gitGym) return;
-    void window.gitGym.workspace.open(ref, project.name).then((info) => terminal.setCwd(info.cwd));
-  }, [ref, terminal, project]);
+    void session?.open();
+  }, [session]);
 
-  if (!found || !project) return null;
+  if (!found || !project || !session) return null;
 
-  const { workspace } = appModel;
-  const mock = createMockRepo(project.featureFile);
-  // Git 連携までは、エディタで変更したファイルを作業ツリーに出して雰囲気を確認できるようにする
-  const repo: RepoSnapshot = {
-    ...mock,
-    working: workspace.paths.filter((p) => workspace.isModified(p)).map((path) => ({ path, state: 'modified' })),
-  };
+  const { workspace, repo, fileStates } = session;
 
   return (
     <main className={styles.lesson}>
@@ -49,9 +38,9 @@ export const LessonView = observer(() => {
 
       <section className={styles.center}>
         <div className={styles.editorArea}>
-          <FileTree workspace={workspace} />
+          <FileTree workspace={workspace} projectName={project.name} fileStates={fileStates} />
           <div className={styles.editor}>
-            <EditorTabs workspace={workspace} />
+            <EditorTabs workspace={workspace} fileStates={fileStates} />
             {workspace.activePath ? (
               <CodeEditor
                 path={workspace.activePath}
@@ -66,7 +55,7 @@ export const LessonView = observer(() => {
             )}
           </div>
         </div>
-        <TerminalPanel terminal={terminal} branch={repo.branch} onReveal={() => void window.gitGym?.workspace.reveal(ref)} />
+        <TerminalPanel terminal={session.terminal} branch={repo.branch ?? undefined} onReveal={() => session.reveal()} />
       </section>
 
       <section className={styles.side}>

@@ -2,6 +2,13 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { WorkspaceRef } from '@shared/api';
 import type { CommandResult } from '@shared/terminal';
 
+export interface TerminalHooks {
+  /** 実行前に呼ばれる（エディタの保存待ちを書き込むなど） */
+  beforeExecute?: () => Promise<void>;
+  /** 実行後に呼ばれる（リポジトリ状態の再読み込みなど） */
+  afterExecute?: (line: string, result: CommandResult) => void;
+}
+
 export interface TerminalLine {
   kind: 'command' | 'output' | 'error' | 'success' | 'hint';
   text: string;
@@ -20,10 +27,9 @@ export class TerminalModel {
 
   constructor(
     readonly ref: WorkspaceRef,
-    /** 実行後に呼ばれる（リポジトリ状態の再読み込みなど） */
-    private readonly onExecuted?: (line: string, result: CommandResult) => void,
+    private readonly hooks: TerminalHooks = {},
   ) {
-    makeAutoObservable<TerminalModel, 'onExecuted'>(this, { ref: false, onExecuted: false });
+    makeAutoObservable<TerminalModel, 'hooks'>(this, { ref: false, hooks: false });
   }
 
   setCwd(cwd: string): void {
@@ -41,6 +47,7 @@ export class TerminalModel {
 
     let result: CommandResult;
     try {
+      await this.hooks.beforeExecute?.();
       result = await window.gitGym.terminal.execute(this.ref, trimmed);
     } catch (e) {
       result = { stdout: '', stderr: `${(e as Error).message}\n`, exitCode: 1, cwd: this.cwd };
@@ -57,7 +64,7 @@ export class TerminalModel {
         this.push(result.exitCode === 0 ? 'output' : 'error', result.stderr);
       }
     });
-    this.onExecuted?.(trimmed, result);
+    this.hooks.afterExecute?.(trimmed, result);
   }
 
   /** フィードバックやヒントを差し込む */

@@ -1,8 +1,11 @@
-import type { WorkspaceInfo, WorkspaceRef } from '../../shared/api';
+import type { SeedFile, WorkspaceInfo, WorkspaceRef } from '../../shared/api';
+import type { RepoSnapshot } from '../../shared/repo';
 import type { CommandResult } from '../../shared/terminal';
 import type { GitRunner } from '../git/GitRunner';
+import { readRepo } from '../git/readRepo';
 import { TerminalSession } from '../terminal/TerminalSession';
 import type { PracticeFolders } from './PracticeFolders';
+import { listFiles, readFile, writeFile } from './repoFiles';
 
 interface OpenWorkspace {
   path: string;
@@ -19,10 +22,13 @@ export class WorkspaceHub {
     private readonly git: GitRunner,
   ) {}
 
-  async open(ref: WorkspaceRef, displayName: string): Promise<WorkspaceInfo> {
+  async open(ref: WorkspaceRef, displayName: string, seed: SeedFile[] = []): Promise<WorkspaceInfo> {
     await this.folders.ensureRoot();
     const dir = this.folders.repoPath(ref.kind, ref.id);
-    if (!(await this.folders.exists(dir))) await this.folders.reset(dir);
+    if (!(await this.folders.exists(dir))) {
+      await this.folders.reset(dir);
+      for (const file of seed) await writeFile(dir, file.path, file.content);
+    }
 
     this.displayNames.set(key(ref), displayName);
     const workspace = this.createSession(ref, dir);
@@ -44,11 +50,29 @@ export class WorkspaceHub {
     return this.get(ref).session.execute(line);
   }
 
+  snapshot(ref: WorkspaceRef): Promise<RepoSnapshot> {
+    return readRepo(this.git, this.get(ref).path, this.gitEnv);
+  }
+
+  listFiles(ref: WorkspaceRef): Promise<string[]> {
+    return listFiles(this.get(ref).path);
+  }
+
+  readFile(ref: WorkspaceRef, file: string): Promise<string | null> {
+    return readFile(this.get(ref).path, file);
+  }
+
+  writeFile(ref: WorkspaceRef, file: string, content: string): Promise<void> {
+    return writeFile(this.get(ref).path, file, content);
+  }
+
+  private get gitEnv(): Record<string, string> {
+    return { GIT_CONFIG_GLOBAL: this.folders.globalConfig };
+  }
+
   private createSession(ref: WorkspaceRef, dir: string): OpenWorkspace {
     const displayName = this.displayNames.get(key(ref)) ?? ref.id;
-    const session = new TerminalSession(dir, displayName, this.git, {
-      GIT_CONFIG_GLOBAL: this.folders.globalConfig,
-    });
+    const session = new TerminalSession(dir, displayName, this.git, this.gitEnv);
     const workspace = { path: dir, session };
     this.workspaces.set(key(ref), workspace);
     return workspace;

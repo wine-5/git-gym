@@ -1,5 +1,6 @@
-import { MapPin, GitBranch, Cloud, Tag, PencilLine, GitMerge, type LucideIcon } from 'lucide-react';
-import type { CommitRef, RefKind, RepoSnapshot } from '@data/mockRepo';
+import { MapPin, GitBranch, Cloud, Tag, PencilLine, GitMerge, FolderX, GitCommitHorizontal, type LucideIcon } from 'lucide-react';
+import { EmptyState } from '../EmptyState';
+import type { CommitRef, RefKind, RepoSnapshot } from '@shared/repo';
 import { assignColumns, type LaidOutCommit } from './graphLayout';
 import styles from './CommitGraph.module.css';
 
@@ -32,6 +33,27 @@ interface Props {
 }
 
 export function CommitGraph({ repo }: Props) {
+  if (!repo.initialized) {
+    return (
+      <EmptyState
+        icon={FolderX}
+        title="まだ Git リポジトリではありません"
+        description="このフォルダで Git を使い始めるには、リポジトリを作りましょう"
+        command="git init"
+      />
+    );
+  }
+  if (repo.commits.length === 0) {
+    return (
+      <EmptyState
+        icon={GitCommitHorizontal}
+        title="まだコミットがありません"
+        description="ファイルをステージに乗せてコミットすると、ここに履歴が並びます"
+        command='git commit -m "メッセージ"'
+      />
+    );
+  }
+
   const commits = assignColumns(repo.commits);
   const pendingCount = repo.working.length + repo.staged.length;
   // 未コミットの変更があれば先頭に「次のコミット」行を出す

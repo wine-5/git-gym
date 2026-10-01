@@ -1,3 +1,4 @@
+import type { RepoSnapshot } from './repo';
 import type { CommandResult } from './terminal';
 
 export type PracticeKind = 'lessons' | 'stages' | 'sandbox';
@@ -6,6 +7,12 @@ export type PracticeKind = 'lessons' | 'stages' | 'sandbox';
 export interface WorkspaceRef {
   kind: PracticeKind;
   id: string;
+}
+
+/** 練習用フォルダを新しく作ったときに置くファイル */
+export interface SeedFile {
+  path: string;
+  content: string;
 }
 
 export interface WorkspaceInfo {
@@ -20,14 +27,18 @@ export const IPC = {
   workspaceReset: 'workspace:reset',
   workspaceReveal: 'workspace:reveal',
   terminalExecute: 'terminal:execute',
+  repoSnapshot: 'repo:snapshot',
+  filesList: 'files:list',
+  filesRead: 'files:read',
+  filesWrite: 'files:write',
 } as const;
 
 /** preload からレンダラーへ公開する API */
 export interface GitGymApi {
   platform: string;
   workspace: {
-    /** フォルダが無ければ作ってターミナルを用意する */
-    open(ref: WorkspaceRef, displayName: string): Promise<WorkspaceInfo>;
+    /** フォルダが無ければ作って seed のファイルを置き、ターミナルを用意する */
+    open(ref: WorkspaceRef, displayName: string, seed?: SeedFile[]): Promise<WorkspaceInfo>;
     /** フォルダを空にして作り直す */
     reset(ref: WorkspaceRef): Promise<WorkspaceInfo>;
     /** エクスプローラー / Finder で開く */
@@ -35,5 +46,16 @@ export interface GitGymApi {
   };
   terminal: {
     execute(ref: WorkspaceRef, line: string): Promise<CommandResult>;
+  };
+  repo: {
+    /** コミットグラフとファイルの居場所に使う状態を読む */
+    snapshot(ref: WorkspaceRef): Promise<RepoSnapshot>;
+  };
+  files: {
+    /** .git を除いたファイルの一覧（/ 区切りの相対パス） */
+    list(ref: WorkspaceRef): Promise<string[]>;
+    /** 無ければ null */
+    read(ref: WorkspaceRef, path: string): Promise<string | null>;
+    write(ref: WorkspaceRef, path: string, content: string): Promise<void>;
   };
 }

@@ -11,6 +11,7 @@ import { CommitGraph } from '../lesson/CommitGraph';
 import { FileAreas } from '../lesson/FileAreas';
 import { Splitter } from '../layout/Splitter';
 import { usePanelSize } from '../../hooks/usePanelSize';
+import { useVsCodeShortcuts } from '../../hooks/useVsCodeShortcuts';
 import styles from './PracticeLayout.module.css';
 
 interface Props {
@@ -32,6 +33,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
 
   const { workspace, repo, fileStates } = session;
   const { layout } = appModel;
+  useVsCodeShortcuts(layout, workspace);
 
   return (
     <main

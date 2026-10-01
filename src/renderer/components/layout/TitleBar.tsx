@@ -1,11 +1,12 @@
 import { observer } from 'mobx-react-lite';
 import { appModel, type Screen } from '@models/AppModel';
 import { findLesson } from '@data/lessons';
-import { Home, GraduationCap, FlaskConical, BookOpen, RotateCcw, Settings, ChevronRight, type LucideIcon } from 'lucide-react';
+import { Home, GraduationCap, Swords, FlaskConical, BookOpen, RotateCcw, Settings, ChevronRight, type LucideIcon } from 'lucide-react';
 import styles from './TitleBar.module.css';
 
 const NAV: { screen: Screen; label: string; icon: LucideIcon }[] = [
   { screen: 'home', label: 'ホーム', icon: Home },
+  { screen: 'stages', label: '練習モード', icon: Swords },
   { screen: 'lesson', label: 'レッスン', icon: GraduationCap },
   { screen: 'sandbox', label: 'フリー練習', icon: FlaskConical },
   { screen: 'dictionary', label: 'コマンド辞典', icon: BookOpen },

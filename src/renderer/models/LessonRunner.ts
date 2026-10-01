@@ -41,7 +41,7 @@ export class LessonRunner {
   }
 
   recordCommand(line: string): void {
-    this.commands.push(line.trim().replace(/s+/g, ' '));
+    this.commands.push(line.trim().replace(/\s+/g, ' '));
   }
 
   /** 判定し直して、新しく達成したチェックの番号を返す */

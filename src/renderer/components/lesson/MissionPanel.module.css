@@ -119,6 +119,10 @@
 
 .foot :global(.btn) {
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .foot :global(.btn:disabled) {

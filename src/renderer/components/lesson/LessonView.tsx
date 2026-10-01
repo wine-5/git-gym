@@ -22,7 +22,7 @@ export const LessonView = observer(() => {
   const runner = appModel.lessonRunner;
 
   // VS Code のように、各パネルの境目をドラッグして大きさを変えられる（大きさは保存される）
-  const mission = usePanelSize('mission', 290, 220, 520);
+  const mission = usePanelSize('mission', 290, 250, 520);
   const side = usePanelSize('side', 360, 260, 640);
   const tree = usePanelSize('tree', 200, 130, 420);
   const terminalHeight = usePanelSize('terminal', 250, 110, 640);

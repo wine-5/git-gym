@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git Gym - Layout Prototype</title>
+<style>
+  :root {
+    --bg: #1e1f24;
+    --bg-panel: #25262c;
+    --bg-elev: #2d2e35;
+    --bg-editor: #1b1c20;
+    --border: #3a3b44;
+    --text: #e4e4e8;
+    --text-dim: #9a9ba6;
+    --text-mute: #6c6d78;
+    --accent: #f05033;       /* Git orange */
+    --accent-soft: rgba(240, 80, 51, .14);
+    --green: #4cc38a;
+    --blue: #5aa9ff;
+    --purple: #b48cff;
+    --yellow: #e8c46a;
+    --red: #ff6b6b;
+    --font: "Segoe UI", "Yu Gothic UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    --mono: "Cascadia Code", Consolas, Menlo, "Noto Sans Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    overflow: hidden;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  /* ---------- App shell ---------- */
+  .app { display: grid; grid-template-rows: 44px 1fr 24px; height: 100vh; min-width: 1100px; }
+
+  .titlebar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 12px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: .3px; }
+  .logo-mark {
+    width: 24px; height: 24px; border-radius: 6px; background: var(--accent);
+    display: grid; place-items: center;
+  }
+  .nav { display: flex; gap: 2px; margin-left: 8px; }
+  .nav button {
+    background: none; border: none; padding: 6px 12px; border-radius: 6px; color: var(--text-dim);
+  }
+  .nav button.active { background: var(--bg-elev); color: var(--text); }
+  .nav button:hover { color: var(--text); }
+  .breadcrumb { color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .breadcrumb strong { color: var(--text); font-weight: 600; }
+  .spacer { flex: 1; }
+  .steps { display: flex; gap: 5px; align-items: center; }
+  .steps i { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .steps i.done { background: var(--green); }
+  .steps i.now { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    padding: 5px 12px; border-radius: 6px;
+  }
+  .btn:hover { border-color: var(--text-mute); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  .statusbar {
+    display: flex; align-items: center; gap: 16px; padding: 0 12px;
+    background: var(--bg-panel); border-top: 1px solid var(--border);
+    color: var(--text-dim); font-size: 12px;
+  }
+  .statusbar .branch { color: var(--accent); font-family: var(--mono); }
+
+  .screen { display: none; min-height: 0; }
+  .screen.active { display: grid; }
+
+  /* ---------- Lesson screen ---------- */
+  .lesson { grid-template-columns: 280px 1fr 320px; min-height: 0; }
+  .panel { background: var(--bg-panel); min-height: 0; display: flex; flex-direction: column; }
+  .panel + .panel { border-left: 1px solid var(--border); }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: .8px;
+    color: var(--text-dim); text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Mission panel */
+  .mission { padding: 16px 16px 12px; overflow: auto; flex: 1; }
+  .mission .chapter { color: var(--accent); font-size: 12px; font-weight: 600; }
+  .mission h2 { font-size: 18px; margin: 4px 0 12px; line-height: 1.4; }
+  .mission p { color: var(--text-dim); line-height: 1.75; margin-bottom: 12px; }
+  .mission code, .term code, .hint code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--bg-elev); padding: 1px 6px; border-radius: 4px; color: var(--yellow);
+  }
+  .checklist { list-style: none; margin: 16px 0; display: flex; flex-direction: column; gap: 8px; }
+  .checklist li {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px;
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; line-height: 1.5;
+  }
+  .checklist li .box {
+    flex: none; width: 18px; height: 18px; border-radius: 50%; margin-top: 1px;
+    border: 2px solid var(--text-mute); display: grid; place-items: center;
+  }
+  .checklist li.done { border-color: rgba(76, 195, 138, .4); }
+  .checklist li.done .box { border-color: var(--green); background: var(--green); }
+  .checklist li.done span { color: var(--text-dim); text-decoration: line-through; }
+  .checklist li.now { border-color: var(--accent); }
+  .checklist li.now .box { border-color: var(--accent); }
+  .hint {
+    border: 1px dashed var(--border); border-radius: 8px; padding: 12px;
+    color: var(--text-dim); line-height: 1.7;
+  }
+  .hint .label { color: var(--yellow); font-weight: 600; display: block; margin-bottom: 4px; }
+  .mission-foot { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .mission-foot .btn { flex: 1; justify-content: center; }
+
+  /* Center: editor + terminal */
+  .center { display: grid; grid-template-rows: 1fr 6px 240px; min-height: 0; background: var(--bg-editor); }
+  .editor-area { display: grid; grid-template-columns: 180px 1fr; min-height: 0; }
+  .filetree { background: var(--bg-panel); border-right: 1px solid var(--border); overflow: auto; }
+  .filetree ul { list-style: none; padding: 6px 0; }
+  .filetree li {
+    padding: 4px 12px; display: flex; align-items: center; gap: 6px; color: var(--text-dim);
+    font-size: 13px; white-space: nowrap;
+  }
+  .filetree li.indent { padding-left: 28px; }
+  .filetree li.sel { background: var(--bg-elev); color: var(--text); }
+  .filetree .st { margin-left: auto; font-family: var(--mono); font-size: 11px; font-weight: 700; }
+  .st.m { color: var(--yellow); }
+  .st.u { color: var(--green); }
+
+  .editor { display: grid; grid-template-rows: 35px 1fr; min-height: 0; }
+  .tabs { display: flex; background: var(--bg-panel); border-bottom: 1px solid var(--border); }
+  .tab {
+    display: flex; align-items: center; gap: 8px; padding: 0 14px; color: var(--text-dim);
+    border-right: 1px solid var(--border); font-size: 13px;
+  }
+  .tab.active { background: var(--bg-editor); color: var(--text); box-shadow: inset 0 2px 0 var(--accent); }
+  .tab .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); }
+  .code {
+    display: grid; grid-template-columns: 48px 1fr; overflow: auto;
+    font-family: var(--mono); font-size: 13.5px; line-height: 21px; padding-top: 8px;
+  }
+  .gutter { color: var(--text-mute); text-align: right; padding-right: 14px; user-select: none; }
+  .lines { white-space: pre; padding-right: 20px; }
+  .ln { height: 21px; }
+  .line-cur { background: rgba(255,255,255,.04); }
+  .line-add { background: rgba(76,195,138,.09); box-shadow: inset 2px 0 0 var(--green); }
+  .k { color: #c586c0; } .f { color: #dcdcaa; } .s { color: #ce9178; }
+  .c { color: #6a9955; } .v { color: #9cdcfe; } .n { color: #b5cea8; }
+  .cursor { display: inline-block; width: 2px; height: 17px; background: var(--text); vertical-align: -3px; }
+
+  .splitter { background: var(--border); cursor: row-resize; }
+
+  .terminal { display: grid; grid-template-rows: 32px 1fr; min-height: 0; background: #141518; }
+  .term-head {
+    display: flex; align-items: center; gap: 16px; padding: 0 14px;
+    border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .8px;
+    color: var(--text-dim);
+  }
+  .term-head .on { color: var(--text); box-shadow: inset 0 -2px 0 var(--accent); align-self: stretch; display: flex; align-items: center; }
+  .term-head .cwd { margin-left: auto; font-family: var(--mono); font-weight: 400; letter-spacing: 0; color: var(--text-mute); }
+  .term { padding: 10px 14px; overflow: auto; font-family: var(--mono); font-size: 13px; line-height: 1.65; }
+  .term .prompt { color: var(--green); }
+  .term .path { color: var(--blue); }
+  .term .br { color: var(--accent); }
+  .term .out { color: var(--text-dim); }
+  .term .ok { color: var(--green); }
+  .term .cmd { color: var(--text); }
+  .term .feedback {
+    font-family: var(--font); margin: 6px 0; padding: 6px 10px; border-radius: 6px;
+    background: rgba(76,195,138,.1); color: var(--green); display: inline-block; font-size: 12px;
+  }
+
+  /* Right: graph + areas */
+  .graph { flex: 1; overflow: auto; padding: 8px 0; min-height: 0; }
+  .commit-row { display: flex; align-items: center; height: 40px; padding-right: 14px; }
+  .commit-row svg { flex: none; }
+  .commit-info { min-width: 0; flex: 1; }
+  .commit-msg { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .commit-meta { font-family: var(--mono); font-size: 11px; color: var(--text-mute); }
+  .ref {
+    display: inline-block; font-family: var(--mono); font-size: 10.5px; padding: 0 6px; border-radius: 4px;
+    margin-right: 4px; line-height: 17px; font-weight: 600;
+  }
+  .ref.head { background: var(--accent); color: #fff; }
+  .ref.main { background: rgba(90,169,255,.18); color: var(--blue); }
+  .ref.feat { background: rgba(180,140,255,.18); color: var(--purple); }
+  .ref.remote { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+  .graph-legend { padding: 0 14px 10px; color: var(--text-mute); font-size: 11px; }
+
+  .areas { border-top: 1px solid var(--border); }
+  .area-flow { display: grid; grid-template-columns: 1fr 14px 1fr 14px 1fr; align-items: stretch; padding: 12px; gap: 0; }
+  .area {
+    background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px; min-height: 120px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .area h4 { font-size: 11px; font-weight: 600; color: var(--text-dim); text-align: center; line-height: 1.3; }
+  .area h4 small { display: block; font-family: var(--mono); font-weight: 400; color: var(--text-mute); font-size: 10px; }
+  .chip {
+    font-family: var(--mono); font-size: 11px; padding: 3px 6px; border-radius: 4px;
+    background: var(--bg); border: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .chip.m { border-color: rgba(232,196,106,.5); color: var(--yellow); }
+  .chip.u { border-color: rgba(76,195,138,.5); color: var(--green); }
+  .area .empty { color: var(--text-mute); font-size: 11px; text-align: center; margin-top: 8px; }
+  .area .count { margin-top: auto; text-align: center; font-size: 11px; color: var(--text-dim); }
+  .arrow { display: grid; place-items: center; color: var(--text-mute); font-size: 11px; }
+  .area-cmds { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; padding: 0 12px 12px; font-family: var(--mono); font-size: 10.5px; color: var(--text-mute); text-align: center; }
+
+  /* ---------- Home screen ---------- */
+  .home { overflow: auto; }
+  .home-inner { max-width: 1080px; margin: 0 auto; padding: 36px 32px 48px; width: 100%; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+  .hero h1 { font-size: 26px; margin-bottom: 6px; }
+  .hero p { color: var(--text-dim); }
+  .overall { display: flex; align-items: center; gap: 14px; }
+  .overall .bar { width: 220px; height: 8px; background: var(--bg-elev); border-radius: 99px; overflow: hidden; }
+  .overall .bar i { display: block; height: 100%; width: 28%; background: var(--accent); }
+  .continue {
+    display: flex; align-items: center; gap: 18px; padding: 18px 20px; margin-bottom: 28px;
+    background: linear-gradient(90deg, var(--accent-soft), transparent 70%);
+    border: 1px solid rgba(240,80,51,.35); border-radius: 12px;
+  }
+  .continue .info { flex: 1; }
+  .continue .info small { color: var(--accent); font-weight: 600; }
+  .continue .info div { font-size: 16px; font-weight: 600; margin-top: 2px; }
+  .section-title { font-size: 12px; font-weight: 700; letter-spacing: .8px; color: var(--text-dim); margin-bottom: 12px; }
+  .chapters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+  .chapter-card {
+    background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .chapter-card.locked { opacity: .5; }
+  .chapter-card .num { font-size: 11px; font-weight: 700; color: var(--text-mute); letter-spacing: .6px; }
+  .chapter-card h3 { font-size: 16px; }
+  .chapter-card .desc { color: var(--text-dim); line-height: 1.6; font-size: 12.5px; }
+  .chapter-card .cmds { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chapter-card .cmds span { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--bg-elev); color: var(--text-dim); }
+  .chapter-card .prog { display: flex; align-items: center; gap: 8px; margin-top: auto; font-size: 11px; color: var(--text-dim); }
+  .chapter-card .prog .bar { flex: 1; height: 5px; background: var(--bg-elev); border-radius: 99px; overflow: hidden; }
+  .chapter-card .prog .bar i { display: block; height: 100%; background: var(--green); }
+  .chapter-card.current { border-color: var(--accent); }
+  .chapter-card.current .prog .bar i { background: var(--accent); }
+  .modes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .mode {
+    display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 12px;
+    background: var(--bg-panel); border: 1px solid var(--border);
+  }
+  .mode .ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--bg-elev); font-size: 18px; flex: none; }
+  .mode b { display: block; margin-bottom: 2px; }
+  .mode span { color: var(--text-dim); font-size: 12px; }
+
+  /* prototype badge */
+  .proto-badge {
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: 2px; padding: 1px 10px !important; font-size: 11px; color: var(--text-mute);
+    background: var(--bg-panel); border: 1px solid var(--border); padding: 4px 10px; border-radius: 99px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Title bar ===== -->
+  <header class="titlebar">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+          <circle cx="4" cy="3.5" r="1.6"/><circle cx="4" cy="12.5" r="1.6"/><circle cx="12" cy="6" r="1.6"/>
+          <path d="M4 5.1v5.8M12 7.6c0 2.4-3 2.4-6.6 3.8"/>
+        </svg>
+      </div>
+      Git Gym
+    </div>
+    <nav class="nav">
+      <button data-screen="home">ホーム</button>
+      <button data-screen="lesson" class="active">レッスン</button>
+      <button>フリー練習</button>
+      <button>コマンド辞典</button>
+    </nav>
+    <div class="breadcrumb lesson-only">
+      <span>第2章 ブランチ</span><span>›</span><strong>2-3 ブランチを作ってみよう</strong>
+    </div>
+    <div class="spacer"></div>
+    <div class="steps lesson-only" title="章内の進み具合">
+      <i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i>
+    </div>
+    <button class="btn lesson-only">↺ リセット</button>
+    <button class="btn">⚙</button>
+  </header>
+
+  <!-- ===== Lesson screen ===== -->
+  <main class="screen lesson active" id="screen-lesson">
+
+    <!-- Left: Mission -->
+    <section class="panel">
+      <div class="panel-head">ミッション</div>
+      <div class="mission">
+        <div class="chapter">第2章 ブランチ ・ 3 / 5</div>
+        <h2>ブランチを作って<br>ログイン機能を作ろう</h2>
+        <p>
+          main ブランチを直接いじるのは危険です。<br>
+          新しく <code>feature/login</code> ブランチを作って切り替え、
+          そこで <code>app.js</code> にログイン処理を追加してコミットしましょう。
+        </p>
+
+        <ul class="checklist">
+          <li class="done">
+            <div class="box"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#fff" stroke-width="1.8" fill="none"/></svg></div>
+            <span>feature/login ブランチを作る</span>
+          </li>
+          <li class="done">
+            <div class="box"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#fff" stroke-width="1.8" fill="none"/></svg></div>
+            <span>feature/login に切り替える</span>
+          </li>
+          <li class="now">
+            <div class="box"></div>
+            <span>app.js を編集してコミットする</span>
+          </li>
+        </ul>
+
+        <div class="hint">
+          <span class="label">💡 ヒント 1 / 3</span>
+          変更をコミットする前に、まずはステージに乗せる必要があります。
+          どのコマンドを使うか思い出してみましょう。
+        </div>
+      </div>
+      <div class="mission-foot">
+        <button class="btn">次のヒント</button>
+        <button class="btn">解説を見る</button>
+      </div>
+    </section>
+
+    <!-- Center: Editor + Terminal -->
+    <section class="center">
+      <div class="editor-area">
+        <div class="filetree">
+          <div class="panel-head">ファイル</div>
+          <ul>
+            <li>▾ 📁 my-app</li>
+            <li class="indent">📄 index.html</li>
+            <li class="indent sel">📄 app.js <span class="st m">M</span></li>
+            <li class="indent">📄 style.css</li>
+            <li class="indent">📄 login.js <span class="st u">U</span></li>
+            <li class="indent">📄 README.md</li>
+          </ul>
+        </div>
+
+        <div class="editor">
+          <div class="tabs">
+            <div class="tab">index.html</div>
+            <div class="tab active">app.js <span class="dot"></span></div>
+            <div class="tab">login.js</div>
+          </div>
+          <div class="code">
+            <div class="gutter">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div>
+            <div class="lines"><div class="ln"><span class="k">import</span> { <span class="v">renderHeader</span> } <span class="k">from</span> <span class="s">'./header.js'</span>;</div><div class="ln line-add"><span class="k">import</span> { <span class="v">login</span> } <span class="k">from</span> <span class="s">'./login.js'</span>;</div><div class="ln"> </div><div class="ln"><span class="c">// アプリの初期化</span></div><div class="ln"><span class="k">function</span> <span class="f">init</span>() {</div><div class="ln">  <span class="f">renderHeader</span>(<span class="s">'Git Gym Shop'</span>);</div><div class="ln line-add">  <span class="k">const</span> <span class="v">button</span> = <span class="v">document</span>.<span class="f">querySelector</span>(<span class="s">'#login'</span>);</div><div class="ln line-add">  <span class="v">button</span>.<span class="f">addEventListener</span>(<span class="s">'click'</span>, () =&gt; {</div><div class="ln line-add">    <span class="f">login</span>(<span class="s">'guest'</span>, <span class="n">1234</span>);</div><div class="ln line-add line-cur">  });<span class="cursor"></span></div><div class="ln">}</div><div class="ln"> </div><div class="ln"><span class="v">window</span>.<span class="f">addEventListener</span>(<span class="s">'load'</span>, <span class="v">init</span>);</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="splitter"></div>
+
+      <div class="terminal">
+        <div class="term-head">
+          <span class="on">ターミナル</span>
+          <span>出力</span>
+          <span class="cwd">~/my-app</span>
+        </div>
+        <div class="term">
+          <div><span class="prompt">❯</span> <span class="path">~/my-app</span> <span class="br">(main)</span> <span class="cmd">git branch feature/login</span></div>
+          <div class="feedback">✔ ブランチを作成しました</div>
+          <div><span class="prompt">❯</span> <span class="path">~/my-app</span> <span class="br">(main)</span> <span class="cmd">git switch feature/login</span></div>
+          <div class="out">Switched to branch 'feature/login'</div>
+          <div class="feedback">✔ feature/login に切り替わりました</div>
+          <div><span class="prompt">❯</span> <span class="path">~/my-app</span> <span class="br">(feature/login)</span> <span class="cmd">git status</span></div>
+          <div class="out">On branch feature/login</div>
+          <div class="out">Changes not staged for commit:</div>
+          <div class="out">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--red)">modified:   app.js</span></div>
+          <div class="out">Untracked files:</div>
+          <div class="out">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--red)">login.js</span></div>
+          <div><span class="prompt">❯</span> <span class="path">~/my-app</span> <span class="br">(feature/login)</span> <span class="cursor"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Graph + Areas -->
+    <section class="panel">
+      <div class="panel-head">コミットグラフ <span style="font-weight:400;letter-spacing:0;text-transform:none">--all</span></div>
+      <div class="graph">
+        <!-- each row draws its own lane segments -->
+        <div class="commit-row">
+          <svg width="56" height="40">
+            <line x1="20" y1="20" x2="20" y2="40" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="20" cy="20" r="6" fill="var(--bg-panel)" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="3 2"/>
+          </svg>
+          <div class="commit-info">
+            <div class="commit-msg" style="color:var(--text-dim);font-style:italic">（次のコミット）</div>
+            <div class="commit-meta">未コミットの変更 2件</div>
+          </div>
+        </div>
+        <div class="commit-row">
+          <svg width="56" height="40">
+            <line x1="20" y1="0" x2="20" y2="40" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="20" cy="20" r="6" fill="var(--blue)"/>
+          </svg>
+          <div class="commit-info">
+            <div><span class="ref head">HEAD</span><span class="ref feat">feature/login</span><span class="ref main">main</span></div>
+            <div class="commit-msg">ヘッダーを追加 <span class="commit-meta">a3f9c21</span></div>
+          </div>
+        </div>
+        <div class="commit-row">
+          <svg width="56" height="40">
+            <line x1="20" y1="0" x2="20" y2="40" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="20" cy="20" r="6" fill="var(--blue)"/>
+          </svg>
+          <div class="commit-info">
+            <div><span class="ref remote">origin/main</span></div>
+            <div class="commit-msg">トップページを作成 <span class="commit-meta">7be0d14</span></div>
+          </div>
+        </div>
+        <div class="commit-row">
+          <svg width="56" height="40">
+            <line x1="20" y1="0" x2="20" y2="20" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="20" cy="20" r="6" fill="var(--blue)"/>
+          </svg>
+          <div class="commit-info">
+            <div class="commit-msg">最初のコミット</div>
+            <div class="commit-meta">0c41e8a</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="areas">
+        <div class="panel-head" style="border-top:0">ファイルの居場所</div>
+        <div class="area-flow">
+          <div class="area">
+            <h4>作業ツリー<small>working tree</small></h4>
+            <div class="chip m">M app.js</div>
+            <div class="chip u">U login.js</div>
+            <div class="count">2 件</div>
+          </div>
+          <div class="arrow">›</div>
+          <div class="area">
+            <h4>ステージ<small>index</small></h4>
+            <div class="empty">空っぽ</div>
+            <div class="count">0 件</div>
+          </div>
+          <div class="arrow">›</div>
+          <div class="area">
+            <h4>リポジトリ<small>.git</small></h4>
+            <div class="chip">3 commits</div>
+            <div class="count">feature/login</div>
+          </div>
+        </div>
+        <div class="area-cmds"><span>git add ›</span><span>git commit ›</span></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Home screen ===== -->
+  <main class="screen home" id="screen-home">
+    <div class="home-inner">
+      <div class="hero">
+        <div>
+          <h1>Git Gym</h1>
+          <p>コマンドで Git を動かして、体で覚えよう。</p>
+        </div>
+        <div class="overall">
+          <span style="color:var(--text-dim)">全体の進み具合</span>
+          <div class="bar"><i></i></div>
+          <b>28%</b>
+        </div>
+      </div>
+
+      <div class="continue">
+        <div class="info">
+          <small>つづきから</small>
+          <div>第2章 ブランチ ・ 2-3 ブランチを作ってみよう</div>
+        </div>
+        <button class="btn primary" data-screen="lesson">再開する ›</button>
+      </div>
+
+      <div class="section-title">コース</div>
+      <div class="chapters">
+        <div class="chapter-card">
+          <div class="num">CHAPTER 1</div>
+          <h3>はじめの一歩</h3>
+          <div class="desc">変更を記録する基本の流れ。add と commit の意味を理解しよう。</div>
+          <div class="cmds"><span>init</span><span>status</span><span>add</span><span>commit</span><span>log</span><span>diff</span></div>
+          <div class="prog"><div class="bar"><i style="width:100%"></i></div>6/6 ✔</div>
+        </div>
+        <div class="chapter-card current">
+          <div class="num" style="color:var(--accent)">CHAPTER 2 ・ 学習中</div>
+          <h3>ブランチ</h3>
+          <div class="desc">作業を枝分かれさせて並行開発。コンフリクトの直し方も学ぶ。</div>
+          <div class="cmds"><span>branch</span><span>switch</span><span>merge</span></div>
+          <div class="prog"><div class="bar"><i style="width:40%"></i></div>2/5</div>
+        </div>
+        <div class="chapter-card">
+          <div class="num">CHAPTER 3</div>
+          <h3>リモート</h3>
+          <div class="desc">チームとコードを共有する。push と pull の流れを体験。</div>
+          <div class="cmds"><span>clone</span><span>push</span><span>pull</span><span>fetch</span></div>
+          <div class="prog"><div class="bar"><i style="width:0"></i></div>0/5</div>
+        </div>
+        <div class="chapter-card locked">
+          <div class="num">CHAPTER 4 🔒</div>
+          <h3>取り消し</h3>
+          <div class="desc">失敗しても大丈夫。変更や履歴を元に戻す方法。</div>
+          <div class="cmds"><span>restore</span><span>reset</span><span>revert</span><span>stash</span></div>
+          <div class="prog"><div class="bar"><i style="width:0"></i></div>0/6</div>
+        </div>
+        <div class="chapter-card locked">
+          <div class="num">CHAPTER 5 🔒</div>
+          <h3>応用</h3>
+          <div class="desc">履歴をきれいに整えるテクニック。</div>
+          <div class="cmds"><span>rebase</span><span>cherry-pick</span><span>tag</span></div>
+          <div class="prog"><div class="bar"><i style="width:0"></i></div>0/4</div>
+        </div>
+        <div class="chapter-card locked">
+          <div class="num">CHAPTER 6 🔒</div>
+          <h3>チーム開発</h3>
+          <div class="desc">仲間が先に push していた！ 実践的な総合演習。</div>
+          <div class="cmds"><span>総合演習</span></div>
+          <div class="prog"><div class="bar"><i style="width:0"></i></div>0/3</div>
+        </div>
+      </div>
+
+      <div class="section-title">その他のモード</div>
+      <div class="modes">
+        <div class="mode"><div class="ico">🧪</div><div><b>フリー練習</b><span>課題なしで自由にコマンドを試せるサンドボックス</span></div></div>
+        <div class="mode"><div class="ico">📖</div><div><b>コマンド辞典</b><span>覚えたコマンドがここに集まっていく</span></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Status bar ===== -->
+  <footer class="statusbar">
+    <span class="branch">⎇ feature/login</span>
+    <span>変更 2</span>
+    <span>ステージ 0</span>
+    <div class="spacer"></div>
+    <span>git 2.47.0 (同梱)</span>
+    <span>JavaScript</span>
+  </footer>
+</div>
+
+<div class="proto-badge">Layout prototype — 入力不可</div>
+
+<script>
+  // 画面切り替えだけ動かす（レイアウト確認用）
+  const navButtons = document.querySelectorAll('.nav button[data-screen]');
+  function show(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+    navButtons.forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+    document.querySelectorAll('.lesson-only').forEach(el => el.style.display = name === 'lesson' ? '' : 'none');
+  }
+  document.querySelectorAll('[data-screen]').forEach(b => b.addEventListener('click', () => show(b.dataset.screen)));
+  if (location.hash === '#home') show('home');
+</script>
+</body>
+</html>

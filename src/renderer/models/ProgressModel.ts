@@ -60,6 +60,14 @@ export class ProgressModel {
     void this.save();
   }
 
+  /** 進み具合をすべて消して最初からにする */
+  resetAll(): void {
+    this.completed = new Set();
+    this.learned = new Set();
+    this.lastLessonId = null;
+    void this.save();
+  }
+
   setLast(lessonId: string): void {
     this.lastLessonId = lessonId;
     void this.save();

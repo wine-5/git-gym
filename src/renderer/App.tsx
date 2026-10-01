@@ -7,6 +7,7 @@ import { HomeView } from '@components/home/HomeView';
 import { LessonView } from '@components/lesson/LessonView';
 import { DictionaryView } from '@components/dictionary/DictionaryView';
 import { SandboxView } from '@components/sandbox/SandboxView';
+import { SettingsView } from '@components/settings/SettingsView';
 import styles from './App.module.css';
 
 const Screen = observer(() => {
@@ -21,6 +22,8 @@ const Screen = observer(() => {
       return <SandboxView />;
     case 'dictionary':
       return <DictionaryView />;
+    case 'settings':
+      return <SettingsView />;
   }
 });
 

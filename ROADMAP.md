@@ -16,7 +16,7 @@
 
 - [x] main プロセスに Git 実行サービス（execFile・タイムアウト・出力上限）
 - [x] 練習用フォルダの管理（ドキュメント/GitGym 配下に作成・リセット・フォルダを開く）
-- [ ] 受け付けるコマンドのパーサーと補助コマンド（ls / cat / cd / pwd / clear / help）
+- [x] 受け付けるコマンドのパーサーと補助コマンド（ls / cat / cd / pwd / clear / help）
 - [ ] IPC と preload API
 - [ ] ターミナルから本物の git を実行して出力を表示
 

@@ -1,10 +1,28 @@
+import type { SetupStep } from '@shared/setup';
+import type { RepoQuery } from '@models/RepoQuery';
+import type { ProjectTemplate } from './projects';
+import { appendAndCommit, initialRepo, writeProject } from './setupHelpers';
+
+export interface LessonCheck {
+  /** `code` 記法と {mainFile} / {featureFile} のプレースホルダーが使える */
+  label: string;
+  /** リポジトリの状態で達成を判定する。一度達成したら戻らない */
+  test: (q: RepoQuery, project: ProjectTemplate) => Promise<boolean> | boolean;
+}
+
 export interface Lesson {
   id: string;
   title: string;
   /** `code` 記法と {mainFile} / {featureFile} のプレースホルダーが使える */
   description: string;
-  checks: string[];
+  checks: LessonCheck[];
   hints: string[];
+  /** 練習用リポジトリの初期状態。省略すると雛形のファイルだけ置く */
+  setup?: (project: ProjectTemplate) => SetupStep[];
+}
+
+export function lessonSetup(lesson: Lesson, project: ProjectTemplate): SetupStep[] {
+  return lesson.setup ? lesson.setup(project) : writeProject(project);
 }
 
 export interface Chapter {
@@ -52,10 +70,20 @@ export const CHAPTERS: Chapter[] = [
         description:
           'main ブランチを直接いじるのは危険です。\n' +
           '新しく `feature/jump` ブランチを作って切り替え、そこで `{featureFile}` にジャンプ処理を追加してコミットしましょう。',
+        setup: (p) => [
+          ...initialRepo(p),
+          ...appendAndCommit(p, 'README.md', '\n## 操作方法\n矢印キーで移動', 'README に操作方法を追加'),
+        ],
         checks: [
-          '`feature/jump` ブランチを作る',
-          '`feature/jump` に切り替える',
-          '`{featureFile}` を編集してコミットする',
+          { label: '`feature/jump` ブランチを作る', test: (q) => q.hasBranch('feature/jump') },
+          { label: '`feature/jump` に切り替える', test: (q) => q.currentBranch === 'feature/jump' },
+          {
+            label: '`{featureFile}` を編集してコミットする',
+            test: async (q, p) => {
+              const out = await q.run(['log', '--format=', '--name-only', 'main..feature/jump']);
+              return out !== null && out.split('\n').includes(p.featureFile);
+            },
+          },
         ],
         hints: [
           '変更をコミットする前に、まずはステージに乗せる必要があります。どのコマンドを使うか思い出してみましょう。',

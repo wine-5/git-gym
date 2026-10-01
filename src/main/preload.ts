@@ -14,6 +14,7 @@ const api: GitGymApi = {
   },
   repo: {
     snapshot: (ref) => ipcRenderer.invoke(IPC.repoSnapshot, ref),
+    query: (ref, args) => ipcRenderer.invoke(IPC.repoQuery, ref, args),
   },
   files: {
     list: (ref) => ipcRenderer.invoke(IPC.filesList, ref),

@@ -7,20 +7,28 @@
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
-      "windows": {
-        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
-      },
-      // 画面（レンダラー）も DevTools / 下の「画面にアタッチ」でデバッグできるようにする
-      "runtimeArgs": ["--remote-debugging-port=9334"],
+      "program": "${workspaceFolder}/node_modules/@electron-forge/cli/dist/electron-forge-start.js",
+      // Electron のメインプロセスを --inspect 付きで起動し、下の「メインプロセスにアタッチ」でデバッグできるようにする
+      // （画面のデバッグは --remote-debugging-port に Chrome デバッガーでアタッチ）
+      "args": ["--inspect-electron", "--", "--remote-debugging-port=9334"],
+      // 子プロセス（webpack の開発サーバーや Electron）にまでデバッガーを自動で付けると起動が止まるので付けない
+      "autoAttachChildProcesses": false,
       // VS Code から引き継ぐと Electron がただの Node として動いてしまうので消す
       "env": { "ELECTRON_RUN_AS_NODE": null },
       "console": "integratedTerminal",
-      "outputCapture": "std",
       "skipFiles": ["<node_internals>/**"]
     },
     {
-      "name": "画面にアタッチ（レンダラーのデバッグ）",
+      "name": "メインプロセスにアタッチ",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 60000,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "画面にアタッチ（レンダラー）",
       "type": "chrome",
       "request": "attach",
       "port": 9334,
@@ -30,8 +38,8 @@
   ],
   "compounds": [
     {
-      "name": "Git Gym を起動＋画面のデバッグ",
-      "configurations": ["Git Gym を起動", "画面にアタッチ（レンダラーのデバッグ）"],
+      "name": "Git Gym を起動＋デバッグ（メイン・画面）",
+      "configurations": ["Git Gym を起動", "メインプロセスにアタッチ", "画面にアタッチ（レンダラー）"],
       "stopAll": true
     }
   ]

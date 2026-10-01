@@ -1,6 +1,8 @@
 import type { WorkspaceInfo, WorkspaceRef } from '../../shared/api';
+import type { RepoSnapshot } from '../../shared/repo';
 import type { CommandResult } from '../../shared/terminal';
 import type { GitRunner } from '../git/GitRunner';
+import { readRepo } from '../git/readRepo';
 import { TerminalSession } from '../terminal/TerminalSession';
 import type { PracticeFolders } from './PracticeFolders';
 
@@ -44,11 +46,17 @@ export class WorkspaceHub {
     return this.get(ref).session.execute(line);
   }
 
+  snapshot(ref: WorkspaceRef): Promise<RepoSnapshot> {
+    return readRepo(this.git, this.get(ref).path, this.gitEnv);
+  }
+
+  private get gitEnv(): Record<string, string> {
+    return { GIT_CONFIG_GLOBAL: this.folders.globalConfig };
+  }
+
   private createSession(ref: WorkspaceRef, dir: string): OpenWorkspace {
     const displayName = this.displayNames.get(key(ref)) ?? ref.id;
-    const session = new TerminalSession(dir, displayName, this.git, {
-      GIT_CONFIG_GLOBAL: this.folders.globalConfig,
-    });
+    const session = new TerminalSession(dir, displayName, this.git, this.gitEnv);
     const workspace = { path: dir, session };
     this.workspaces.set(key(ref), workspace);
     return workspace;

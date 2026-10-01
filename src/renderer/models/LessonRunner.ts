@@ -41,6 +41,7 @@ export class LessonRunner {
     return {
       mainFile: this.project.mainFile,
       featureFile: this.project.featureFile,
+      hpFile: this.project.hpFile,
       // 練習用のリモート（GitGym/remotes/<id>.git）を、練習用フォルダからの相対パスで示す
       remoteUrl: `../../remotes/${this.session.ref.id}.git`,
     };

@@ -34,7 +34,10 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  registerIpc(new WorkspaceHub(new PracticeFolders(), new GitRunner(resolveGitPath())), new ProgressStore());
+  const gitPath = resolveGitPath();
+  const git = new GitRunner(gitPath);
+  const folders = new PracticeFolders();
+  registerIpc(new WorkspaceHub(folders, git), new ProgressStore(), { git, gitPath, folders });
   createWindow();
 
   app.on('activate', () => {

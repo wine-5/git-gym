@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { observer } from 'mobx-react-lite';
-import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame } from 'lucide-react';
+import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame, X } from 'lucide-react';
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
 import styles from './TerminalPanel.module.css';
 
@@ -8,10 +8,12 @@ interface Props {
   terminal: TerminalModel;
   branch?: string;
   onReveal?: () => void;
+  /** パネルを閉じる（Ctrl+` / Ctrl+J でも開け閉めできる） */
+  onClose?: () => void;
   fontSize?: number;
 }
 
-export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }: Props) => {
+export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, fontSize }: Props) => {
   const [input, setInput] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,6 +70,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
         <button className={styles.iconButton} onClick={() => terminal.clear()} title="クリア（Ctrl+L）">
           <Trash2 size={13} />
         </button>
+        {onClose && (
+          <button className={styles.iconButton} onClick={onClose} title="パネルを閉じる（Ctrl+J）">
+            <X size={14} />
+          </button>
+        )}
       </div>
       <div className={styles.body} style={{ fontSize }} ref={bodyRef} onClick={() => inputRef.current?.focus()}>
         {terminal.lines.map((line, i) => (

@@ -78,7 +78,7 @@
 
 - [x] 解析処理・判定処理のテスト（vitest）
 - [x] アプリアイコン
-- [ ] Windows 向けパッケージ（MinGit 同梱）
+- [x] Windows 向けパッケージ（MinGit 同梱）
 - [ ] Mac 向けパッケージ
 - [ ] 配布用の README（起動方法・動作環境）
 - [ ] GitHub Releases に Windows の exe（と Mac 版）を公開

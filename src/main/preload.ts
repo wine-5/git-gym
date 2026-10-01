@@ -12,6 +12,9 @@ const api: GitGymApi = {
   terminal: {
     execute: (ref, line) => ipcRenderer.invoke(IPC.terminalExecute, ref, line),
   },
+  repo: {
+    snapshot: (ref) => ipcRenderer.invoke(IPC.repoSnapshot, ref),
+  },
 };
 
 contextBridge.exposeInMainWorld('gitGym', api);

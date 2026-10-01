@@ -1,21 +1,22 @@
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Target, CheckCircle2, Circle, CircleDot, Lightbulb, BookOpen, ListChecks } from 'lucide-react';
-import { fillPlaceholders, type Chapter, type Lesson } from '@data/lessons';
+import { fillPlaceholders, type Chapter } from '@data/lessons';
+import type { LessonRunner } from '@models/LessonRunner';
 import { InlineText } from '../InlineText';
 import styles from './MissionPanel.module.css';
 
 interface Props {
   chapter: Chapter;
-  lesson: Lesson;
   lessonIndex: number;
-  vars: Record<string, string>;
-  /** 達成済みのチェック数（Git 連携までは仮の値） */
-  doneCount: number;
+  runner: LessonRunner;
 }
 
-export function MissionPanel({ chapter, lesson, lessonIndex, vars, doneCount }: Props) {
+export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) => {
+  const { lesson, done, doneCount } = runner;
   const [hintCount, setHintCount] = useState(1);
-  const fill = (text: string) => fillPlaceholders(text, vars);
+  const fill = (text: string) => fillPlaceholders(text, runner.vars);
+  const nowIndex = done.indexOf(false);
   const shownHints = lesson.hints.slice(0, hintCount);
 
   return (
@@ -42,13 +43,13 @@ export function MissionPanel({ chapter, lesson, lessonIndex, vars, doneCount }: 
             </div>
             <ul className={styles.checklist}>
               {lesson.checks.map((check, i) => {
-                const state = i < doneCount ? 'done' : i === doneCount ? 'now' : 'todo';
+                const state = done[i] ? 'done' : i === nowIndex ? 'now' : 'todo';
                 const Icon = state === 'done' ? CheckCircle2 : state === 'now' ? CircleDot : Circle;
                 return (
-                  <li key={check} className={styles[state]}>
+                  <li key={check.label} className={styles[state]}>
                     <Icon size={18} className={styles.checkIcon} />
                     <span>
-                      <InlineText text={fill(check)} />
+                      <InlineText text={fill(check.label)} />
                     </span>
                   </li>
                 );
@@ -81,4 +82,4 @@ export function MissionPanel({ chapter, lesson, lessonIndex, vars, doneCount }: 
       </div>
     </section>
   );
-}
+});

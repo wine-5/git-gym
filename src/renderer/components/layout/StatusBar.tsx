@@ -6,19 +6,20 @@ import styles from './StatusBar.module.css';
 
 export const StatusBar = observer(() => {
   const language = appModel.language ? getLanguage(appModel.language) : null;
+  const repo = appModel.screen === 'lesson' ? appModel.lessonSession?.repo : undefined;
 
   return (
     <footer className={styles.statusbar}>
-      {appModel.screen === 'lesson' && (
+      {repo?.initialized && (
         <>
           <span className={`${styles.item} ${styles.branch}`}>
-            <GitBranch size={13} /> feature/jump
+            <GitBranch size={13} /> {repo.branch ?? '（ブランチ外）'}
           </span>
           <span className={styles.item}>
-            <FilePen size={13} /> 変更 {appModel.workspace.modifiedCount}
+            <FilePen size={13} /> 変更 {repo.working.length}
           </span>
           <span className={styles.item}>
-            <Layers size={13} /> ステージ 0
+            <Layers size={13} /> ステージ {repo.staged.length}
           </span>
         </>
       )}

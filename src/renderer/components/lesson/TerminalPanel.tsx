@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { observer } from 'mobx-react-lite';
 import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame, X } from 'lucide-react';
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
+import { complete, type CompletionSource } from '@data/completion';
 import styles from './TerminalPanel.module.css';
 
 interface Props {
@@ -10,10 +11,12 @@ interface Props {
   onReveal?: () => void;
   /** パネルを閉じる（Ctrl+` / Ctrl+J でも開け閉めできる） */
   onClose?: () => void;
+  /** Tab 補完の候補（ブランチ名・ファイル名など） */
+  completion?: () => CompletionSource;
   fontSize?: number;
 }
 
-export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, fontSize }: Props) => {
+export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, completion, fontSize }: Props) => {
   const [input, setInput] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +47,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, fo
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setInput(terminal.next());
+    } else if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && completion) {
+      e.preventDefault();
+      const result = complete(input, completion());
+      setInput(result.value);
+      if (result.candidates.length > 0) terminal.push('output', result.candidates.join('    '));
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
       terminal.clear();

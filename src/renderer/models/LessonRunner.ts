@@ -28,6 +28,11 @@ export class LessonRunner {
     });
   }
 
+  /** 失敗したコマンドの数（練習モードの星の計算に使う） */
+  get failedCount(): number {
+    return this.commands.filter((c) => !c.ok).length;
+  }
+
   get doneCount(): number {
     return this.done.filter(Boolean).length;
   }

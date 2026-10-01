@@ -43,6 +43,10 @@ export async function writeFile(root: string, relative: string, content: string)
   await fs.writeFile(file, content, 'utf8');
 }
 
+export async function deleteFile(root: string, relative: string): Promise<void> {
+  await fs.rm(resolveInside(root, relative), { force: true });
+}
+
 /** リポジトリの外や .git の中を指すパスは拒否する */
 function resolveInside(root: string, relative: string): string {
   const resolved = path.resolve(root, relative);

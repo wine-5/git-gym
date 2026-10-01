@@ -22,6 +22,8 @@ function createWindow(): void {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
       nodeIntegration: false,
+      // 開発中は裏にあるウィンドウも描画し続ける（画面確認スクリプトのスクリーンショット用）
+      backgroundThrottling: app.isPackaged,
     },
   });
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as monaco from 'monaco-editor';
 import { monacoLanguageForPath } from '@data/languages';
+import { findConflicts } from './conflictRegions';
 import styles from './CodeEditor.module.css';
 
 monaco.editor.defineTheme('git-gym', {
@@ -15,6 +16,29 @@ monaco.editor.defineTheme('git-gym', {
     'editorCursor.foreground': '#f05033',
   },
 });
+
+/** コンフリクトの「今のブランチ側」「取り込む側」を色分けし、目印の行に説明を添える */
+function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IModelDeltaDecoration[] {
+  const whole = (line: number, className: string, note?: string): monaco.editor.IModelDeltaDecoration => ({
+    // 説明は行末に出すので、範囲は行全体にする（空の範囲だと after が描画されない）
+    range: new monaco.Range(line, 1, line, model.getLineMaxColumn(line)),
+    options: {
+      isWholeLine: true,
+      className,
+      after: note ? { content: note, inlineClassName: 'gg-conflict-note' } : undefined,
+    },
+  });
+  return findConflicts(model.getValue()).flatMap((r) => {
+    const out = [
+      whole(r.start, 'gg-conflict-marker', '   ▼ 今のブランチの内容'),
+      whole(r.separator, 'gg-conflict-marker', '   ▲ 今のブランチ ／ ▼ 取り込むブランチ'),
+      whole(r.end, 'gg-conflict-marker', '   ▲ 取り込もうとしたブランチの内容'),
+    ];
+    for (let l = r.start + 1; l < r.separator; l++) out.push(whole(l, 'gg-conflict-current'));
+    for (let l = r.separator + 1; l < r.end; l++) out.push(whole(l, 'gg-conflict-incoming'));
+    return out;
+  });
+}
 
 interface Props {
   path: string;
@@ -48,14 +72,22 @@ export function CodeEditor({ path, value, onChange }: Props) {
       smoothScrolling: true,
     });
     editorRef.current = editor;
+    const conflicts = editor.createDecorationsCollection();
+    const refreshConflicts = () => {
+      const model = editor.getModel();
+      conflicts.set(model ? conflictDecorations(model) : []);
+    };
 
     const sub = editor.onDidChangeModelContent(() => {
       const model = editor.getModel();
       if (model) onChangeRef.current(model.uri.path.slice(1), model.getValue());
+      refreshConflicts();
     });
+    const modelSub = editor.onDidChangeModel(refreshConflicts);
 
     return () => {
       sub.dispose();
+      modelSub.dispose();
       editor.dispose();
       monaco.editor.getModels().forEach((m) => m.dispose());
       editorRef.current = null;

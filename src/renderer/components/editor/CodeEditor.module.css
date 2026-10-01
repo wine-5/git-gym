@@ -4,3 +4,23 @@
   min-height: 0;
   overflow: hidden;
 }
+
+/* コンフリクトの色分け（Monaco の装飾はグローバルなクラス名で指定する） */
+.editor :global(.gg-conflict-marker) {
+  background: rgba(240, 80, 51, 0.22);
+}
+
+.editor :global(.gg-conflict-current) {
+  background: rgba(76, 195, 138, 0.14);
+}
+
+.editor :global(.gg-conflict-incoming) {
+  background: rgba(90, 169, 255, 0.16);
+}
+
+.editor :global(.gg-conflict-note) {
+  color: #ffb4a3;
+  font-style: italic;
+  font-family: var(--font);
+  font-size: 12px;
+}

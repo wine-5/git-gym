@@ -18,6 +18,8 @@ ws.onmessage = (e) => {
 };
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 await send('Page.enable');
+// ウィンドウが裏にあっても、キー・マウス入力をフォーカスがある状態として扱う
+await send('Emulation.setFocusEmulationEnabled', { enabled: true });
 const FOCUS_TERM="document.querySelector('input[placeholder*=git]').focus()";
 const FOCUS_EDITOR="document.querySelector('.monaco-editor textarea').focus()";
 for (const s of steps) {

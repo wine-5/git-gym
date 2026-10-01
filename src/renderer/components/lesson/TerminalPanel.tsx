@@ -55,25 +55,26 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal }: Props) =>
         {terminal.lines.map((line, i) => (
           <Line key={i} line={line} />
         ))}
-        {terminal.running ? (
+        {terminal.running && (
           <div className={`${styles.line} ${styles.output}`}>
             <Loader2 size={14} className={styles.spin} /> 実行中…
           </div>
-        ) : (
-          <div className={styles.inputRow}>
-            <Prompt cwd={terminal.cwd} branch={branch} />
-            <input
-              ref={inputRef}
-              className={styles.input}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              spellCheck={false}
-              autoFocus
-              placeholder="git コマンドを入力…（help で使えるコマンド一覧）"
-            />
-          </div>
         )}
+        {/* 実行中も入力欄は残す（作り直すとフォーカスがエディタから奪われるため） */}
+        <div className={styles.inputRow} style={terminal.running ? { visibility: 'hidden' } : undefined}>
+          <Prompt cwd={terminal.cwd} branch={branch} />
+          <input
+            ref={inputRef}
+            className={styles.input}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            spellCheck={false}
+            autoFocus
+            readOnly={terminal.running}
+            placeholder="git コマンドを入力…（help で使えるコマンド一覧）"
+          />
+        </div>
       </div>
     </div>
   );

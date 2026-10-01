@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { GitGraph, FolderTree, MousePointerClick } from 'lucide-react';
 import { appModel } from '@models/AppModel';
-import { findLesson } from '@data/lessons';
+import { findLesson, nextLesson } from '@data/lessons';
 import { CodeEditor } from '../editor/CodeEditor';
 import { EditorTabs } from '../editor/EditorTabs';
 import { FileTree } from '../editor/FileTree';
@@ -10,6 +10,7 @@ import { MissionPanel } from './MissionPanel';
 import { TerminalPanel } from './TerminalPanel';
 import { CommitGraph } from './CommitGraph';
 import { FileAreas } from './FileAreas';
+import { ClearModal } from './ClearModal';
 import styles from './LessonView.module.css';
 
 export const LessonView = observer(() => {
@@ -26,6 +27,7 @@ export const LessonView = observer(() => {
   if (!found || !project || !session || !runner) return null;
 
   const { workspace, repo, fileStates } = session;
+  const next = nextLesson(found.lesson.id);
 
   return (
     <main className={styles.lesson}>
@@ -52,6 +54,17 @@ export const LessonView = observer(() => {
         </div>
         <TerminalPanel terminal={session.terminal} branch={repo.branch ?? undefined} onReveal={() => session.reveal()} />
       </section>
+
+      {runner.completed && !runner.celebrated && (
+        <ClearModal
+          lessonTitle={found.lesson.title}
+          nextTitle={next?.title}
+          onNext={next ? () => (runner.markCelebrated(), appModel.openLesson(next.id)) : undefined}
+          onRetry={() => void appModel.resetLesson()}
+          onHome={() => (runner.markCelebrated(), appModel.navigate('home'))}
+          onClose={() => runner.markCelebrated()}
+        />
+      )}
 
       <section className={styles.side}>
         <div className="panel-head">

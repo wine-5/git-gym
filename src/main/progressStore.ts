@@ -3,6 +3,13 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { EMPTY_PROGRESS, type ProgressData } from '../shared/progress';
 
+function readStars(value: unknown): Record<string, number> {
+  if (!value || typeof value !== 'object') return {};
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).filter(([, v]) => typeof v === 'number' && v >= 1 && v <= 3),
+  ) as Record<string, number>;
+}
+
 /** 学習の進み具合を userData/progress.json に保存する */
 export class ProgressStore {
   private readonly file = path.join(app.getPath('userData'), 'progress.json');
@@ -14,6 +21,7 @@ export class ProgressStore {
         ...EMPTY_PROGRESS,
         completedLessons: Array.isArray(data.completedLessons) ? data.completedLessons.filter((x) => typeof x === 'string') : [],
         lastLessonId: typeof data.lastLessonId === 'string' ? data.lastLessonId : null,
+        stageStars: readStars(data.stageStars),
         learnedCommands: Array.isArray(data.learnedCommands) ? data.learnedCommands.filter((x) => typeof x === 'string') : [],
       };
     } catch {

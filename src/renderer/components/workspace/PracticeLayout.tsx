@@ -31,19 +31,34 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
   const areasHeight = usePanelSize('areas', 236, 150, 520);
 
   const { workspace, repo, fileStates } = session;
+  const { layout } = appModel;
 
   return (
     <main
       className={styles.layout}
-      style={{ gridTemplateColumns: `${leftPanel.size}px auto minmax(0, 1fr) auto ${side.size}px` }}
+      style={{
+        gridTemplateColumns: layout.sideOpen
+          ? `${leftPanel.size}px auto minmax(0, 1fr) auto ${side.size}px`
+          : `${leftPanel.size}px auto minmax(0, 1fr)`,
+      }}
     >
       {left}
       <Splitter direction="columns" {...leftPanel.splitter()} />
 
-      <section className={styles.center} style={{ gridTemplateRows: `minmax(0, 1fr) auto ${terminalHeight.size}px` }}>
-        <div className={styles.editorArea} style={{ gridTemplateColumns: `${tree.size}px auto minmax(0, 1fr)` }}>
-          <FileTree workspace={workspace} projectName={session.displayName} fileStates={fileStates} />
-          <Splitter direction="columns" {...tree.splitter()} />
+      <section
+        className={styles.center}
+        style={{ gridTemplateRows: layout.terminalOpen ? `minmax(0, 1fr) auto ${terminalHeight.size}px` : 'minmax(0, 1fr)' }}
+      >
+        <div
+          className={styles.editorArea}
+          style={{ gridTemplateColumns: layout.explorerOpen ? `${tree.size}px auto minmax(0, 1fr)` : 'minmax(0, 1fr)' }}
+        >
+          {layout.explorerOpen && (
+            <>
+              <FileTree workspace={workspace} projectName={session.displayName} fileStates={fileStates} />
+              <Splitter direction="columns" {...tree.splitter()} />
+            </>
+          )}
           <div className={styles.editor}>
             <EditorTabs workspace={workspace} fileStates={fileStates} />
             {workspace.activePath ? (
@@ -61,16 +76,22 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
             )}
           </div>
         </div>
-        <Splitter direction="rows" {...terminalHeight.splitter(true)} />
-        <TerminalPanel
-          terminal={session.terminal}
-          branch={repo.branch ?? undefined}
-          onReveal={() => session.reveal()}
-          fontSize={appModel.settings.terminalFontSize}
-        />
+        {layout.terminalOpen && (
+          <>
+            <Splitter direction="rows" {...terminalHeight.splitter(true)} />
+            <TerminalPanel
+              terminal={session.terminal}
+              branch={repo.branch ?? undefined}
+              onReveal={() => session.reveal()}
+              onClose={() => layout.setTerminalOpen(false)}
+              fontSize={appModel.settings.terminalFontSize}
+            />
+          </>
+        )}
       </section>
 
-      <Splitter direction="columns" {...side.splitter(true)} />
+      {layout.sideOpen && <Splitter direction="columns" {...side.splitter(true)} />}
+      {layout.sideOpen && (
       <section className={styles.side}>
         <div className="panel-head">
           <span className={styles.headLabel}>
@@ -90,6 +111,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
           <FileAreas repo={repo} />
         </div>
       </section>
+      )}
     </main>
   );
 });

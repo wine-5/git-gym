@@ -10,9 +10,11 @@ interface SettingsData {
   /** 0〜1 */
   seVolume: number;
   muted: boolean;
+  /** SourceTree でいうとどの操作かを解説に出す */
+  showSourceTree: boolean;
 }
 
-const DEFAULTS: SettingsData = { editorFontSize: 14, terminalFontSize: 13, bgmVolume: 0.35, seVolume: 0.7, muted: false };
+const DEFAULTS: SettingsData = { editorFontSize: 14, terminalFontSize: 13, bgmVolume: 0.35, seVolume: 0.7, muted: false, showSourceTree: false };
 
 export const FONT_SIZE_RANGE = { min: 11, max: 24 };
 
@@ -31,6 +33,7 @@ export class SettingsModel {
   bgmVolume: number;
   seVolume: number;
   muted: boolean;
+  showSourceTree: boolean;
 
   constructor() {
     const data = load();
@@ -39,6 +42,7 @@ export class SettingsModel {
     this.bgmVolume = data.bgmVolume;
     this.seVolume = data.seVolume;
     this.muted = data.muted;
+    this.showSourceTree = data.showSourceTree;
     makeAutoObservable(this);
   }
 
@@ -67,6 +71,11 @@ export class SettingsModel {
     this.save();
   }
 
+  toggleSourceTree(): void {
+    this.showSourceTree = !this.showSourceTree;
+    this.save();
+  }
+
   /** パネルの大きさを初期状態に戻す（usePanelSize が保存している値を消す） */
   resetLayout(): void {
     try {
@@ -86,6 +95,7 @@ export class SettingsModel {
         bgmVolume: this.bgmVolume,
         seVolume: this.seVolume,
         muted: this.muted,
+        showSourceTree: this.showSourceTree,
       };
       localStorage.setItem(KEY, JSON.stringify(data));
     } catch {

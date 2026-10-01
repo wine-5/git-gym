@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
 import { initialRepo } from '@data/setupHelpers';
-import { CHAPTERS, findLesson, lessonSetup } from '@data/lessons';
+import { CHAPTERS, findLesson, lessonSetup, type Lesson } from '@data/lessons';
 import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 import { ProgressModel } from './ProgressModel';
@@ -71,23 +71,37 @@ export class AppModel {
 
   private get currentLesson(): { session: PracticeSession; runner: LessonRunner } | null {
     const found = findLesson(this.currentLessonId);
-    if (!this.language || !this.project || !found) return null;
+    if (!found) return null;
+    const lessonId = this.currentLessonId;
+    return this.practiceEntry('lessons', found.lesson, () => this.progress.markDone(lessonId));
+  }
 
-    const id = `${this.currentLessonId}-${this.language}`;
-    let entry = this.lessons.get(id);
+  /**
+   * レッスン（やステージ）用の練習用リポジトリと達成判定を作る。言語ごとにフォルダを分け、作ったものは使い回す。
+   * コマンドを打つたびに判定し、達成したら onCompleted を呼ぶ。
+   */
+  private practiceEntry(
+    kind: 'lessons' | 'stages',
+    lesson: Lesson,
+    onCompleted: () => void,
+  ): { session: PracticeSession; runner: LessonRunner } | null {
+    if (!this.language || !this.project) return null;
+
+    const id = `${lesson.id}-${this.language}`;
+    const key = `${kind}/${id}`;
+    let entry = this.lessons.get(key);
     if (!entry) {
-      const session = new PracticeSession({ kind: 'lessons', id }, this.project, lessonSetup(found.lesson, this.project));
-      const runner = new LessonRunner(found.lesson, this.project, session);
-      const lessonId = this.currentLessonId;
+      const session = new PracticeSession({ kind, id }, this.project, lessonSetup(lesson, this.project));
+      const runner = new LessonRunner(lesson, this.project, session);
       session.onCommand = async (line, result) => {
         // 失敗したコマンドは ran では数えない（git log がエラーでも達成扱いにならないように）
         runner.recordCommand(line, result.exitCode === 0);
         this.learnFrom(line, result.exitCode);
         for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
-        if (runner.completed) this.progress.markDone(lessonId);
+        if (runner.completed) onCompleted();
       };
       entry = { session, runner };
-      this.lessons.set(id, entry);
+      this.lessons.set(key, entry);
     }
     return entry;
   }

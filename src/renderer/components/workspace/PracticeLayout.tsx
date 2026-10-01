@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { observer } from 'mobx-react-lite';
 import { GitGraph, FolderTree, MousePointerClick } from 'lucide-react';
 import type { PracticeSession } from '@models/PracticeSession';
+import { appModel } from '@models/AppModel';
 import { CodeEditor } from '../editor/CodeEditor';
 import { EditorTabs } from '../editor/EditorTabs';
 import { FileTree } from '../editor/FileTree';
@@ -50,6 +51,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
                 path={workspace.activePath}
                 value={workspace.activeContent}
                 onChange={(path, value) => workspace.update(path, value)}
+                fontSize={appModel.settings.editorFontSize}
               />
             ) : (
               <div className={styles.noFile}>
@@ -60,7 +62,12 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
           </div>
         </div>
         <Splitter direction="rows" {...terminalHeight.splitter(true)} />
-        <TerminalPanel terminal={session.terminal} branch={repo.branch ?? undefined} onReveal={() => session.reveal()} />
+        <TerminalPanel
+          terminal={session.terminal}
+          branch={repo.branch ?? undefined}
+          onReveal={() => session.reveal()}
+          fontSize={appModel.settings.terminalFontSize}
+        />
       </section>
 
       <Splitter direction="columns" {...side.splitter(true)} />

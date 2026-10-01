@@ -1,0 +1,130 @@
+.flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  padding: 12px;
+  gap: 2px;
+}
+
+.area {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px 8px;
+  min-height: 140px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 3px;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sub {
+  font-size: 10px;
+  color: var(--text-mute);
+}
+
+.empty {
+  color: var(--text-mute);
+  font-size: 11px;
+  text-align: center;
+  margin-top: 6px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.chip img {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+
+.chipName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.mark {
+  font-weight: 700;
+  flex: none;
+}
+
+.modified {
+  color: var(--yellow);
+}
+
+.untracked,
+.added {
+  color: var(--green);
+}
+
+.deleted {
+  color: var(--red);
+}
+
+.repoCount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.repoCount b {
+  font-size: 22px;
+  color: var(--blue);
+  line-height: 1.1;
+}
+
+.repoCount span {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text-mute);
+  padding: 0 1px;
+}
+
+.step code {
+  font-family: var(--mono);
+  font-size: 9.5px;
+}

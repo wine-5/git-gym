@@ -71,7 +71,7 @@ export const teamChapter: Chapter = {
         ...commitAll('ダメージ表示を追加'),
       ],
       checks: [
-        { label: '`git push` してみる（断られる）', test: (_q, c) => c.commands.length > 0 || c.ran(/^git push/) },
+        { label: '`git push` してみる（断られる）', test: (_q, c) => c.tried(/^git push/) },
         {
           label: '`git pull` で仲間の変更を取り込む',
           test: async (q) => (await q.fileAt('HEAD', 'README.md'))?.includes('クレジット') ?? false,

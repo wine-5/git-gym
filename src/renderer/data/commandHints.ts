@@ -8,6 +8,8 @@ const GIT_SUBCOMMANDS = new Set([
 interface Rule {
   pattern: RegExp;
   hint: (match: RegExpMatchArray) => string;
+  /** このサブコマンドのときだけ出す（git status の説明文などに反応しないように） */
+  only?: string[];
 }
 
 /** git の出力（英語）に対応する、初心者向けの日本語ヒント */
@@ -24,12 +26,18 @@ const RULES: Rule[] = [
   {
     pattern: /nothing added to commit but untracked files present/,
     hint: () => 'ステージに何もありません。git add <ファイル名> でステージに乗せてからコミットしましょう',
+    only: ['commit'],
   },
   {
     pattern: /no changes added to commit/,
     hint: () => '変更はありますが、まだステージに乗っていません。先に git add しましょう',
+    only: ['commit'],
   },
-  { pattern: /nothing to commit, working tree clean/, hint: () => 'コミットする変更がありません。ファイルを編集してから試しましょう' },
+  {
+    pattern: /nothing to commit, working tree clean/,
+    hint: () => 'コミットする変更がありません。ファイルを編集してから試しましょう',
+    only: ['commit'],
+  },
   {
     pattern: /pathspec '(.+?)' did not match any file/,
     hint: (m) => `「${m[1]}」というファイル（またはブランチ）が見つかりません。ls や git branch で名前を確認しましょう`,
@@ -74,7 +82,9 @@ export function hintFor(line: string, result: CommandResult): string | null {
   }
 
   const text = `${result.stdout}\n${result.stderr}`;
+  const sub = first === 'git' ? line.trim().split(/\s+/)[1] : undefined;
   for (const rule of RULES) {
+    if (rule.only && (!sub || !rule.only.includes(sub))) continue;
     const match = text.match(rule.pattern);
     if (match) return rule.hint(match);
   }

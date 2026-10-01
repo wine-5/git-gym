@@ -93,12 +93,12 @@ export const teamChapter: Chapter = {
       id: '6-3',
       title: '演習3：仲間とコンフリクト',
       description:
-        'あなたは HP の初期値を 120 に、チームメイトは 150 に変えて、先に push しました。同じ行なのでコンフリクトになります。\n' +
+        'あなたは `{hpFile}` の HP の初期値を 120 に、チームメイトは 150 に変えて、先に push しました。同じ行なのでコンフリクトになります。\n' +
         'pull して衝突を直し、チームと話し合った結果の「130」にしてから push しましょう。',
       setup: (p) => [
         ...withRemote(p),
-        teammate('HP を 150 に増やす', p.featureFile, fileOf(p, p.featureFile).replace('100', '150')),
-        write(p.featureFile, fileOf(p, p.featureFile).replace('100', '120')),
+        teammate('HP を 150 に増やす', p.hpFile, fileOf(p, p.hpFile).replace('100', '150')),
+        write(p.hpFile, fileOf(p, p.hpFile).replace('100', '120')),
         ...commitAll('HP を 120 に調整'),
       ],
       checks: [
@@ -110,7 +110,7 @@ export const teamChapter: Chapter = {
           label: 'HP を 130 にして衝突を解決し、マージをコミットする',
           test: async (q, c) =>
             (await q.parentCount('HEAD')) === 2 &&
-            ((await q.fileAt('HEAD', c.project.featureFile))?.includes('130') ?? false),
+            ((await q.fileAt('HEAD', c.project.hpFile))?.includes('130') ?? false),
         },
         {
           label: '`git push` でチームにそろえる',
@@ -120,7 +120,7 @@ export const teamChapter: Chapter = {
       hints: [
         '`git pull` すると CONFLICT と出ます。エディタで色分けされた部分を見てみましょう。',
         '`<<<<<<<` から `>>>>>>>` までを、HP が 130 の1行だけになるように書き換えます。',
-        '直したら `git add {featureFile}` → `git commit` → `git push` です。',
+        '直したら `git add {hpFile}` → `git commit` → `git push` です。',
       ],
     },
   ],

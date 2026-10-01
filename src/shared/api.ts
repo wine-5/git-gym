@@ -1,3 +1,4 @@
+import type { ProgressData } from './progress';
 import type { RepoSnapshot } from './repo';
 import type { SetupStep } from './setup';
 import type { CommandResult } from './terminal';
@@ -32,6 +33,8 @@ export const IPC = {
   filesList: 'files:list',
   filesRead: 'files:read',
   filesWrite: 'files:write',
+  progressLoad: 'progress:load',
+  progressSave: 'progress:save',
 } as const;
 
 /** preload からレンダラーへ公開する API */
@@ -60,5 +63,9 @@ export interface GitGymApi {
     /** 無ければ null */
     read(ref: WorkspaceRef, path: string): Promise<string | null>;
     write(ref: WorkspaceRef, path: string, content: string): Promise<void>;
+  };
+  progress: {
+    load(): Promise<ProgressData>;
+    save(data: ProgressData): Promise<void>;
   };
 }

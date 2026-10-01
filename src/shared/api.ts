@@ -17,12 +17,18 @@ export interface WorkspaceInfo {
   cwd: string;
 }
 
+export interface QueryResult {
+  stdout: string;
+  exitCode: number;
+}
+
 export const IPC = {
   workspaceOpen: 'workspace:open',
   workspaceReset: 'workspace:reset',
   workspaceReveal: 'workspace:reveal',
   terminalExecute: 'terminal:execute',
   repoSnapshot: 'repo:snapshot',
+  repoQuery: 'repo:query',
   filesList: 'files:list',
   filesRead: 'files:read',
   filesWrite: 'files:write',
@@ -45,6 +51,8 @@ export interface GitGymApi {
   repo: {
     /** コミットグラフとファイルの居場所に使う状態を読む */
     snapshot(ref: WorkspaceRef): Promise<RepoSnapshot>;
+    /** 達成判定用に、読み取り専用の git コマンドを実行する */
+    query(ref: WorkspaceRef, args: string[]): Promise<QueryResult>;
   };
   files: {
     /** .git を除いたファイルの一覧（/ 区切りの相対パス） */

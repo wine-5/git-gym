@@ -16,25 +16,20 @@ export const LessonView = observer(() => {
   const found = findLesson(appModel.currentLessonId);
   const project = appModel.project;
   const session = appModel.lessonSession;
+  const runner = appModel.lessonRunner;
 
-  // 実フォルダ（ドキュメント/GitGym/lessons/<id>）を用意してターミナルをつなぐ
+  // 実フォルダ（ドキュメント/GitGym/lessons/<id>）を用意してターミナルをつなぐ。開いた時点の状態でも判定する
   useEffect(() => {
-    void session?.open();
-  }, [session]);
+    void session?.open().then(() => runner?.evaluate());
+  }, [session, runner]);
 
-  if (!found || !project || !session) return null;
+  if (!found || !project || !session || !runner) return null;
 
   const { workspace, repo, fileStates } = session;
 
   return (
     <main className={styles.lesson}>
-      <MissionPanel
-        chapter={found.chapter}
-        lesson={found.lesson}
-        lessonIndex={found.index}
-        vars={{ mainFile: project.mainFile, featureFile: project.featureFile }}
-        doneCount={2}
-      />
+      <MissionPanel chapter={found.chapter} lessonIndex={found.index} runner={runner} />
 
       <section className={styles.center}>
         <div className={styles.editorArea}>

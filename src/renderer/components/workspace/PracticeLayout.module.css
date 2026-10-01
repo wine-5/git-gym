@@ -1,5 +1,5 @@
 /* 列・行の大きさは LessonView でドラッグに合わせて style から指定する */
-.lesson {
+.layout {
   display: grid;
   min-height: 0;
 }

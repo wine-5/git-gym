@@ -53,7 +53,7 @@
 
 ```bash
 npm install
-npm run dev          # 開発用に起動
+npm run dev          # 開発用に起動（VS Code なら F5 でも起動できる）
 npm test             # テスト（全言語 × 全レッスン・ステージを本物の git で確かめる統合テストを含む）
 npm run lint         # 型チェック
 npm run fetch:git    # Windows 版に同梱する MinGit を取ってくる

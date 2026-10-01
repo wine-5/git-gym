@@ -13,6 +13,7 @@ import {
   Play,
   FlaskConical,
   BookOpen,
+  Swords,
   type LucideIcon,
 } from 'lucide-react';
 import styles from './HomeView.module.css';
@@ -122,6 +123,15 @@ export const HomeView = observer(() => {
 
         <div className={styles.sectionTitle}>その他のモード</div>
         <div className={styles.modes}>
+          <button className={styles.mode} onClick={() => appModel.navigate('stages')}>
+            <div className={styles.ico} style={{ color: '#f05033', background: '#f0503322' }}>
+              <Swords size={20} />
+            </div>
+            <div>
+              <b>練習モード</b>
+              <span>1ステージ＝コマンド1つ。初めての人はここから！</span>
+            </div>
+          </button>
           <button className={styles.mode} onClick={() => appModel.navigate('sandbox')}>
             <div className={styles.ico} style={{ color: '#4cc38a', background: '#4cc38a22' }}>
               <FlaskConical size={20} />

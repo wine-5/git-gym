@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
+import { writeProject } from '@data/setupHelpers';
 import { PracticeSession } from './PracticeSession';
 
 export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary';
@@ -33,7 +34,7 @@ export class AppModel {
     const id = `${this.currentLessonId}-${this.language}`;
     let session = this.sessions.get(id);
     if (!session) {
-      session = new PracticeSession({ kind: 'lessons', id }, this.project);
+      session = new PracticeSession({ kind: 'lessons', id }, this.project, writeProject(this.project));
       this.sessions.set(id, session);
     }
     return session;

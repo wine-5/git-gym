@@ -1,6 +1,9 @@
+import { useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { GitGraph, FolderTree, MousePointerClick } from 'lucide-react';
 import { appModel } from '@models/AppModel';
+import { TerminalModel } from '@models/TerminalModel';
+import type { WorkspaceRef } from '@shared/api';
 import { findLesson } from '@data/lessons';
 import { createMockRepo, type RepoSnapshot } from '@data/mockRepo';
 import { CodeEditor } from '../editor/CodeEditor';
@@ -15,6 +18,15 @@ import styles from './LessonView.module.css';
 export const LessonView = observer(() => {
   const found = findLesson(appModel.currentLessonId);
   const project = appModel.project;
+  const ref = useMemo<WorkspaceRef>(() => ({ kind: 'lessons', id: appModel.currentLessonId }), [appModel.currentLessonId]);
+  const terminal = useMemo(() => new TerminalModel(ref), [ref]);
+
+  // 実フォルダ（ドキュメント/GitGym/lessons/<id>）を用意してターミナルをつなぐ
+  useEffect(() => {
+    if (!project || !window.gitGym) return;
+    void window.gitGym.workspace.open(ref, project.name).then((info) => terminal.setCwd(info.cwd));
+  }, [ref, terminal, project]);
+
   if (!found || !project) return null;
 
   const { workspace } = appModel;
@@ -54,7 +66,7 @@ export const LessonView = observer(() => {
             )}
           </div>
         </div>
-        <TerminalPanel projectName={project.name} branch={repo.branch} />
+        <TerminalPanel terminal={terminal} branch={repo.branch} onReveal={() => void window.gitGym?.workspace.reveal(ref)} />
       </section>
 
       <section className={styles.side}>

@@ -96,7 +96,11 @@ export const remoteChapter: Chapter = {
       checks: [
         { label: '`git fetch` でリモートの情報だけ取ってくる', test: async (q) => (await q.countCommits('origin/main')) >= 2 },
         { label: '`git log --oneline --all` で `origin/main` が先に進んでいるのを見る', test: (_q, c) => c.ran(/^git log .*--all/) },
-        { label: '`git merge origin/main` で取り込む', test: (q) => q.isMergedInto('origin/main', 'main') },
+        {
+          label: '`git merge origin/main` で取り込む',
+          // fetch 前は origin/main と main が同じなので「取り込み済み」に見える。仲間のコミットが main に来たかで見る
+          test: async (q) => (await q.countCommits('main')) >= 2 && q.isMergedInto('origin/main', 'main'),
+        },
       ],
       hints: [
         '`git fetch` はリモートの最新情報を取ってくるだけで、手元のファイルは変えません。',

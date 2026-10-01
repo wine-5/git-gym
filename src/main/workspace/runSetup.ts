@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import type { SetupStep } from '../../shared/setup';
 import type { GitRunner } from '../git/GitRunner';
-import { writeFile } from './repoFiles';
+import { deleteFile, writeFile } from './repoFiles';
 
 export interface SetupContext {
   /** 練習用リポジトリ */
@@ -24,7 +24,7 @@ export async function runSetup(steps: SetupStep[], ctx: SetupContext): Promise<v
         await writeFile(ctx.dir, step.path, step.content);
         break;
       case 'delete':
-        await fs.rm(`${ctx.dir}/${step.path}`, { force: true });
+        await deleteFile(ctx.dir, step.path);
         break;
       case 'git':
         await git(ctx, ctx.dir, step.args);

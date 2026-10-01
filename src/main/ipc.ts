@@ -1,11 +1,12 @@
 import { ipcMain } from 'electron';
-import { IPC, type SeedFile, type WorkspaceRef } from '../shared/api';
+import { IPC, type WorkspaceRef } from '../shared/api';
+import type { SetupStep } from '../shared/setup';
 import type { WorkspaceHub } from './workspace/WorkspaceHub';
 
 /** レンダラーからの呼び出しを WorkspaceHub につなぐ */
 export function registerIpc(hub: WorkspaceHub): void {
-  ipcMain.handle(IPC.workspaceOpen, (_e, ref: WorkspaceRef, displayName: string, seed?: SeedFile[]) =>
-    hub.open(ref, displayName, seed),
+  ipcMain.handle(IPC.workspaceOpen, (_e, ref: WorkspaceRef, displayName: string, setup?: SetupStep[]) =>
+    hub.open(ref, displayName, setup),
   );
   ipcMain.handle(IPC.workspaceReset, (_e, ref: WorkspaceRef) => hub.reset(ref));
   ipcMain.handle(IPC.workspaceReveal, (_e, ref: WorkspaceRef) => hub.reveal(ref));

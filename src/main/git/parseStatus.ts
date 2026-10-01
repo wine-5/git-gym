@@ -1,6 +1,6 @@
 import type { FileChange, FileState } from '../../shared/repo';
 
-export const STATUS_ARGS = ['status', '--porcelain=v1', '--branch', '--untracked-files=all'];
+export const STATUS_ARGS = ['-c', 'core.quotePath=false', 'status', '--porcelain=v1', '--branch', '--untracked-files=all'];
 
 export interface ParsedStatus {
   branch: string | null;

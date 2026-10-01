@@ -1,0 +1,175 @@
+.map {
+  overflow: auto;
+}
+
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.header p {
+  color: var(--text-dim);
+}
+
+.totalStars {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #ffd166;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(255, 209, 102, 0.1);
+  border: 1px solid rgba(255, 209, 102, 0.3);
+}
+
+.totalStars svg {
+  align-self: center;
+}
+
+.totalStars b {
+  font-size: 22px;
+}
+
+.totalStars span {
+  color: var(--text-dim);
+}
+
+.world {
+  padding: 18px 20px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--world) 10%, var(--bg-panel)), var(--bg-panel) 60%);
+  border: 1px solid var(--border);
+}
+
+.world h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--world);
+  margin-bottom: 16px;
+}
+
+.worldCount {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.path {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 18px;
+}
+
+.step {
+  position: relative;
+  width: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ステージ同士をつなぐ道 */
+.link {
+  position: absolute;
+  top: 30px;
+  right: calc(50% + 32px);
+  width: calc(100% - 64px);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.linkOn {
+  background: var(--world);
+}
+
+.node {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--text-dim);
+  font-size: 20px;
+  font-weight: 800;
+  transition: transform 0.15s;
+}
+
+.node:not(:disabled):hover {
+  transform: scale(1.08);
+}
+
+.cleared {
+  border-color: var(--world);
+  background: var(--world);
+  color: #fff;
+}
+
+.next {
+  border-color: var(--world);
+  color: var(--world);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.num {
+  line-height: 1;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.starOn {
+  color: #ffd166;
+}
+
+.starOff {
+  color: var(--text-mute);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--world) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--world) 0%, transparent);
+  }
+}

@@ -18,6 +18,17 @@ export interface WorkspaceInfo {
   cwd: string;
 }
 
+/** 設定画面の「アプリについて」に出す情報 */
+export interface AppInfo {
+  version: string;
+  /** 例: git version 2.56.0.windows.1（見つからなければ null） */
+  gitVersion: string | null;
+  /** アプリに同梱した git を使っているか */
+  gitBundled: boolean;
+  /** 練習用フォルダの場所 */
+  practiceRoot: string;
+}
+
 export interface QueryResult {
   stdout: string;
   exitCode: number;
@@ -35,6 +46,7 @@ export const IPC = {
   filesWrite: 'files:write',
   progressLoad: 'progress:load',
   progressSave: 'progress:save',
+  appInfo: 'app:info',
 } as const;
 
 /** preload からレンダラーへ公開する API */
@@ -63,6 +75,9 @@ export interface GitGymApi {
     /** 無ければ null */
     read(ref: WorkspaceRef, path: string): Promise<string | null>;
     write(ref: WorkspaceRef, path: string, content: string): Promise<void>;
+  };
+  app: {
+    info(): Promise<AppInfo>;
   };
   progress: {
     load(): Promise<ProgressData>;

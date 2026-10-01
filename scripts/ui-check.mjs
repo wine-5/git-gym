@@ -10,8 +10,14 @@ const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
 const ws = new WebSocket(targets.find((t) => t.type === 'page').webSocketDebuggerUrl);
 await new Promise((r) => (ws.onopen = r));
 let id = 0; const pending = new Map();
-ws.onmessage = (e) => { const m = JSON.parse(e.data); pending.get(m.id)?.(m); };
+ws.onmessage = (e) => {
+  const m = JSON.parse(e.data);
+  // confirm / alert は自動で OK にする
+  if (m.method === 'Page.javascriptDialogOpening') ws.send(JSON.stringify({ id: ++id, method: 'Page.handleJavaScriptDialog', params: { accept: true } }));
+  pending.get(m.id)?.(m);
+};
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
+await send('Page.enable');
 const FOCUS_TERM="document.querySelector('input[placeholder*=git]').focus()";
 const FOCUS_EDITOR="document.querySelector('.monaco-editor textarea').focus()";
 for (const s of steps) {

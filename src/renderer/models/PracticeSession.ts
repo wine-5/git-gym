@@ -1,6 +1,9 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { WorkspaceRef } from '@shared/api';
 import { EMPTY_REPO, type FileState, type RepoSnapshot } from '@shared/repo';
+import type { SetupStep } from '@shared/setup';
+import type { CommandResult } from '@shared/terminal';
+import { hintFor } from '@data/commandHints';
 import type { ProjectTemplate } from '@data/projects';
 import { TerminalModel } from './TerminalModel';
 import { WorkspaceModel } from './WorkspaceModel';
@@ -14,21 +17,27 @@ export class PracticeSession {
   ready = false;
   readonly terminal: TerminalModel;
   readonly workspace: WorkspaceModel;
+  /** コマンド実行と再読み込みのあとに呼ばれる（レッスンの達成判定など） */
+  onCommand?: (line: string, result: CommandResult) => Promise<void>;
 
   constructor(
     readonly ref: WorkspaceRef,
     private readonly project: ProjectTemplate,
+    /** 練習用リポジトリの初期状態（リセットでもこれを使う） */
+    private readonly setup: SetupStep[],
   ) {
     this.workspace = new WorkspaceModel(ref, [project.featureFile, project.mainFile]);
     this.terminal = new TerminalModel(ref, {
       beforeExecute: () => this.workspace.flush(),
-      afterExecute: () => void this.refresh(),
+      afterExecute: (line, result) => void this.afterCommand(line, result),
     });
-    makeAutoObservable<PracticeSession, 'project'>(this, {
+    makeAutoObservable<PracticeSession, 'project' | 'setup'>(this, {
       ref: false,
       project: false,
+      setup: false,
       terminal: false,
       workspace: false,
+      onCommand: false,
     });
   }
 
@@ -46,7 +55,7 @@ export class PracticeSession {
 
   async open(): Promise<void> {
     if (!window.gitGym) return;
-    const info = await window.gitGym.workspace.open(this.ref, this.project.name, this.project.files);
+    const info = await window.gitGym.workspace.open(this.ref, this.project.name, this.setup);
     this.terminal.setCwd(info.cwd);
     await Promise.all([this.workspace.load(), this.refreshRepo()]);
     runInAction(() => (this.ready = true));
@@ -67,6 +76,13 @@ export class PracticeSession {
 
   reveal(): void {
     void window.gitGym?.workspace.reveal(this.ref);
+  }
+
+  private async afterCommand(line: string, result: CommandResult): Promise<void> {
+    await this.refresh();
+    const hint = hintFor(line, result);
+    if (hint) this.terminal.push('hint', hint);
+    await this.onCommand?.(line, result);
   }
 
   private async refreshRepo(): Promise<void> {

@@ -99,6 +99,17 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  text-align: left;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.chapterCard:not(:disabled):hover {
+  border-color: var(--text-mute);
+  transform: translateY(-2px);
+}
+
+.chapterCard:disabled {
+  cursor: not-allowed;
 }
 
 .chapterCard h3 {

@@ -1,7 +1,10 @@
 import { makeAutoObservable } from 'mobx';
 import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
+import { findLesson, lessonSetup } from '@data/lessons';
+import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
+import { ProgressModel } from './ProgressModel';
 
 export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary';
 
@@ -20,23 +23,46 @@ export class AppModel {
   language: LanguageId | null = loadLanguage();
   screen: Screen = this.language ? 'home' : 'language';
   currentLessonId = '2-3';
+  readonly progress = new ProgressModel();
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
-  private readonly sessions = new Map<string, PracticeSession>();
+  private readonly lessons = new Map<string, { session: PracticeSession; runner: LessonRunner }>();
 
   constructor() {
-    makeAutoObservable<AppModel, 'sessions'>(this, { sessions: false });
+    makeAutoObservable<AppModel, 'lessons'>(this, { lessons: false, progress: false });
+    void this.progress.load().then(() => {
+      const last = this.progress.lastLessonId;
+      if (last && findLesson(last)) this.setCurrentLesson(last);
+    });
   }
 
   /** 今のレッスンの練習用リポジトリ。言語ごとにフォルダを分ける */
   get lessonSession(): PracticeSession | null {
-    if (!this.language || !this.project) return null;
+    return this.currentLesson?.session ?? null;
+  }
+
+  /** 今のレッスンの達成状況 */
+  get lessonRunner(): LessonRunner | null {
+    return this.currentLesson?.runner ?? null;
+  }
+
+  private get currentLesson(): { session: PracticeSession; runner: LessonRunner } | null {
+    const found = findLesson(this.currentLessonId);
+    if (!this.language || !this.project || !found) return null;
+
     const id = `${this.currentLessonId}-${this.language}`;
-    let session = this.sessions.get(id);
-    if (!session) {
-      session = new PracticeSession({ kind: 'lessons', id }, this.project);
-      this.sessions.set(id, session);
+    let entry = this.lessons.get(id);
+    if (!entry) {
+      const session = new PracticeSession({ kind: 'lessons', id }, this.project, lessonSetup(found.lesson, this.project));
+      const runner = new LessonRunner(found.lesson, this.project, session);
+      const lessonId = this.currentLessonId;
+      session.onCommand = async () => {
+        for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
+        if (runner.completed) this.progress.markDone(lessonId);
+      };
+      entry = { session, runner };
+      this.lessons.set(id, entry);
     }
-    return session;
+    return entry;
   }
 
   get project() {
@@ -57,9 +83,23 @@ export class AppModel {
     this.screen = screen;
   }
 
+  /** 今のレッスンの練習用フォルダを初期状態に戻して、最初からやり直す */
+  async resetLesson(): Promise<void> {
+    const entry = this.currentLesson;
+    if (!entry) return;
+    entry.runner.restart();
+    await entry.session.reset();
+    await entry.runner.evaluate();
+  }
+
   openLesson(lessonId: string): void {
     this.currentLessonId = lessonId;
+    this.progress.setLast(lessonId);
     this.screen = 'lesson';
+  }
+
+  private setCurrentLesson(lessonId: string): void {
+    this.currentLessonId = lessonId;
   }
 }
 

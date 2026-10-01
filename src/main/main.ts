@@ -2,6 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import { GitRunner } from './git/GitRunner';
 import { resolveGitPath } from './git/gitPath';
 import { registerIpc } from './ipc';
+import { ProgressStore } from './progressStore';
 import { PracticeFolders } from './workspace/PracticeFolders';
 import { WorkspaceHub } from './workspace/WorkspaceHub';
 
@@ -28,7 +29,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  registerIpc(new WorkspaceHub(new PracticeFolders(), new GitRunner(resolveGitPath())));
+  registerIpc(new WorkspaceHub(new PracticeFolders(), new GitRunner(resolveGitPath())), new ProgressStore());
   createWindow();
 
   app.on('activate', () => {

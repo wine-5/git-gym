@@ -50,6 +50,11 @@ export class PracticeFolders {
     return this.inside(path.join(this.root, 'remotes', `${this.checkId(id)}.git`));
   }
 
+  /** レッスンの準備で一時的に使う作業フォルダ */
+  scratchPath(id: string): string {
+    return this.inside(path.join(this.root, '.scratch', this.checkId(id)));
+  }
+
   async exists(dir: string): Promise<boolean> {
     return fs
       .stat(this.inside(dir))

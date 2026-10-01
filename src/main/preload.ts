@@ -5,7 +5,7 @@ import { IPC, type GitGymApi } from '../shared/api';
 const api: GitGymApi = {
   platform: process.platform,
   workspace: {
-    open: (ref, displayName, seed) => ipcRenderer.invoke(IPC.workspaceOpen, ref, displayName, seed),
+    open: (ref, displayName, setup) => ipcRenderer.invoke(IPC.workspaceOpen, ref, displayName, setup),
     reset: (ref) => ipcRenderer.invoke(IPC.workspaceReset, ref),
     reveal: (ref) => ipcRenderer.invoke(IPC.workspaceReveal, ref),
   },
@@ -14,11 +14,16 @@ const api: GitGymApi = {
   },
   repo: {
     snapshot: (ref) => ipcRenderer.invoke(IPC.repoSnapshot, ref),
+    query: (ref, args) => ipcRenderer.invoke(IPC.repoQuery, ref, args),
   },
   files: {
     list: (ref) => ipcRenderer.invoke(IPC.filesList, ref),
     read: (ref, file) => ipcRenderer.invoke(IPC.filesRead, ref, file),
     write: (ref, file, content) => ipcRenderer.invoke(IPC.filesWrite, ref, file, content),
+  },
+  progress: {
+    load: () => ipcRenderer.invoke(IPC.progressLoad),
+    save: (data) => ipcRenderer.invoke(IPC.progressSave, data),
   },
 };
 

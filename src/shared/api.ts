@@ -1,3 +1,4 @@
+import type { RepoSnapshot } from './repo';
 import type { CommandResult } from './terminal';
 
 export type PracticeKind = 'lessons' | 'stages' | 'sandbox';
@@ -20,6 +21,7 @@ export const IPC = {
   workspaceReset: 'workspace:reset',
   workspaceReveal: 'workspace:reveal',
   terminalExecute: 'terminal:execute',
+  repoSnapshot: 'repo:snapshot',
 } as const;
 
 /** preload からレンダラーへ公開する API */
@@ -35,5 +37,9 @@ export interface GitGymApi {
   };
   terminal: {
     execute(ref: WorkspaceRef, line: string): Promise<CommandResult>;
+  };
+  repo: {
+    /** コミットグラフとファイルの居場所に使う状態を読む */
+    snapshot(ref: WorkspaceRef): Promise<RepoSnapshot>;
   };
 }

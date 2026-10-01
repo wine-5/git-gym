@@ -35,7 +35,7 @@ export const TitleBar = observer(() => {
           {NAV.map((item) => (
             <button
               key={item.screen}
-              className={appModel.screen === item.screen ? styles.active : undefined}
+              className={appModel.screen === item.screen || (item.screen === 'stages' && appModel.screen === 'stage') ? styles.active : undefined}
               onClick={() => appModel.navigate(item.screen)}
             >
               <item.icon size={15} />

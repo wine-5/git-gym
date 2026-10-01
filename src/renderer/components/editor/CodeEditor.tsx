@@ -79,5 +79,12 @@ export function CodeEditor({ path, value, onChange }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path]);
 
+  // git switch / restore などでディスク側が変わったら、Undo できる形で中身を差し替える
+  useEffect(() => {
+    const model = editorRef.current?.getModel();
+    if (!model || model.uri.path.slice(1) !== path || model.getValue() === value) return;
+    model.pushEditOperations([], [{ range: model.getFullModelRange(), text: value }], () => null);
+  }, [path, value]);
+
   return <div ref={containerRef} className={styles.editor} />;
 }

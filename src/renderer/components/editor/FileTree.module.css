@@ -1,0 +1,63 @@
+.tree {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  overflow: auto;
+  min-height: 0;
+}
+
+.headLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.folder {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 10px 4px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.folderIcon {
+  color: var(--yellow);
+}
+
+.tree ul {
+  list-style: none;
+  padding-bottom: 8px;
+}
+
+.tree li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px 4px 30px;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tree li:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.tree li.selected {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modified {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--yellow);
+}

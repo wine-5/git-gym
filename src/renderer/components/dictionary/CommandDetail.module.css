@@ -1,0 +1,175 @@
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  line-height: 1.7;
+}
+
+.compact {
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.category {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 99px;
+}
+
+.name {
+  font-family: var(--mono);
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.compact .name {
+  font-size: 18px;
+}
+
+.summary {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.compact .summary {
+  font-size: 13px;
+}
+
+.description {
+  color: var(--text-dim);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.commandLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-terminal);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.commandLine:hover {
+  border-color: var(--text-mute);
+}
+
+.commandLine code {
+  flex: 1;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.prompt {
+  color: var(--green);
+}
+
+.copyIcon {
+  color: var(--text-mute);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.commandLine:hover .copyIcon {
+  opacity: 1;
+}
+
+.copied {
+  color: var(--green);
+}
+
+.example {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exampleText {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding-left: 12px;
+}
+
+.options {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+.options td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.options td:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.options code {
+  font-family: var(--mono);
+  color: var(--yellow);
+}
+
+.caution {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(232, 196, 106, 0.08);
+  border: 1px solid rgba(232, 196, 106, 0.35);
+  color: var(--yellow);
+}
+
+.caution svg {
+  flex: none;
+  margin-top: 4px;
+}
+
+.related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.relatedButton {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+
+.relatedButton:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

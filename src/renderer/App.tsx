@@ -6,6 +6,7 @@ import { ComingSoon } from '@components/layout/ComingSoon';
 import { LanguageSelectView } from '@components/language/LanguageSelectView';
 import { HomeView } from '@components/home/HomeView';
 import { LessonView } from '@components/lesson/LessonView';
+import { DictionaryView } from '@components/dictionary/DictionaryView';
 import styles from './App.module.css';
 
 const Screen = observer(() => {
@@ -19,7 +20,7 @@ const Screen = observer(() => {
     case 'sandbox':
       return <ComingSoon title="フリー練習" />;
     case 'dictionary':
-      return <ComingSoon title="コマンド辞典" />;
+      return <DictionaryView />;
   }
 });
 

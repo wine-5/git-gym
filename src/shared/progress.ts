@@ -5,10 +5,13 @@ export interface ProgressData {
   completedLessons: string[];
   /** 最後に開いていたレッスン */
   lastLessonId: string | null;
+  /** 成功させたことのある git のサブコマンド（コマンド辞典の「習得済み」表示用） */
+  learnedCommands: string[];
 }
 
 export const EMPTY_PROGRESS: ProgressData = {
   version: 1,
   completedLessons: [],
   lastLessonId: null,
+  learnedCommands: [],
 };

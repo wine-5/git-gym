@@ -58,6 +58,7 @@ export class AppModel {
       session.onCommand = async (line, result) => {
         // 失敗したコマンドは ran では数えない（git log がエラーでも達成扱いにならないように）
         runner.recordCommand(line, result.exitCode === 0);
+        this.learnFrom(line, result.exitCode);
         for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
         if (runner.completed) this.progress.markDone(lessonId);
       };
@@ -92,6 +93,12 @@ export class AppModel {
     entry.runner.restart();
     await entry.session.reset();
     await entry.runner.evaluate();
+  }
+
+  /** 成功した git コマンドをコマンド辞典の「習得済み」にする */
+  learnFrom(line: string, exitCode: number): void {
+    const [head, sub] = line.trim().split(/\s+/);
+    if (exitCode === 0 && head === 'git' && sub && /^[a-z][a-z-]*$/.test(sub)) this.progress.markLearned(sub);
   }
 
   openLesson(lessonId: string): void {

@@ -3,11 +3,20 @@ import type { RepoQuery } from '@models/RepoQuery';
 import type { ProjectTemplate } from './projects';
 import { appendAndCommit, initialRepo, writeProject } from './setupHelpers';
 
+/** 達成判定に渡す情報 */
+export interface CheckContext {
+  project: ProjectTemplate;
+  /** このレッスンで打ったコマンド（git status など、状態が変わらない操作の判定用） */
+  commands: string[];
+  /** 打ったコマンドに pattern に合うものがあるか */
+  ran: (pattern: RegExp) => boolean;
+}
+
 export interface LessonCheck {
   /** `code` 記法と {mainFile} / {featureFile} のプレースホルダーが使える */
   label: string;
   /** リポジトリの状態で達成を判定する。一度達成したら戻らない */
-  test: (q: RepoQuery, project: ProjectTemplate) => Promise<boolean> | boolean;
+  test: (q: RepoQuery, ctx: CheckContext) => Promise<boolean> | boolean;
 }
 
 export interface Lesson {
@@ -79,7 +88,7 @@ export const CHAPTERS: Chapter[] = [
           { label: '`feature/jump` に切り替える', test: (q) => q.currentBranch === 'feature/jump' },
           {
             label: '`{featureFile}` を編集してコミットする',
-            test: async (q, p) => {
+            test: async (q, { project: p }) => {
               const out = await q.run(['log', '--format=', '--name-only', 'main..feature/jump']);
               return out !== null && out.split('\n').includes(p.featureFile);
             },

@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { GitGraph, FolderTree, MousePointerClick } from 'lucide-react';
 import type { PracticeSession } from '@models/PracticeSession';
 import { appModel } from '@models/AppModel';
+import { COMMANDS } from '@data/commands';
 import { CodeEditor } from '../editor/CodeEditor';
 import { EditorTabs } from '../editor/EditorTabs';
 import { FileTree } from '../editor/FileTree';
@@ -86,6 +87,11 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
               branch={repo.branch ?? undefined}
               onReveal={() => session.reveal()}
               onClose={() => layout.setTerminalOpen(false)}
+              completion={() => ({
+                subcommands: COMMANDS.map((c) => c.name),
+                branches: repo.commits.flatMap((c) => c.refs.filter((r) => r.kind !== 'head').map((r) => r.name)),
+                files: workspace.paths,
+              })}
               fontSize={appModel.settings.terminalFontSize}
             />
           </>

@@ -3,12 +3,13 @@ import { LANGUAGES, type LanguageId } from '@data/languages';
 import { PROJECTS } from '@data/projects';
 import { initialRepo } from '@data/setupHelpers';
 import { CHAPTERS, findLesson, lessonSetup, type Lesson } from '@data/lessons';
+import { ALL_STAGES, findStage } from '@data/stages';
 import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 import { ProgressModel } from './ProgressModel';
 import { SettingsModel } from './SettingsModel';
 
-export type Screen = 'language' | 'home' | 'lesson' | 'sandbox' | 'dictionary' | 'settings';
+export type Screen = 'language' | 'home' | 'lesson' | 'stages' | 'stage' | 'sandbox' | 'dictionary' | 'settings';
 
 const LANGUAGE_KEY = 'git-gym.language';
 
@@ -27,6 +28,8 @@ export class AppModel {
   currentLessonId = CHAPTERS[0].lessons[0].id;
   readonly progress = new ProgressModel();
   readonly settings = new SettingsModel();
+  /** 練習モードで遊んでいるステージ */
+  currentStageId = ALL_STAGES[0].id;
   /** コマンド辞典で開いているコマンド */
   dictionaryCommand = 'init';
   /** 開いたことのある練習用リポジトリ（画面を行き来してもターミナルの履歴を残す） */
@@ -62,6 +65,12 @@ export class AppModel {
       this.sandboxes.set(id, session);
     }
     return session;
+  }
+
+  /** 今のステージの練習用リポジトリと達成判定（星は画面側で付ける） */
+  get stageEntry(): { session: PracticeSession; runner: LessonRunner } | null {
+    const found = findStage(this.currentStageId);
+    return found ? this.practiceEntry('stages', found.stage, () => undefined) : null;
   }
 
   /** 今のレッスンの達成状況 */
@@ -142,6 +151,20 @@ export class AppModel {
   openDictionary(command?: string): void {
     if (command) this.dictionaryCommand = command;
     this.screen = 'dictionary';
+  }
+
+  openStage(stageId: string): void {
+    this.currentStageId = stageId;
+    this.screen = 'stage';
+  }
+
+  /** 今のステージを初期状態からやり直す */
+  async resetStage(): Promise<void> {
+    const entry = this.stageEntry;
+    if (!entry) return;
+    entry.runner.restart();
+    await entry.session.reset();
+    await entry.runner.evaluate();
   }
 
   openLesson(lessonId: string): void {

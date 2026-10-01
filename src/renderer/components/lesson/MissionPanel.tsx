@@ -3,6 +3,8 @@ import { observer } from 'mobx-react-lite';
 import { Target, CheckCircle2, Circle, CircleDot, Lightbulb, BookOpen, ListChecks } from 'lucide-react';
 import { fillPlaceholders, type Chapter } from '@data/lessons';
 import type { LessonRunner } from '@models/LessonRunner';
+import { appModel } from '@models/AppModel';
+import { ExplainModal } from './ExplainModal';
 import { InlineText } from '../InlineText';
 import styles from './MissionPanel.module.css';
 
@@ -15,6 +17,7 @@ interface Props {
 export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) => {
   const { lesson, done, doneCount } = runner;
   const [hintCount, setHintCount] = useState(1);
+  const [explaining, setExplaining] = useState(false);
   const fill = (text: string) => fillPlaceholders(text, runner.vars);
   const nowIndex = done.indexOf(false);
   const shownHints = lesson.hints.slice(0, hintCount);
@@ -76,10 +79,21 @@ export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) =
         >
           <Lightbulb size={14} /> 次のヒント
         </button>
-        <button className="btn">
+        <button className="btn" onClick={() => setExplaining(true)}>
           <BookOpen size={14} /> 解説を見る
         </button>
       </div>
+
+      {explaining && (
+        <ExplainModal
+          lesson={lesson}
+          onClose={() => setExplaining(false)}
+          onOpenDictionary={(name) => {
+            setExplaining(false);
+            appModel.openDictionary(name);
+          }}
+        />
+      )}
     </section>
   );
 });

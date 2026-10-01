@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
+import { setAppMenu } from './appMenu';
 import { GitRunner } from './git/GitRunner';
 import { resolveGitPath } from './git/gitPath';
 import { registerIpc } from './ipc';
@@ -34,6 +35,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  setAppMenu();
   const gitPath = resolveGitPath();
   const git = new GitRunner(gitPath);
   const folders = new PracticeFolders();

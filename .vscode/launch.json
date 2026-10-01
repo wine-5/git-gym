@@ -1,0 +1,38 @@
+{
+  // F5 で Git Gym を開発モードで起動する（webpack でビルドしてから Electron を立ち上げる）
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Git Gym を起動",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
+      },
+      // 画面（レンダラー）も DevTools / 下の「画面にアタッチ」でデバッグできるようにする
+      "runtimeArgs": ["--remote-debugging-port=9334"],
+      // VS Code から引き継ぐと Electron がただの Node として動いてしまうので消す
+      "env": { "ELECTRON_RUN_AS_NODE": null },
+      "console": "integratedTerminal",
+      "outputCapture": "std",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "画面にアタッチ（レンダラーのデバッグ）",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9334,
+      "webRoot": "${workspaceFolder}",
+      "timeout": 60000
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Git Gym を起動＋画面のデバッグ",
+      "configurations": ["Git Gym を起動", "画面にアタッチ（レンダラーのデバッグ）"],
+      "stopAll": true
+    }
+  ]
+}

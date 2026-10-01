@@ -10,6 +10,9 @@ import {
   Trash2,
   Minus,
   Plus,
+  Music,
+  Volume2,
+  VolumeX,
   type LucideIcon,
 } from 'lucide-react';
 import { appModel } from '@models/AppModel';
@@ -51,6 +54,24 @@ export const SettingsView = observer(() => {
           <Row icon={LayoutPanelLeft} label="パネルの大きさ" note="ドラッグで変えた大きさを最初の状態に戻します">
             <button className="btn" onClick={() => settings.resetLayout()}>
               元に戻す
+            </button>
+          </Row>
+        </Group>
+
+        <Group title="サウンド">
+          <Row icon={Music} label="BGM の音量">
+            <VolumeSlider value={settings.bgmVolume} onChange={(v) => settings.setBgmVolume(v)} />
+          </Row>
+          <Row icon={Volume2} label="効果音の音量">
+            <VolumeSlider
+              value={settings.seVolume}
+              onChange={(v) => settings.setSeVolume(v)}
+              onCommit={() => appModel.sound.play('success')}
+            />
+          </Row>
+          <Row icon={settings.muted ? VolumeX : Volume2} label="すべての音を消す" note="授業中など、音を出せないときに">
+            <button className={settings.muted ? 'btn primary' : 'btn'} onClick={() => settings.toggleMuted()}>
+              {settings.muted ? 'ミュート中' : 'ミュートする'}
             </button>
           </Row>
         </Group>
@@ -125,6 +146,22 @@ function Row({ icon: Icon, label, note, danger, leading, children }: RowProps) {
         {note && <span>{note}</span>}
       </div>
       {children}
+    </div>
+  );
+}
+
+function VolumeSlider({ value, onChange, onCommit }: { value: number; onChange: (v: number) => void; onCommit?: () => void }) {
+  return (
+    <div className={styles.volume}>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={Math.round(value * 100)}
+        onChange={(e) => onChange(Number(e.target.value) / 100)}
+        onPointerUp={onCommit}
+      />
+      <span>{Math.round(value * 100)}</span>
     </div>
   );
 }

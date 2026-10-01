@@ -1,0 +1,26 @@
+{
+  // Ctrl+Shift+B で配布用パッケージを作る。テストや型チェックは「タスクの実行」から
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "パッケージを作る（npm run make）",
+      "type": "npm",
+      "script": "make",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "型チェック（npm run lint）",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "テスト（npm test）",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}

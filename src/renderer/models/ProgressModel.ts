@@ -91,6 +91,11 @@ export class ProgressModel {
       learnedCommands: [...this.learned],
       stageStars: Object.fromEntries(this.stageStars),
     };
-    await window.gitGym?.progress.save(data);
+    try {
+      await window.gitGym?.progress.save(data);
+    } catch (e) {
+      // 保存に失敗しても学習は続けられるので、画面は止めない（次の保存で追いつく）
+      console.warn('進み具合を保存できませんでした', e);
+    }
   }
 }

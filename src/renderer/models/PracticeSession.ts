@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { WorkspaceRef } from '@shared/api';
 import { EMPTY_REPO, type FileState, type RepoSnapshot } from '@shared/repo';
+import type { SetupStep } from '@shared/setup';
 import type { ProjectTemplate } from '@data/projects';
 import { TerminalModel } from './TerminalModel';
 import { WorkspaceModel } from './WorkspaceModel';
@@ -18,15 +19,18 @@ export class PracticeSession {
   constructor(
     readonly ref: WorkspaceRef,
     private readonly project: ProjectTemplate,
+    /** 練習用リポジトリの初期状態（リセットでもこれを使う） */
+    private readonly setup: SetupStep[],
   ) {
     this.workspace = new WorkspaceModel(ref, [project.featureFile, project.mainFile]);
     this.terminal = new TerminalModel(ref, {
       beforeExecute: () => this.workspace.flush(),
       afterExecute: () => void this.refresh(),
     });
-    makeAutoObservable<PracticeSession, 'project'>(this, {
+    makeAutoObservable<PracticeSession, 'project' | 'setup'>(this, {
       ref: false,
       project: false,
+      setup: false,
       terminal: false,
       workspace: false,
     });
@@ -46,7 +50,7 @@ export class PracticeSession {
 
   async open(): Promise<void> {
     if (!window.gitGym) return;
-    const info = await window.gitGym.workspace.open(this.ref, this.project.name, this.project.files);
+    const info = await window.gitGym.workspace.open(this.ref, this.project.name, this.setup);
     this.terminal.setCwd(info.cwd);
     await Promise.all([this.workspace.load(), this.refreshRepo()]);
     runInAction(() => (this.ready = true));

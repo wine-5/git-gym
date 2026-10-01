@@ -14,6 +14,14 @@ remotes/  練習用のリモートリポジトリ（GitHub の代わり）
 アプリの「リセット」を押すと、そのレッスンのフォルダは作り直されます。
 `;
 
+/**
+ * 最近の Git は、分岐した状態で pull すると「merge か rebase か決めて」と止まってしまう。
+ * 初心者がつまずかないよう、pull は merge で取り込む設定にしておく。
+ */
+const PULL_SECTION = `[pull]
+	rebase = false
+`;
+
 /** 学生 PC の本来の ~/.gitconfig を汚さないよう、練習用の global 設定はここに置く */
 const DEFAULT_GITCONFIG = `[user]
 	name = Git Gym Student
@@ -23,7 +31,7 @@ const DEFAULT_GITCONFIG = `[user]
 [core]
 	autocrlf = false
 	quotePath = false
-`;
+${PULL_SECTION}`;
 
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/i;
 
@@ -40,6 +48,10 @@ export class PracticeFolders {
     const readme = path.join(this.root, 'README.txt');
     await fs.writeFile(readme, ROOT_README, { flag: 'wx' }).catch(() => undefined);
     await fs.writeFile(this.globalConfig, DEFAULT_GITCONFIG, { flag: 'wx' }).catch(() => undefined);
+
+    // 以前のバージョンで作った設定ファイルには pull の設定が無いので足す
+    const config = await fs.readFile(this.globalConfig, 'utf8').catch(() => '');
+    if (!config.includes('[pull]')) await fs.appendFile(this.globalConfig, PULL_SECTION);
   }
 
   repoPath(kind: PracticeKind, id: string): string {

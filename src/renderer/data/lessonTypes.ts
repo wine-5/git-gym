@@ -6,10 +6,12 @@ import { writeProject } from './setupHelpers';
 /** 達成判定に渡す情報 */
 export interface CheckContext {
   project: ProjectTemplate;
-  /** このレッスンで打ったコマンド（git status など、状態が変わらない操作の判定用） */
+  /** このレッスンで打って成功したコマンド（git status など、状態が変わらない操作の判定用） */
   commands: string[];
-  /** 打ったコマンドに pattern に合うものがあるか */
+  /** 成功したコマンドに pattern に合うものがあるか */
   ran: (pattern: RegExp) => boolean;
+  /** 失敗したものも含めて、pattern に合うコマンドを打ったか（push が断られる体験など） */
+  tried: (pattern: RegExp) => boolean;
 }
 
 export interface LessonCheck {

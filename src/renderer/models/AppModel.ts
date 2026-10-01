@@ -56,8 +56,8 @@ export class AppModel {
       const runner = new LessonRunner(found.lesson, this.project, session);
       const lessonId = this.currentLessonId;
       session.onCommand = async (line, result) => {
-        // 失敗したコマンドは「打った」ことにしない（git log がエラーでも達成扱いにならないように）
-        if (result.exitCode === 0) runner.recordCommand(line);
+        // 失敗したコマンドは ran では数えない（git log がエラーでも達成扱いにならないように）
+        runner.recordCommand(line, result.exitCode === 0);
         for (const i of await runner.evaluate()) session.terminal.push('success', runner.label(i).replace(/`/g, ''));
         if (runner.completed) this.progress.markDone(lessonId);
       };

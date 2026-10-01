@@ -55,20 +55,3 @@ export function createMockRepo(featureFile: string): RepoSnapshot {
     staged: [],
   };
 }
-
-export interface TerminalLine {
-  kind: 'command' | 'output' | 'error' | 'success' | 'hint';
-  text: string;
-  branch?: string;
-}
-
-export const MOCK_TERMINAL: TerminalLine[] = [
-  { kind: 'command', branch: 'main', text: 'git branch feature/jump' },
-  { kind: 'success', text: 'ブランチ feature/jump を作成しました' },
-  { kind: 'command', branch: 'main', text: 'git switch feature/jump' },
-  { kind: 'output', text: "Switched to branch 'feature/jump'" },
-  { kind: 'success', text: 'feature/jump に切り替わりました' },
-  { kind: 'command', branch: 'feature/jump', text: 'git comit -m "jump"' },
-  { kind: 'error', text: "git: 'comit' is not a git command. See 'git --help'." },
-  { kind: 'hint', text: 'もしかして git commit ですか？ スペルを確認してみましょう' },
-];

@@ -8,7 +8,7 @@ import * as path from 'path';
  */
 export function resolveGitPath(): string {
   const exe = process.platform === 'win32' ? 'git.exe' : 'git';
-  const base = app.isPackaged ? process.resourcesPath : path.join(app.getAppPath(), '..', '..', 'resources');
+  const base = app.isPackaged ? process.resourcesPath : path.join(app.getAppPath(), 'resources');
   const candidates = [path.join(base, 'git', 'cmd', exe), path.join(base, 'git', 'bin', exe)];
 
   return candidates.find((p) => existsSync(p)) ?? 'git';

@@ -38,11 +38,6 @@ export class GitRunner {
       GIT_TERMINAL_PROMPT: '0',
       GIT_ASKPASS: '',
       GIT_CONFIG_NOSYSTEM: '1',
-      // 学生 PC の設定に左右されないよう、練習用の名前を使う
-      GIT_AUTHOR_NAME: 'Git Gym',
-      GIT_AUTHOR_EMAIL: 'student@git-gym.local',
-      GIT_COMMITTER_NAME: 'Git Gym',
-      GIT_COMMITTER_EMAIL: 'student@git-gym.local',
       ...options.env,
     };
 

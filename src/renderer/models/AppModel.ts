@@ -4,6 +4,7 @@ import { PROJECTS } from '@data/projects';
 import { initialRepo } from '@data/setupHelpers';
 import { CHAPTERS, findLesson, lessonSetup, type Lesson } from '@data/lessons';
 import { ALL_STAGES, findStage } from '@data/stages';
+import { LayoutModel } from './LayoutModel';
 import { LessonRunner } from './LessonRunner';
 import { PracticeSession } from './PracticeSession';
 import { ProgressModel } from './ProgressModel';
@@ -29,6 +30,7 @@ export class AppModel {
   currentLessonId = CHAPTERS[0].lessons[0].id;
   readonly progress = new ProgressModel();
   readonly settings = new SettingsModel();
+  readonly layout = new LayoutModel();
   readonly sound = new SoundManager(this.settings);
   /** 練習モードで遊んでいるステージ */
   currentStageId = ALL_STAGES[0].id;
@@ -39,7 +41,7 @@ export class AppModel {
   private readonly sandboxes = new Map<string, PracticeSession>();
 
   constructor() {
-    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false, settings: false, sound: false });
+    makeAutoObservable<AppModel, 'lessons' | 'sandboxes'>(this, { lessons: false, sandboxes: false, progress: false, settings: false, sound: false, layout: false });
     // 練習中は控えめな BGM、それ以外はホームの BGM
     autorun(() => {
       const practicing = ['lesson', 'stage', 'sandbox'].includes(this.screen);

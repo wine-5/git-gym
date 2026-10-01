@@ -21,6 +21,9 @@ const api: GitGymApi = {
     read: (ref, file) => ipcRenderer.invoke(IPC.filesRead, ref, file),
     write: (ref, file, content) => ipcRenderer.invoke(IPC.filesWrite, ref, file, content),
   },
+  app: {
+    info: () => ipcRenderer.invoke(IPC.appInfo),
+  },
   progress: {
     load: () => ipcRenderer.invoke(IPC.progressLoad),
     save: (data) => ipcRenderer.invoke(IPC.progressSave, data),

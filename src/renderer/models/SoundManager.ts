@@ -30,7 +30,9 @@ export class SoundManager {
 
   constructor(private readonly settings: SettingsModel) {
     autorun(() => {
-      if (this.bgm) this.bgm.volume = this.settings.muted ? 0 : this.settings.bgmVolume;
+      // 設定は必ず先に読む（BGM が無いときに読まずに終わると、変更を追いかけなくなる）
+      const volume = this.settings.muted ? 0 : this.settings.bgmVolume;
+      if (this.bgm) this.bgm.volume = volume;
     });
   }
 

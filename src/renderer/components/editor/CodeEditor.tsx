@@ -44,13 +44,14 @@ interface Props {
   path: string;
   value: string;
   onChange: (path: string, value: string) => void;
+  fontSize?: number;
 }
 
 /**
  * ファイルごとに Monaco のモデルを持ち、タブ切り替えで差し替える。
  * モデルを使い回すので、タブを切り替えても Undo 履歴やカーソル位置が残る。
  */
-export function CodeEditor({ path, value, onChange }: Props) {
+export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const viewStates = useRef(new Map<string, monaco.editor.ICodeEditorViewState | null>());
@@ -110,6 +111,10 @@ export function CodeEditor({ path, value, onChange }: Props) {
     // value はモデル作成時の初期値としてだけ使う
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path]);
+
+  useEffect(() => {
+    editorRef.current?.updateOptions({ fontSize });
+  }, [fontSize]);
 
   // git switch / restore などでディスク側が変わったら、Undo できる形で中身を差し替える
   useEffect(() => {

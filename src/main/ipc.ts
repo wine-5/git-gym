@@ -12,6 +12,7 @@ export function registerIpc(hub: WorkspaceHub): void {
   ipcMain.handle(IPC.workspaceReveal, (_e, ref: WorkspaceRef) => hub.reveal(ref));
   ipcMain.handle(IPC.terminalExecute, (_e, ref: WorkspaceRef, line: string) => hub.execute(ref, line));
   ipcMain.handle(IPC.repoSnapshot, (_e, ref: WorkspaceRef) => hub.snapshot(ref));
+  ipcMain.handle(IPC.repoQuery, (_e, ref: WorkspaceRef, args: string[]) => hub.query(ref, args));
   ipcMain.handle(IPC.filesList, (_e, ref: WorkspaceRef) => hub.listFiles(ref));
   ipcMain.handle(IPC.filesRead, (_e, ref: WorkspaceRef, file: string) => hub.readFile(ref, file));
   ipcMain.handle(IPC.filesWrite, (_e, ref: WorkspaceRef, file: string, content: string) => hub.writeFile(ref, file, content));

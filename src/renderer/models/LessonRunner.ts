@@ -11,8 +11,8 @@ export class LessonRunner {
   completed = false;
   /** クリア画面を見終わった（開き直しても毎回は出さない） */
   celebrated = false;
-  /** このレッスンで打ったコマンド */
-  private commands: string[] = [];
+  /** このレッスンで打ったコマンドと、成功したかどうか */
+  private commands: { line: string; ok: boolean }[] = [];
 
   constructor(
     readonly lesson: Lesson,
@@ -45,18 +45,20 @@ export class LessonRunner {
     return fillPlaceholders(this.lesson.checks[index].label, this.vars);
   }
 
-  recordCommand(line: string): void {
-    this.commands.push(line.trim().replace(/\s+/g, ' '));
+  recordCommand(line: string, ok: boolean): void {
+    this.commands.push({ line: line.trim().replace(/\s+/g, ' '), ok });
   }
 
   /** 判定し直して、新しく達成したチェックの番号を返す */
   async evaluate(): Promise<number[]> {
     const query = new RepoQuery(this.session.ref, this.session.repo);
-    const commands = [...this.commands];
+    const commands = this.commands.filter((c) => c.ok).map((c) => c.line);
+    const attempts = this.commands.map((c) => c.line);
     const ctx: CheckContext = {
       project: this.project,
       commands,
       ran: (pattern) => commands.some((c) => pattern.test(c)),
+      tried: (pattern) => attempts.some((c) => pattern.test(c)),
     };
     const results = await Promise.all(
       this.lesson.checks.map(async (check, i) => this.done[i] || (await check.test(query, ctx))),

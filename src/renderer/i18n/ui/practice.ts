@@ -84,12 +84,12 @@ const dict: UiDictionary = {
     'editor.files': 'ファイル',
 
     // レイアウト
-    'layout.splitterTitle': 'ドラッグで大きさを変更（ダブルクリックで元に戻す）',
     'layout.graph': 'コミットグラフ',
     'layout.areas': 'ファイルの居場所',
     'layout.noFile': '左のファイル一覧からファイルを開いてください',
-    'dock.handleTitle': '見出しをドラッグすると、別の場所のパネルと入れ替えられます',
-    'dock.dropHere': 'ここと入れ替える',
+    'dock.editor': 'エディタ',
+    'dock.close': 'パネルを閉じる',
+    'dock.dragHint': 'タブをドラッグすると、パネルを好きな場所へ動かしたり分割したりできます',
   },
   en: {
     'clear.ariaLabel': 'Mission clear',
@@ -164,12 +164,12 @@ const dict: UiDictionary = {
     'editor.closeTab': 'Close',
     'editor.files': 'Files',
 
-    'layout.splitterTitle': 'Drag to resize (double-click to reset)',
     'layout.graph': 'Commit graph',
     'layout.areas': 'Where files are',
     'layout.noFile': 'Open a file from the file list on the left',
-    'dock.handleTitle': 'Drag the header to swap this panel with another one',
-    'dock.dropHere': 'Swap with this one',
+    'dock.editor': 'Editor',
+    'dock.close': 'Close panel',
+    'dock.dragHint': 'Drag the tab to move or split this panel anywhere',
   },
   zh: {
     'clear.ariaLabel': '任务完成',
@@ -243,12 +243,12 @@ const dict: UiDictionary = {
     'editor.closeTab': '关闭',
     'editor.files': '文件',
 
-    'layout.splitterTitle': '拖动以调整大小（双击恢复原样）',
     'layout.graph': '提交图',
     'layout.areas': '文件所在位置',
     'layout.noFile': '请从左侧的文件列表中打开文件',
-    'dock.handleTitle': '拖动标题栏，可以和其他位置的面板互换',
-    'dock.dropHere': '与这里互换',
+    'dock.editor': '编辑器',
+    'dock.close': '关闭面板',
+    'dock.dragHint': '拖动标签页，可以把面板移动到任意位置或拆分',
   },
   ko: {
     'clear.ariaLabel': '미션 클리어',
@@ -323,12 +323,12 @@ const dict: UiDictionary = {
     'editor.closeTab': '닫기',
     'editor.files': '파일',
 
-    'layout.splitterTitle': '드래그해서 크기 조절 (더블클릭하면 원래대로)',
     'layout.graph': '커밋 그래프',
     'layout.areas': '파일의 위치',
     'layout.noFile': '왼쪽 파일 목록에서 파일을 열어 주세요',
-    'dock.handleTitle': '제목을 드래그하면 다른 위치의 패널과 바꿀 수 있어요',
-    'dock.dropHere': '여기와 바꾸기',
+    'dock.editor': '에디터',
+    'dock.close': '패널 닫기',
+    'dock.dragHint': '탭을 드래그하면 패널을 원하는 곳으로 옮기거나 나눌 수 있어요',
   },
 };
 

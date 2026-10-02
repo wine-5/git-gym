@@ -188,7 +188,7 @@ const overlay: ContentOverlay = {
         'Commit to finish the merge',
       ],
       hints: [
-        'From `<<<<<<< HEAD` to `=======` is your current branch (main); from `=======` to `>>>>>>>` is the branch you are merging in.',
+        'From `<<<<<<< HEAD` to `=======` is your current branch (main = ours); from `=======` to `>>>>>>>` is the branch you are merging in (theirs).',
         'Decide which value to keep, delete the `<<<<<<<` `=======` `>>>>>>>` lines too, and leave only the one correct line.',
         'After fixing, run `git add {hpFile}`, then finish the merge with `git commit` (the message is filled in for you).',
       ],

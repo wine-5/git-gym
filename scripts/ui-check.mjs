@@ -31,7 +31,8 @@ for (const s of steps) {
     // {key, code?, keyCode?, modifiers?}: modifiers は Alt=1, Ctrl=2, Meta=4, Shift=8 の和
     const keyCode = s.keyCode ?? ({ Enter: 13, Tab: 9 }[s.key] ?? 0);
     const base = { key: s.key, code: s.code ?? s.key, windowsVirtualKeyCode: keyCode, modifiers: s.modifiers ?? 0 };
-    await send('Input.dispatchKeyEvent', { type: 'rawKeyDown', ...base });
+    // text を指定すると、文字入力つきのキー（ボタン上の Enter で押される など）として送る
+    await send('Input.dispatchKeyEvent', s.text ? { type: 'keyDown', text: s.text, ...base } : { type: 'rawKeyDown', ...base });
     await send('Input.dispatchKeyEvent', { type: 'keyUp', ...base });
   }
   if (s.drag !== undefined) {

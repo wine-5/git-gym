@@ -54,18 +54,40 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
     inputRef.current?.focus();
   }, [terminal]);
 
+  /** 実行中に Enter を押したコマンド。本物のターミナルと同じく、終わったら順に実行する */
+  const queued = useRef<string[]>([]);
+
   // 実行が終わったら入力欄にフォーカスを戻して、続けてコマンドを打てるようにする
   useEffect(() => {
-    if (!terminal.running && refocusAfterRun.current) {
+    if (terminal.running) return;
+    const next = queued.current.shift();
+    if (next !== undefined) {
+      refocusAfterRun.current = true;
+      void terminal.execute(next, branch);
+      return;
+    }
+    if (refocusAfterRun.current) {
       refocusAfterRun.current = false;
       inputRef.current?.focus();
     }
+    // branch は実行する瞬間の値を使えばよいので、変わっても実行し直さない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [terminal.running]);
+
+  // レッスンを切り替えたら、前のターミナル宛ての予約は捨てる
+  useEffect(() => {
+    queued.current = [];
+  }, [terminal]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       refocusAfterRun.current = true;
-      void terminal.execute(input, branch);
+      // 実行中に打った分は覚えておき、今のコマンドが終わってから実行する
+      if (terminal.running) {
+        if (input.trim()) queued.current.push(input);
+      } else {
+        void terminal.execute(input, branch);
+      }
       setInput('');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
@@ -119,9 +141,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
             <Loader2 size={14} className={styles.spin} /> {t('terminal.running')}
           </div>
         )}
-        {/* 実行中も入力欄は残す。visibility: hidden にするとフォーカスが外れるので、透明にするだけにする */}
-        <div className={styles.inputRow} style={terminal.running ? { opacity: 0 } : undefined}>
-          <Prompt cwd={terminal.cwd} branch={branch} />
+        {/* 実行中も入力欄は残し、打ったキーをそのまま受け付ける（終わったら続きから打てる） */}
+        <div className={styles.inputRow}>
+          <span style={terminal.running ? { visibility: 'hidden' } : undefined}>
+            <Prompt cwd={terminal.cwd} branch={branch} />
+          </span>
           {/* 入力欄の文字は透明にして、後ろに色分けした同じ文字を重ねる（PowerShell と同じ色分け） */}
           <div className={styles.inputWrap}>
             <div ref={mirrorRef} className={styles.mirror} aria-hidden>
@@ -139,8 +163,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
               onSelect={(e) => mirrorRef.current?.scrollTo({ left: e.currentTarget.scrollLeft })}
               spellCheck={false}
               autoFocus
-              readOnly={terminal.running}
-              placeholder={t('terminal.placeholder')}
+              placeholder={terminal.running ? '' : t('terminal.placeholder')}
             />
           </div>
         </div>

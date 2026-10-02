@@ -75,18 +75,25 @@
   align-items: center;
 }
 
-.steps i {
+.steps button {
   width: 8px;
   height: 8px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
   background: var(--border);
 }
 
-.steps i.done {
+.steps button:hover {
+  box-shadow: 0 0 0 3px var(--bg-elev);
+  background: var(--text-mute);
+}
+
+.steps button.done {
   background: var(--green);
 }
 
-.steps i.now {
+.steps button.now {
   background: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }

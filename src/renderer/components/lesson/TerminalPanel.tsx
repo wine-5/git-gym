@@ -29,6 +29,23 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
   }, [terminal.lines.length, terminal.running]);
 
+  // トラックパッドで少し動かしただけで大きく飛ばないよう、ブラウザの慣性つきスクロールを使わず
+  // 動かした量だけそのまま動かす（VS Code のターミナルと同じ感覚）
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // Ctrl+ホイールは拡大縮小に使う
+      e.preventDefault();
+      const lineHeight = parseFloat(getComputedStyle(body).lineHeight) || 20;
+      const unit = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? lineHeight : e.deltaMode === WheelEvent.DOM_DELTA_PAGE ? body.clientHeight : 1;
+      body.scrollTop += e.deltaY * unit;
+      body.scrollLeft += e.deltaX * unit;
+    };
+    body.addEventListener('wheel', onWheel, { passive: false });
+    return () => body.removeEventListener('wheel', onWheel);
+  }, []);
+
   // レッスンやステージを開いたら、すぐコマンドを打てるようにターミナルを選んでおく
   useEffect(() => {
     inputRef.current?.focus();

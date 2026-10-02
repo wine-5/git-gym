@@ -55,6 +55,7 @@
   /* 左の余白にコマンドの成功・失敗の印を出す（VS Code と同じ） */
   padding: 10px 14px 10px 24px;
   overflow: auto;
+  overscroll-behavior: contain;
   font-family: var(--mono);
   font-size: 13px;
   line-height: 1.7;

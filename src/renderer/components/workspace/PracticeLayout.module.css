@@ -35,6 +35,14 @@
 
 .side {
   background: var(--bg-panel);
+  display: grid;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* コミットグラフ・ファイルの居場所。どの場所に置いても中身がスクロールできるようにする */
+.panel {
+  background: var(--bg-panel);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -47,13 +55,8 @@
   gap: 6px;
 }
 
-.graphScroll {
+.scroll {
   flex: 1;
   overflow: auto;
   min-height: 0;
-}
-
-.areas {
-  flex: none;
-  overflow: auto;
 }

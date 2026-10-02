@@ -83,7 +83,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
 
   return (
     <div className={styles.terminal}>
-      <div className={styles.head}>
+      <div className={styles.head} data-dock-handle>
         <span className={styles.tab}>
           <TerminalSquare size={13} /> ターミナル
         </span>

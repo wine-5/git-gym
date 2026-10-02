@@ -20,6 +20,12 @@ export interface TerminalLine {
   exitCode?: number;
 }
 
+/**
+ * 打ったコマンドの履歴。レッスンやステージをまたいでも ↑ で戻れるよう、全ターミナルで共有する。
+ * メモリにだけ持つので、アプリを閉じると消える
+ */
+const sharedHistory: string[] = [];
+
 /** 1つの練習用リポジトリに紐づくターミナルの状態 */
 export class TerminalModel {
   lines: TerminalLine[] = [];
@@ -27,14 +33,14 @@ export class TerminalModel {
   running = false;
   /** 連続で成功したコマンドの数（失敗すると 0 に戻る） */
   streak = 0;
-  private history: string[] = [];
-  private historyIndex = 0;
+  private readonly history = sharedHistory;
+  private historyIndex = sharedHistory.length;
 
   constructor(
     readonly ref: WorkspaceRef,
     private readonly hooks: TerminalHooks = {},
   ) {
-    makeAutoObservable<TerminalModel, 'hooks'>(this, { ref: false, hooks: false });
+    makeAutoObservable<TerminalModel, 'hooks' | 'history'>(this, { ref: false, hooks: false, history: false });
   }
 
   setCwd(cwd: string): void {
@@ -45,7 +51,8 @@ export class TerminalModel {
     const trimmed = line.trim();
     if (!trimmed || this.running) return;
 
-    this.history.push(trimmed);
+    // 同じコマンドを続けて打ったときは1つにまとめる（シェルの ignoredups と同じ）
+    if (this.history[this.history.length - 1] !== trimmed) this.history.push(trimmed);
     this.historyIndex = this.history.length;
     this.lines.push({ kind: 'command', text: trimmed, cwd: this.cwd, branch, exitCode: undefined });
     const commandLine = this.lines[this.lines.length - 1];

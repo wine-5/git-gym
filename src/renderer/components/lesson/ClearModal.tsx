@@ -1,5 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
-import { Trophy, ArrowRight, RotateCcw, Home, PartyPopper } from 'lucide-react';
+import { Trophy, ArrowRight, RotateCcw, Home, Star } from 'lucide-react';
 import { Confetti } from '../effects/Confetti';
 import styles from './ClearModal.module.css';
 
@@ -12,7 +12,11 @@ interface Props {
   onClose: () => void;
 }
 
-/** レッスンをクリアしたときのお祝い */
+const CLEAR_TEXT = 'MISSION CLEAR!';
+/** メダルの厚み（重ねる円盤の枚数） */
+const MEDAL_LAYERS = 10;
+
+/** レッスンをクリアしたときのお祝い。回転しながら飛んでくる立体のメダルと光の演出 */
 export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, onClose }: Props) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +44,10 @@ export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, on
     <>
       <Confetti />
       <div className={styles.backdrop} onClick={onClose}>
+        <div className={styles.flash} aria-hidden />
+        <div className={styles.rays} aria-hidden />
+        <div className={styles.ring} aria-hidden />
+        <div className={`${styles.ring} ${styles.ring2}`} aria-hidden />
         <div
           ref={modalRef}
           className={styles.modal}
@@ -48,11 +56,30 @@ export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, on
           role="dialog"
           aria-modal
         >
-          <div className={styles.trophy}>
-            <Trophy size={44} />
+          <div className={styles.medalStage} aria-hidden>
+            <div className={styles.medalFloat}>
+              <div className={styles.medal}>
+                {Array.from({ length: MEDAL_LAYERS }, (_, i) => (
+                  <i key={i} className={styles.edge} style={{ transform: `translateZ(${i - MEDAL_LAYERS / 2}px)` }} />
+                ))}
+                <div className={`${styles.face} ${styles.front}`}>
+                  <Trophy size={52} strokeWidth={2.2} />
+                </div>
+                <div className={`${styles.face} ${styles.back}`}>
+                  <Star size={52} fill="currentColor" />
+                </div>
+              </div>
+            </div>
+            <i className={`${styles.sparkle} ${styles.s1}`} />
+            <i className={`${styles.sparkle} ${styles.s2}`} />
+            <i className={`${styles.sparkle} ${styles.s3}`} />
           </div>
-          <div className={styles.clear}>
-            <PartyPopper size={18} /> ミッションクリア！
+          <div className={styles.clear} aria-label="ミッションクリア">
+            {[...CLEAR_TEXT].map((ch, i) => (
+              <span key={i} style={{ animationDelay: `${0.55 + i * 0.045}s` }}>
+                {ch === ' ' ? ' ' : ch}
+              </span>
+            ))}
           </div>
           <div className={styles.title}>{lessonTitle}</div>
           <p className={styles.message}>

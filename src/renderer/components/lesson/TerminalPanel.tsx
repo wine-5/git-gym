@@ -29,6 +29,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
   }, [terminal.lines.length, terminal.running]);
 
+  // レッスンやステージを開いたら、すぐコマンドを打てるようにターミナルを選んでおく
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [terminal]);
+
   // 実行が終わったら入力欄にフォーカスを戻して、続けてコマンドを打てるようにする
   useEffect(() => {
     if (!terminal.running && refocusAfterRun.current) {

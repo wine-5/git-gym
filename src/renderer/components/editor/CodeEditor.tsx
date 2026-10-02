@@ -47,6 +47,11 @@ export function focusEditor(): void {
   activeEditor?.focus();
 }
 
+/** ファイルを開いた直後（モデルの差し替えが終わってから）エディタに移る */
+export function focusEditorSoon(): void {
+  setTimeout(focusEditor, 0);
+}
+
 interface Props {
   path: string;
   value: string;
@@ -116,7 +121,6 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
     editor.setModel(model);
     const viewState = viewStates.current.get(path);
     if (viewState) editor.restoreViewState(viewState);
-    editor.focus();
     // value はモデル作成時の初期値としてだけ使う
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path]);

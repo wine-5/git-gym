@@ -4,6 +4,7 @@ import type { FileState } from '@shared/repo';
 import type { WorkspaceModel } from '@models/WorkspaceModel';
 import { FILE_STATE_MARKS } from '../fileStates';
 import { FileIcon } from './FileIcon';
+import { focusEditorSoon } from './CodeEditor';
 import styles from './FileTree.module.css';
 
 interface Props {
@@ -32,7 +33,7 @@ export const FileTree = observer(({ workspace, projectName, fileStates }: Props)
           <li
             key={path}
             className={workspace.activePath === path ? styles.selected : undefined}
-            onClick={() => workspace.open(path)}
+            onClick={() => (workspace.open(path), focusEditorSoon())}
           >
             <FileIcon path={path} />
             <span className={styles.name} style={mark ? { color: mark.color } : undefined}>

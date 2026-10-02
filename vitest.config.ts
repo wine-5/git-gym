@@ -8,6 +8,7 @@ export default defineConfig({
       '@components': path.resolve(__dirname, 'src/renderer/components'),
       '@models': path.resolve(__dirname, 'src/renderer/models'),
       '@data': path.resolve(__dirname, 'src/renderer/data'),
+      '@i18n': path.resolve(__dirname, 'src/renderer/i18n'),
     },
   },
   test: {

@@ -1,26 +1,110 @@
-/* 列・行の大きさは LessonView でドラッグに合わせて style から指定する */
 .layout {
-  display: grid;
-  min-height: 0;
-}
-
-.center {
-  display: grid;
   min-height: 0;
   min-width: 0;
-  background: var(--bg-editor);
+  display: flex;
 }
 
-.editorArea {
-  display: grid;
+.dock {
+  flex: 1;
+  min-width: 0;
   min-height: 0;
+}
+
+/* dockview の色を、アプリのテーマ（ダーク／ライト）の色に合わせる */
+.dock:global(.dockview-theme-dark),
+.dock:global(.dockview-theme-light),
+.dock :global(.dockview-theme-dark),
+.dock :global(.dockview-theme-light) {
+  --dv-background-color: var(--bg);
+  --dv-group-view-background-color: var(--bg-panel);
+  --dv-tabs-and-actions-container-background-color: var(--bg);
+  --dv-tabs-and-actions-container-height: 32px;
+  --dv-tabs-and-actions-container-font-size: 12px;
+  --dv-activegroup-visiblepanel-tab-background-color: var(--bg-panel);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--bg);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--bg-panel);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--bg);
+  --dv-activegroup-visiblepanel-tab-color: var(--text);
+  --dv-activegroup-hiddenpanel-tab-color: var(--text-mute);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--text-dim);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--text-mute);
+  --dv-tab-divider-color: var(--border);
+  --dv-separator-border: var(--border);
+  --dv-paneview-header-border-color: var(--border);
+  --dv-sash-color: transparent;
+  --dv-active-sash-color: var(--accent);
+  --dv-drag-over-background-color: var(--accent-soft);
+  --dv-drag-over-border-color: var(--accent);
+  --dv-edge-dock-indicator-color: var(--accent);
+  --dv-floating-box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --dv-floating-border: 1px solid var(--border);
+  --dv-icon-hover-background-color: var(--bg-elev);
+  --dv-scrollbar-background-color: var(--border);
+  background: var(--bg);
+}
+
+/* アクティブなタブの上に、VS Code のようなアクセントの線を引く */
+.dock :global(.dv-tab.dv-active-tab) {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 4px 0 2px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tabClose {
+  display: grid;
+  place-items: center;
+  margin-left: 2px;
+  padding: 2px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-mute);
+  opacity: 0;
+}
+
+.tab:hover .tabClose,
+.dock :global(.dv-active-tab) .tabClose {
+  opacity: 1;
+}
+
+.tabClose:hover {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+/* パネルの中身は、パネルいっぱいに広げる */
+.fill {
+  height: 100%;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 見出しはタブに出すので、パネルの中の見出しは隠す（ターミナルは操作ボタンだけ残す） */
+.fill > * > :global(.panel-head) {
+  display: none;
+}
+
+.fill [data-dock-handle] > span:first-child {
+  display: none;
 }
 
 .editor {
+  height: 100%;
   display: flex;
   flex-direction: column;
   min-height: 0;
   min-width: 0;
+  background: var(--bg-editor);
 }
 
 .noFile {
@@ -33,27 +117,8 @@
   color: var(--text-mute);
 }
 
-.side {
+.scroll {
+  height: 100%;
+  overflow: auto;
   background: var(--bg-panel);
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  min-width: 0;
-}
-
-.headLabel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.graphScroll {
-  flex: 1;
-  overflow: auto;
-  min-height: 0;
-}
-
-.areas {
-  flex: none;
-  overflow: auto;
 }

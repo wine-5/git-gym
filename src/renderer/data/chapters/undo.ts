@@ -1,4 +1,5 @@
 import type { SetupStep } from '@shared/setup';
+import { isRepoText } from '@i18n/repoText';
 import type { Chapter } from '../lessonTypes';
 import type { ProjectTemplate } from '../projects';
 import { comment, commitAll, git, initialRepo, write } from '../setupHelpers';
@@ -152,7 +153,7 @@ export const undoChapter: Chapter = {
         { label: '`git reflog` で HEAD の移動の記録を見る', test: (_q, c) => c.ran(/^git reflog/) },
         {
           label: '消えたコミットまで戻る',
-          test: async (q) => (await q.message()) === 'ダッシュ機能を追加',
+          test: async (q) => isRepoText(await q.message(), 'ダッシュ機能を追加'),
         },
       ],
       hints: [

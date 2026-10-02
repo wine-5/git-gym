@@ -1,4 +1,5 @@
 import type { SetupStep } from '@shared/setup';
+import { includesRepoText } from '@i18n/repoText';
 import type { Lesson, LessonCheck } from './lessonTypes';
 import type { ProjectTemplate } from './projects';
 import { comment, commitAll, git, initialRepo, write, writeProject } from './setupHelpers';
@@ -185,7 +186,7 @@ export const WORLDS: World[] = [
         's3-3',
         '受け取る',
         '仲間の変更を取り込もう',
-        async (q) => (await q.fileAt('HEAD', 'README.md'))?.includes('チームメイト') ?? false,
+        async (q) => includesRepoText(await q.fileAt('HEAD', 'README.md'), 'チームメイト'),
         ['取ってきて取り込むのは pull です', '`git pull`'],
         (p) => [...withRemote(p), teammate(p)],
       ),

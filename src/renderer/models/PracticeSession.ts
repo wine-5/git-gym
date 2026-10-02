@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { WorkspaceRef } from '@shared/api';
 import { EMPTY_REPO, type FileState, type RepoSnapshot } from '@shared/repo';
 import type { SetupStep } from '@shared/setup';
+import { localizeSetup } from '@i18n/repoText';
 import type { CommandResult } from '@shared/terminal';
 import { hintFor } from '@data/commandHints';
 import type { ProjectTemplate } from '@data/projects';
@@ -55,7 +56,8 @@ export class PracticeSession {
 
   async open(): Promise<void> {
     if (!window.gitGym) return;
-    const info = await window.gitGym.workspace.open(this.ref, this.project.name, this.setup);
+    // コミットメッセージや README は、表示言語の文言で作る
+    const info = await window.gitGym.workspace.open(this.ref, this.project.name, localizeSetup(this.setup));
     this.terminal.setCwd(info.cwd);
     await Promise.all([this.workspace.load(), this.refreshRepo()]);
     runInAction(() => (this.ready = true));

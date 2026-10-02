@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Target, CheckCircle2, Circle, CircleDot, Lightbulb, BookOpen, ListChecks } from 'lucide-react';
+import { Target, CheckCircle2, Circle, CircleDot, Lightbulb, LightbulbOff, BookOpen, ListChecks, ChevronDown } from 'lucide-react';
 import { fillPlaceholders, type Chapter } from '@data/lessons';
 import type { LessonRunner } from '@models/LessonRunner';
 import { appModel } from '@models/AppModel';
 import { ExplainModal } from './ExplainModal';
 import { InlineText } from '../InlineText';
+import { t } from '@i18n/t';
 import styles from './MissionPanel.module.css';
 
 interface Props {
@@ -20,19 +21,21 @@ export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) =
   const [explaining, setExplaining] = useState(false);
   const fill = (text: string) => fillPlaceholders(text, runner.vars);
   const nowIndex = done.indexOf(false);
-  const shownHints = lesson.hints.slice(0, hintCount);
+  // ヒントは最初は隠しておき、表示するかどうかは問題をまたいで覚えておく
+  const { showHints } = appModel.settings;
+  const shownHints = showHints ? lesson.hints.slice(0, hintCount) : [];
 
   return (
     <section className={styles.panel}>
       <div className="panel-head">
         <span className={styles.headLabel}>
-          <Target size={13} /> ミッション
+          <Target size={13} /> {t('mission.head')}
         </span>
       </div>
 
       <div className={styles.body}>
         <div className={styles.chapter}>
-          第{chapter.number}章 {chapter.title} ・ {lessonIndex + 1} / {chapter.lessons.length}
+          {t('mission.chapter', { number: chapter.number, title: chapter.title, index: lessonIndex + 1, total: chapter.lessons.length })}
         </div>
         <h2>{lesson.title}</h2>
         <p className={styles.description}>
@@ -42,7 +45,7 @@ export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) =
         {lesson.checks.length > 0 && (
           <>
             <div className={styles.sectionLabel}>
-              <ListChecks size={13} /> やること {doneCount} / {lesson.checks.length}
+              <ListChecks size={13} /> {t('mission.todo', { done: doneCount, total: lesson.checks.length })}
             </div>
             <ul className={styles.checklist}>
               {lesson.checks.map((check, i) => {
@@ -64,23 +67,28 @@ export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) =
         {shownHints.map((hint, i) => (
           <div key={i} className={styles.hint}>
             <span className={styles.hintLabel}>
-              <Lightbulb size={14} /> ヒント {i + 1} / {lesson.hints.length}
+              <Lightbulb size={14} /> {t('mission.hint', { n: i + 1, total: lesson.hints.length })}
             </span>
             <InlineText text={fill(hint)} />
           </div>
         ))}
+        {showHints && hintCount < lesson.hints.length && (
+          <button className={styles.moreHint} onClick={() => setHintCount((n) => Math.min(n + 1, lesson.hints.length))}>
+            <ChevronDown size={14} /> {t('mission.nextHint')}
+          </button>
+        )}
       </div>
 
       <div className={styles.foot}>
         <button
-          className="btn"
-          disabled={hintCount >= lesson.hints.length}
-          onClick={() => setHintCount((n) => Math.min(n + 1, lesson.hints.length))}
+          className={showHints ? 'btn primary' : 'btn'}
+          onClick={() => appModel.settings.toggleHints()}
+          title={t('mission.hintToggleTitle')}
         >
-          <Lightbulb size={14} /> 次のヒント
+          {showHints ? <LightbulbOff size={14} /> : <Lightbulb size={14} />} {showHints ? t('mission.hideHints') : t('mission.showHints')}
         </button>
         <button className="btn" onClick={() => setExplaining(true)}>
-          <BookOpen size={14} /> 解説を見る
+          <BookOpen size={14} /> {t('mission.explain')}
         </button>
       </div>
 

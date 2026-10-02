@@ -1,11 +1,61 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 14, 0.6);
+  background: radial-gradient(circle at 50% 42%, rgba(60, 40, 10, 0.55), rgba(8, 8, 12, 0.82) 70%);
   display: grid;
   place-items: center;
   z-index: 50;
+  overflow: hidden;
+  perspective: 1200px;
   animation: fade 0.25s ease-out;
+}
+
+/* クリアした瞬間の白い光 */
+.flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 245, 200, 0.9), rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+  opacity: 0;
+  animation: flash 0.9s ease-out;
+}
+
+/* メダルの後ろでゆっくり回る光の筋 */
+.rays {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 1400px;
+  height: 1400px;
+  margin: -700px 0 0 -700px;
+  pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 209, 102, 0.16) 0deg 6deg, rgba(255, 209, 102, 0) 6deg 18deg);
+  mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.6) 25%, transparent 55%);
+  animation:
+    raysIn 0.8s ease-out both,
+    spin 24s linear infinite;
+}
+
+/* 広がっていく衝撃波の輪 */
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 209, 102, 0.9);
+  box-shadow: 0 0 24px rgba(255, 209, 102, 0.8);
+  pointer-events: none;
+  opacity: 0;
+  animation: ring 1.1s cubic-bezier(0.1, 0.6, 0.3, 1) 0.45s;
+}
+
+.ring2 {
+  border-color: rgba(240, 80, 51, 0.8);
+  box-shadow: 0 0 24px rgba(240, 80, 51, 0.6);
+  animation-delay: 0.65s;
 }
 
 .modal {
@@ -14,33 +64,139 @@
   border-radius: 18px;
   background: var(--bg-panel);
   border: 1px solid var(--border);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 209, 102, 0.25),
+    0 0 60px rgba(255, 209, 102, 0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  animation: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+  position: relative;
+  transform-style: preserve-3d;
+  animation: pop 0.7s cubic-bezier(0.2, 1.3, 0.4, 1);
 }
 
-.trophy {
-  width: 88px;
-  height: 88px;
+/* ---- 立体のメダル ---- */
+.medalStage {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: -96px 0 14px;
+  perspective: 700px;
+}
+
+.medalFloat {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: float 3.2s ease-in-out 1.4s infinite;
+}
+
+.medal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: medalIn 1.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #8a5a08, #d39b25 45%, #8a5a08);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #ffd166;
-  background: radial-gradient(circle, rgba(255, 209, 102, 0.28), rgba(255, 209, 102, 0.06));
-  box-shadow: 0 0 0 6px rgba(255, 209, 102, 0.08);
-  margin-bottom: 16px;
+  backface-visibility: hidden;
+  overflow: hidden;
+  color: #7a4a00;
+  background: radial-gradient(circle at 34% 28%, #fff7d1 0%, #ffd166 30%, #e3a527 62%, #a8720c 100%);
+  box-shadow:
+    inset 0 0 0 7px rgba(255, 240, 190, 0.55),
+    inset 0 0 0 9px rgba(140, 90, 10, 0.5),
+    inset 0 -8px 18px rgba(120, 70, 0, 0.45);
 }
 
+.front {
+  transform: translateZ(6px);
+}
+
+.back {
+  transform: rotateY(180deg) translateZ(6px);
+}
+
+/* 表面を光が横切る */
+.face::after {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.75) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: shine 2.6s ease-in-out 1.3s infinite;
+}
+
+.sparkle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #fff6cf;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 6px #ffd166);
+  opacity: 0;
+  animation: sparkle 1.6s ease-in-out infinite;
+}
+
+.s1 {
+  left: -14px;
+  top: 18px;
+  animation-delay: 1.3s;
+}
+
+.s2 {
+  right: -10px;
+  top: -6px;
+  width: 18px;
+  height: 18px;
+  animation-delay: 1.75s;
+}
+
+.s3 {
+  right: -18px;
+  bottom: 14px;
+  width: 10px;
+  height: 10px;
+  animation-delay: 2.1s;
+}
+
+/* ---- 立体の文字 ---- */
 .clear {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--accent);
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  perspective: 400px;
+}
+
+.clear span {
+  display: inline-block;
+  color: #ffd166;
+  text-shadow:
+    0 1px 0 #f0a020,
+    0 2px 0 #e08a14,
+    0 3px 0 #c8700c,
+    0 4px 0 #b05e08,
+    0 5px 0 #8f4a04,
+    0 8px 12px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(255, 180, 60, 0.45);
+  transform-origin: 50% 100%;
+  animation: letter 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) both;
 }
 
 .title {
@@ -77,6 +233,12 @@
   flex: 1;
 }
 
+/* キーボードで選んでいるボタンをはっきり見せる */
+.actions :global(.btn):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 @keyframes fade {
   from {
     opacity: 0;
@@ -86,6 +248,101 @@
 @keyframes pop {
   from {
     opacity: 0;
-    transform: scale(0.85) translateY(10px);
+    transform: translateY(60px) rotateX(35deg) scale(0.7);
+  }
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+}
+
+@keyframes raysIn {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes ring {
+  0% {
+    opacity: 1;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+  }
+}
+
+@keyframes medalIn {
+  0% {
+    opacity: 0;
+    transform: translateZ(-600px) translateY(-80px) rotateY(-1080deg) scale(0.3);
+  }
+  55% {
+    opacity: 1;
+  }
+  75% {
+    transform: translateZ(60px) rotateY(25deg) scale(1.15);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotateY(-22deg) rotateX(6deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateY(22deg) rotateX(-4deg);
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  45%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(90deg);
+  }
+}
+
+@keyframes letter {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) rotateX(-100deg) scale(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop *,
+  .backdrop *::after {
+    animation: none !important;
   }
 }

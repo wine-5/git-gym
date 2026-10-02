@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import type { SetupStep } from '../../shared/setup';
 import type { GitRunner } from '../git/GitRunner';
+import { pick } from '../i18n';
 import { deleteFile, writeFile } from './repoFiles';
 
 export interface SetupContext {
@@ -14,7 +15,13 @@ export interface SetupContext {
   env: Record<string, string>;
 }
 
-const TEAMMATE = ['-c', 'user.name=チームメイト', '-c', 'user.email=teammate@git-gym.local'];
+/** チームメイトのコミットの作者（git log に出るので表示言語に合わせる） */
+const teammate = () => [
+  '-c',
+  `user.name=${pick({ ja: 'チームメイト', en: 'Teammate', zh: '队友', ko: '팀원' })}`,
+  '-c',
+  'user.email=teammate@git-gym.local',
+];
 
 /** レッスンの初期状態を上から順に組み立てる。失敗したらその場で止める */
 export async function runSetup(steps: SetupStep[], ctx: SetupContext): Promise<void> {
@@ -52,7 +59,7 @@ async function pushAsTeammate(ctx: SetupContext, message: string, files: { path:
     await git(ctx, '.', ['clone', toUrl(ctx.remoteDir), ctx.scratchDir]);
     for (const file of files) await writeFile(ctx.scratchDir, file.path, file.content);
     await git(ctx, ctx.scratchDir, ['add', '-A']);
-    await git(ctx, ctx.scratchDir, [...TEAMMATE, 'commit', '-m', message]);
+    await git(ctx, ctx.scratchDir, [...teammate(), 'commit', '-m', message]);
     await git(ctx, ctx.scratchDir, ['push', 'origin', 'HEAD']);
   } finally {
     await fs.rm(ctx.scratchDir, { recursive: true, force: true });
@@ -62,7 +69,14 @@ async function pushAsTeammate(ctx: SetupContext, message: string, files: { path:
 async function git(ctx: SetupContext, cwd: string, args: string[]): Promise<void> {
   const result = await ctx.git.run(args, cwd === '.' ? ctx.dir : cwd, { env: ctx.env, timeoutMs: 20_000 });
   if (result.exitCode !== 0) {
-    throw new Error(`レッスンの準備に失敗しました: git ${args.join(' ')}\n${result.stderr}`);
+    const command = `git ${args.join(' ')}`;
+    const reason = pick({
+      ja: `レッスンの準備に失敗しました: ${command}`,
+      en: `Failed to prepare the lesson: ${command}`,
+      zh: `课程准备失败：${command}`,
+      ko: `레슨 준비에 실패했어요: ${command}`,
+    });
+    throw new Error(`${reason}\n${result.stderr}`);
   }
 }
 

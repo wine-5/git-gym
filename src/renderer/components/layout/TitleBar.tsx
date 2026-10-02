@@ -3,13 +3,14 @@ import { appModel, type Screen } from '@models/AppModel';
 import { findLesson } from '@data/lessons';
 import { Home, GraduationCap, Swords, FlaskConical, BookOpen, RotateCcw, Settings, ChevronRight, type LucideIcon } from 'lucide-react';
 import styles from './TitleBar.module.css';
+import { t } from '@i18n/t';
 
-const NAV: { screen: Screen; label: string; icon: LucideIcon }[] = [
-  { screen: 'home', label: 'ホーム', icon: Home },
-  { screen: 'stages', label: '練習モード', icon: Swords },
-  { screen: 'lesson', label: 'レッスン', icon: GraduationCap },
-  { screen: 'sandbox', label: 'フリー練習', icon: FlaskConical },
-  { screen: 'dictionary', label: 'コマンド辞典', icon: BookOpen },
+const NAV: { screen: Screen; labelKey: string; icon: LucideIcon }[] = [
+  { screen: 'home', labelKey: 'nav.home', icon: Home },
+  { screen: 'stages', labelKey: 'nav.stages', icon: Swords },
+  { screen: 'lesson', labelKey: 'nav.lesson', icon: GraduationCap },
+  { screen: 'sandbox', labelKey: 'nav.sandbox', icon: FlaskConical },
+  { screen: 'dictionary', labelKey: 'nav.dictionary', icon: BookOpen },
 ];
 
 export const TitleBar = observer(() => {
@@ -39,7 +40,7 @@ export const TitleBar = observer(() => {
               onClick={() => (appModel.sound.play('click'), appModel.navigate(item.screen))}
             >
               <item.icon size={15} />
-              {item.label}
+              {t(item.labelKey)}
             </button>
           ))}
         </nav>
@@ -48,7 +49,7 @@ export const TitleBar = observer(() => {
       {inLesson && (
         <div className={styles.breadcrumb}>
           <span>
-            第{found.chapter.number}章 {found.chapter.title}
+            {t('chapterNo', { n: found.chapter.number })} {found.chapter.title}
           </span>
           <ChevronRight size={14} />
           <strong>
@@ -74,20 +75,20 @@ export const TitleBar = observer(() => {
           </div>
           <button
             className="btn"
-            title="練習用フォルダを最初の状態に戻します"
+            title={t('titlebar.resetTitle')}
             onClick={() => {
-              if (window.confirm('このレッスンを最初からやり直しますか？\n練習用フォルダの変更はすべて消えます。')) {
+              if (window.confirm(t('titlebar.resetConfirm'))) {
                 void appModel.resetLesson();
               }
             }}
           >
-            <RotateCcw size={14} /> リセット
+            <RotateCcw size={14} /> {t('titlebar.reset')}
           </button>
         </>
       )}
       <button
         className={appModel.screen === 'settings' ? `btn ${styles.settingsActive}` : 'btn'}
-        title="設定"
+        title={t('titlebar.settings')}
         onClick={() => appModel.navigate('settings')}
       >
         <Settings size={15} />

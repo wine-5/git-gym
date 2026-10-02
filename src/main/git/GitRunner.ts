@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { pick } from '../i18n';
 
 export interface RunResult {
   stdout: string;
@@ -62,7 +63,10 @@ export class GitRunner {
 
           resolve({
             stdout,
-            stderr: err && err.code === 'ENOENT' ? 'git が見つかりませんでした' : stderr,
+            stderr:
+              err && err.code === 'ENOENT'
+                ? pick({ ja: 'git が見つかりませんでした', en: 'git was not found', zh: '找不到 git', ko: 'git 을 찾을 수 없어요' })
+                : stderr,
             exitCode,
             timedOut,
             truncated,

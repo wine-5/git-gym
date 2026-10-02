@@ -129,3 +129,19 @@
   opacity: 0.4;
   cursor: default;
 }
+
+.moreHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--yellow);
+  font-size: 12px;
+}
+
+.moreHint:hover {
+  background: rgba(232, 196, 106, 0.1);
+}

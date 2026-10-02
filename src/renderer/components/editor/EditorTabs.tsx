@@ -4,6 +4,8 @@ import type { FileState } from '@shared/repo';
 import type { WorkspaceModel } from '@models/WorkspaceModel';
 import { FILE_STATE_MARKS } from '../fileStates';
 import { FileIcon } from './FileIcon';
+import { focusEditorSoon } from './CodeEditor';
+import { t } from '@i18n/t';
 import styles from './EditorTabs.module.css';
 
 interface Props {
@@ -17,7 +19,7 @@ export const EditorTabs = observer(({ workspace, fileStates }: Props) => (
       <div
         key={path}
         className={`${styles.tab} ${workspace.activePath === path ? styles.active : ''}`}
-        onClick={() => workspace.open(path)}
+        onClick={() => (workspace.open(path), focusEditorSoon())}
       >
         <FileIcon path={path} size={14} />
         {path}
@@ -30,7 +32,7 @@ export const EditorTabs = observer(({ workspace, fileStates }: Props) => (
         )}
         <button
           className={styles.close}
-          title="閉じる"
+          title={t('editor.closeTab')}
           onClick={(e) => {
             e.stopPropagation();
             workspace.close(path);

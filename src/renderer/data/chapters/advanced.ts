@@ -1,4 +1,5 @@
 import type { SetupStep } from '@shared/setup';
+import { includesRepoText, isRepoText } from '@i18n/repoText';
 import type { Chapter } from '../lessonTypes';
 import type { ProjectTemplate } from '../projects';
 import { comment, commitAll, git, initialRepo, write } from '../setupHelpers';
@@ -70,9 +71,9 @@ export const advancedChapter: Chapter = {
           label: 'バグ修正のコミットだけを `main` に取り込む',
           test: async (q, c) =>
             q.currentBranch === 'main' &&
-            (await q.message()) === 'HP の計算のバグを修正' &&
-            !((await q.fileAt('HEAD', 'README.md'))?.includes('実験中') ?? true) &&
-            ((await q.fileAt('HEAD', c.project.featureFile))?.includes('マイナス') ?? false),
+            isRepoText(await q.message(), 'HP の計算のバグを修正') &&
+            (await q.fileAt('HEAD', 'README.md').then((readme) => readme !== null && !includesRepoText(readme, '実験中'))) &&
+            includesRepoText(await q.fileAt('HEAD', c.project.featureFile), 'マイナス'),
         },
       ],
       hints: [

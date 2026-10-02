@@ -15,8 +15,68 @@
   --purple: #b48cff;
   --yellow: #e8c46a;
   --red: #ff6b6b;
-  --font: 'Segoe UI', 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  --font: 'Segoe UI', 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', 'Microsoft YaHei UI', 'PingFang SC', 'Malgun Gothic',
+    'Apple SD Gothic Neo', sans-serif;
   --mono: 'Cascadia Code', Consolas, Menlo, 'Noto Sans Mono', monospace;
+  color-scheme: dark;
+
+  /* ターミナルの文字色と 16 色（VS Code の Dark Modern と同じ） */
+  --terminal-fg: #cccccc;
+  --ansi-0: #000000;
+  --ansi-1: #cd3131;
+  --ansi-2: #0dbc79;
+  --ansi-3: #e5e510;
+  --ansi-4: #2472c8;
+  --ansi-5: #bc3fbc;
+  --ansi-6: #11a8cd;
+  --ansi-7: #e5e5e5;
+  --ansi-8: #666666;
+  --ansi-9: #f14c4c;
+  --ansi-10: #23d18b;
+  --ansi-11: #f5f543;
+  --ansi-12: #3b8eea;
+  --ansi-13: #d670d6;
+  --ansi-14: #29b8db;
+  --ansi-15: #e5e5e5;
+}
+
+/* ライトモード（設定で切り替え）。ターミナルの色は VS Code の Light Modern と同じ */
+:root[data-theme='light'] {
+  --bg: #f3f3f5;
+  --bg-panel: #ffffff;
+  --bg-elev: #ebebef;
+  --bg-editor: #ffffff;
+  --bg-terminal: #f8f8f8;
+  --border: #d6d6dc;
+  --text: #1f2024;
+  --text-dim: #55565f;
+  --text-mute: #8b8c96;
+  --accent: #e0432a;
+  --accent-soft: rgba(224, 67, 42, 0.12);
+  --green: #1f9d63;
+  --blue: #1f6fd1;
+  --purple: #7c4dd6;
+  --yellow: #a8770a;
+  --red: #d93b3b;
+  color-scheme: light;
+
+  --terminal-fg: #3b3b3b;
+  --ansi-0: #000000;
+  --ansi-1: #cd3131;
+  --ansi-2: #107c10;
+  --ansi-3: #949800;
+  --ansi-4: #0451a5;
+  --ansi-5: #bc05bc;
+  --ansi-6: #0598bc;
+  --ansi-7: #555555;
+  --ansi-8: #666666;
+  --ansi-9: #cd3131;
+  --ansi-10: #14ce14;
+  --ansi-11: #b5ba00;
+  --ansi-12: #0451a5;
+  --ansi-13: #bc05bc;
+  --ansi-14: #0598bc;
+  --ansi-15: #a5a5a5;
 }
 
 * {
@@ -103,4 +163,13 @@ button {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* 中国語・韓国語では、漢字やハングルがその言語の字形になるフォントを先に使う */
+:root:lang(zh) {
+  --font: 'Segoe UI', 'Microsoft YaHei UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+}
+
+:root:lang(ko) {
+  --font: 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
 }

@@ -1,7 +1,7 @@
 {
   "name": "git-gym",
   "productName": "Git Gym",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Git command practice app for beginners",
   "author": "YutoImata",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "devicon": "^2.17.0",
+    "dockview-react": "^8.4.0",
     "lucide-react": "^1.49.0",
     "mobx": "^6.16.1",
     "mobx-react-lite": "^4.1.1",

@@ -1,4 +1,5 @@
-export type TokenizeResult = { ok: true; args: string[] } | { ok: false; error: string };
+/** 失敗したときは文言ではなく理由のコードを返す（表示言語に合わせた文言は呼び出し側で作る） */
+export type TokenizeResult = { ok: true; args: string[] } | { ok: false; error: 'unclosedQuote'; quote: '"' | "'" };
 
 /**
  * ターミナルに入力された1行を引数に分ける。
@@ -38,7 +39,7 @@ export function tokenize(line: string): TokenizeResult {
   }
 
   if (quote) {
-    return { ok: false, error: `クォート ${quote} が閉じられていません` };
+    return { ok: false, error: 'unclosedQuote', quote };
   }
   if (hasToken) args.push(current);
   return { ok: true, args };

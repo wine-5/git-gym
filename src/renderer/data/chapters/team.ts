@@ -1,4 +1,5 @@
 import type { SetupStep } from '@shared/setup';
+import { includesRepoText } from '@i18n/repoText';
 import type { Chapter } from '../lessonTypes';
 import type { ProjectTemplate } from '../projects';
 import { comment, commitAll, git, initialRepo, write } from '../setupHelpers';
@@ -74,12 +75,12 @@ export const teamChapter: Chapter = {
         { label: '`git push` してみる（断られる）', test: (_q, c) => c.tried(/^git push/) },
         {
           label: '`git pull` で仲間の変更を取り込む',
-          test: async (q) => (await q.fileAt('HEAD', 'README.md'))?.includes('クレジット') ?? false,
+          test: async (q) => includesRepoText(await q.fileAt('HEAD', 'README.md'), 'クレジット'),
         },
         {
           label: 'もう一度 `git push` して、両方の変更をリモートにそろえる',
           test: async (q) =>
-            ((await q.fileAt('origin/main', 'README.md'))?.includes('クレジット') ?? false) &&
+            includesRepoText(await q.fileAt('origin/main', 'README.md'), 'クレジット') &&
             (await q.isMergedInto('main', 'origin/main')),
         },
       ],

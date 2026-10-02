@@ -23,6 +23,7 @@ const api: GitGymApi = {
   },
   app: {
     info: () => ipcRenderer.invoke(IPC.appInfo),
+    setLocale: (locale) => ipcRenderer.invoke(IPC.appSetLocale, locale),
   },
   progress: {
     load: () => ipcRenderer.invoke(IPC.progressLoad),

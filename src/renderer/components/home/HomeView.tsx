@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import styles from './HomeView.module.css';
+import { t } from '@i18n/t';
 
 const CHAPTER_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
   basics: { icon: Footprints, color: '#4cc38a' },
@@ -55,9 +56,11 @@ export const HomeView = observer(() => {
           <div className={styles.gitMissing}>
             <AlertTriangle size={20} />
             <div>
-              <b>Git が見つかりません</b>
+              <b>{t('home.gitMissingTitle')}</b>
               <span>
-                Mac の場合は「ターミナル」アプリで <code>xcode-select --install</code> を実行して Git をインストールしてから、Git Gym を開き直してください。
+                {t('home.gitMissingBefore')}
+                <code>xcode-select --install</code>
+                {t('home.gitMissingAfter')}
               </span>
             </div>
           </div>
@@ -66,10 +69,10 @@ export const HomeView = observer(() => {
         <div className={styles.hero}>
           <div>
             <h1>Git Gym</h1>
-            <p>コマンドで Git を動かして、体で覚えよう。</p>
+            <p>{t('home.tagline')}</p>
           </div>
           <div className={styles.overall}>
-            <span>全体の進み具合</span>
+            <span>{t('home.overall')}</span>
             <div className={styles.bar}>
               <i style={{ width: `${percent}%` }} />
             </div>
@@ -80,18 +83,18 @@ export const HomeView = observer(() => {
         {current && (
           <div className={styles.continue}>
             <div className={styles.info}>
-              <small>つづきから</small>
+              <small>{t('home.continue')}</small>
               <div>
-                第{current.chapter.number}章 {current.chapter.title} ・ {current.lesson.id} {current.lesson.title}
+                {t('chapterNo', { n: current.chapter.number })} {current.chapter.title} ・ {current.lesson.id} {current.lesson.title}
               </div>
             </div>
             <button className="btn primary" onClick={() => appModel.openLesson(current.lesson.id)}>
-              <Play size={14} fill="currentColor" /> 再開する
+              <Play size={14} fill="currentColor" /> {t('home.resume')}
             </button>
           </div>
         )}
 
-        <div className={styles.sectionTitle}>コース</div>
+        <div className={styles.sectionTitle}>{t('home.courses')}</div>
         <div className={styles.chapters}>
           {CHAPTERS.map((chapter) => {
             const doneCount = progress.doneCount(chapter);
@@ -101,14 +104,14 @@ export const HomeView = observer(() => {
             const className = [styles.chapterCard, isCurrent && styles.current].filter(Boolean).join(' ');
             return (
               <div key={chapter.id} className={className}>
-                <button className={styles.cardHead} onClick={() => openChapter(chapter)} title="この章の続きから始める">
+                <button className={styles.cardHead} onClick={() => openChapter(chapter)} title={t('home.chapterResumeTitle')}>
                   <div className={styles.chapterIcon} style={{ color, background: `${color}22` }}>
                     <Icon size={22} />
                   </div>
                   <div>
                     <div className={styles.num}>
                       CHAPTER {chapter.number}
-                      {isCurrent && ' ・ 学習中'}
+                      {isCurrent && ` ・ ${t('home.studying')}`}
                     </div>
                     <h3>{chapter.title}</h3>
                   </div>
@@ -150,15 +153,15 @@ export const HomeView = observer(() => {
           })}
         </div>
 
-        <div className={styles.sectionTitle}>その他のモード</div>
+        <div className={styles.sectionTitle}>{t('home.otherModes')}</div>
         <div className={styles.modes}>
           <button className={styles.mode} onClick={() => appModel.navigate('stages')}>
             <div className={styles.ico} style={{ color: '#f05033', background: '#f0503322' }}>
               <Swords size={20} />
             </div>
             <div>
-              <b>練習モード</b>
-              <span>1ステージ＝コマンド1つ。初めての人はここから！</span>
+              <b>{t('nav.stages')}</b>
+              <span>{t('home.stagesDesc')}</span>
             </div>
           </button>
           <button className={styles.mode} onClick={() => appModel.navigate('sandbox')}>
@@ -166,8 +169,8 @@ export const HomeView = observer(() => {
               <FlaskConical size={20} />
             </div>
             <div>
-              <b>フリー練習</b>
-              <span>課題なしで自由にコマンドを試せるサンドボックス</span>
+              <b>{t('nav.sandbox')}</b>
+              <span>{t('home.sandboxDesc')}</span>
             </div>
           </button>
           <button className={styles.mode} onClick={() => appModel.navigate('dictionary')}>
@@ -175,8 +178,8 @@ export const HomeView = observer(() => {
               <BookOpen size={20} />
             </div>
             <div>
-              <b>コマンド辞典</b>
-              <span>覚えたコマンドがここに集まっていく</span>
+              <b>{t('nav.dictionary')}</b>
+              <span>{t('home.dictionaryDesc')}</span>
             </div>
           </button>
         </div>

@@ -2,22 +2,44 @@ import { useEffect } from 'react';
 import type { LayoutModel } from '@models/LayoutModel';
 import type { WorkspaceModel } from '@models/WorkspaceModel';
 import { focusEditor } from '@components/editor/CodeEditor';
+import { t } from '@i18n/t';
+
+interface Shortcut {
+  /** React の key に使う固定の名前 */
+  id: string;
+  /** 今の表示言語でのキーの書き方と操作の説明（参照するたびに t() で引く） */
+  readonly keys: string;
+  readonly action: string;
+}
+
+/** keys を省くと、キーの書き方も翻訳（shortcut.<id>.keys）から引く */
+function shortcut(id: string, keys?: string): Shortcut {
+  return {
+    id,
+    get keys() {
+      return keys ?? t(`shortcut.${id}.keys`);
+    },
+    get action() {
+      return t(`shortcut.${id}`);
+    },
+  };
+}
 
 /** VS Code と同じショートカットの一覧（設定画面にも表示する） */
-export const VSCODE_SHORTCUTS: { keys: string; action: string }[] = [
-  { keys: 'Ctrl + `（JIS キーボードは Ctrl + @）', action: 'ターミナルを開く / 閉じる' },
-  { keys: 'Ctrl + Shift + `（Ctrl + Shift + @）', action: 'ターミナルを開いて入力する' },
-  { keys: 'Ctrl + J', action: '下のパネル（ターミナル）を開く / 閉じる' },
-  { keys: 'Ctrl + B', action: 'ファイル一覧を開く / 閉じる' },
-  { keys: 'Ctrl + Alt + B', action: '右の欄（コミットグラフ）を開く / 閉じる' },
-  { keys: 'Ctrl + Shift + E', action: 'ファイル一覧を表示する' },
-  { keys: 'Ctrl + 1', action: 'エディタに移動する' },
-  { keys: 'Ctrl + W', action: '開いているタブを閉じる' },
-  { keys: 'Ctrl + Tab / Ctrl + PageDown', action: '次のタブへ' },
-  { keys: 'Ctrl + Shift + Tab / Ctrl + PageUp', action: '前のタブへ' },
-  { keys: 'Ctrl + L', action: 'ターミナルをクリア（ターミナルの中で）' },
-  { keys: '↑ / ↓', action: '打ったコマンドの履歴（ターミナルの中で）' },
-  { keys: 'Tab', action: 'コマンド・ブランチ名・ファイル名の補完（ターミナルの中で）' },
+export const VSCODE_SHORTCUTS: Shortcut[] = [
+  shortcut('terminal'),
+  shortcut('terminalFocus'),
+  shortcut('panel', 'Ctrl + J'),
+  shortcut('explorer', 'Ctrl + B'),
+  shortcut('side', 'Ctrl + Alt + B'),
+  shortcut('showExplorer', 'Ctrl + Shift + E'),
+  shortcut('editor', 'Ctrl + 1'),
+  shortcut('closeTab', 'Ctrl + W'),
+  shortcut('nextTab', 'Ctrl + Tab / Ctrl + PageDown'),
+  shortcut('prevTab', 'Ctrl + Shift + Tab / Ctrl + PageUp'),
+  shortcut('clear', 'Ctrl + L'),
+  shortcut('history', '↑ / ↓'),
+  shortcut('complete', 'Tab'),
 ];
 
 function terminalInput(): HTMLInputElement | null {

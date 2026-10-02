@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as monaco from 'monaco-editor';
+import { reaction } from 'mobx';
 import { monacoLanguageForPath } from '@data/languages';
+import { currentLocale } from '@i18n/locale';
+import { t } from '@i18n/t';
 import { findConflicts } from './conflictRegions';
 import styles from './CodeEditor.module.css';
 
@@ -17,6 +20,18 @@ monaco.editor.defineTheme('git-gym', {
   },
 });
 
+monaco.editor.defineTheme('git-gym-light', {
+  base: 'vs',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.background': '#ffffff',
+    'editorLineNumber.foreground': '#8b8c96',
+    'editorLineNumber.activeForeground': '#1f2024',
+    'editorCursor.foreground': '#e0432a',
+  },
+});
+
 /** コンフリクトの「今のブランチ側」「取り込む側」を色分けし、目印の行に説明を添える */
 function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IModelDeltaDecoration[] {
   const whole = (line: number, className: string, note?: string): monaco.editor.IModelDeltaDecoration => ({
@@ -30,9 +45,9 @@ function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IMo
   });
   return findConflicts(model.getValue()).flatMap((r) => {
     const out = [
-      whole(r.start, 'gg-conflict-marker', '   ▼ 今のブランチの内容'),
-      whole(r.separator, 'gg-conflict-marker', '   ▲ 今のブランチ ／ ▼ 取り込むブランチ'),
-      whole(r.end, 'gg-conflict-marker', '   ▲ 取り込もうとしたブランチの内容'),
+      whole(r.start, 'gg-conflict-marker', `   ${t('editor.conflictCurrent')}`),
+      whole(r.separator, 'gg-conflict-marker', `   ${t('editor.conflictSeparator')}`),
+      whole(r.end, 'gg-conflict-marker', `   ${t('editor.conflictIncoming')}`),
     ];
     for (let l = r.start + 1; l < r.separator; l++) out.push(whole(l, 'gg-conflict-current'));
     for (let l = r.separator + 1; l < r.end; l++) out.push(whole(l, 'gg-conflict-incoming'));
@@ -47,18 +62,24 @@ export function focusEditor(): void {
   activeEditor?.focus();
 }
 
+/** ファイルを開いた直後（モデルの差し替えが終わってから）エディタに移る */
+export function focusEditorSoon(): void {
+  setTimeout(focusEditor, 0);
+}
+
 interface Props {
   path: string;
   value: string;
   onChange: (path: string, value: string) => void;
   fontSize?: number;
+  theme?: 'dark' | 'light';
 }
 
 /**
  * ファイルごとに Monaco のモデルを持ち、タブ切り替えで差し替える。
  * モデルを使い回すので、タブを切り替えても Undo 履歴やカーソル位置が残る。
  */
-export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
+export function CodeEditor({ path, value, onChange, fontSize = 14, theme = 'dark' }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const viewStates = useRef(new Map<string, monaco.editor.ICodeEditorViewState | null>());
@@ -67,7 +88,7 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
 
   useEffect(() => {
     const editor = monaco.editor.create(containerRef.current!, {
-      theme: 'git-gym',
+      theme: theme === 'light' ? 'git-gym-light' : 'git-gym',
       model: null,
       minimap: { enabled: false },
       fontSize: 14,
@@ -93,10 +114,13 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
       refreshConflicts();
     });
     const modelSub = editor.onDidChangeModel(refreshConflicts);
+    // 表示言語を変えたら、コンフリクトの説明も描き直す
+    const disposeLocale = reaction(() => currentLocale(), refreshConflicts);
 
     return () => {
       sub.dispose();
       modelSub.dispose();
+      disposeLocale();
       editor.dispose();
       monaco.editor.getModels().forEach((m) => m.dispose());
       editorRef.current = null;
@@ -116,7 +140,6 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
     editor.setModel(model);
     const viewState = viewStates.current.get(path);
     if (viewState) editor.restoreViewState(viewState);
-    editor.focus();
     // value はモデル作成時の初期値としてだけ使う
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path]);
@@ -124,6 +147,11 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
   useEffect(() => {
     editorRef.current?.updateOptions({ fontSize });
   }, [fontSize]);
+
+  // Monaco のテーマは全エディタ共通なので、設定が変わったら切り替える
+  useEffect(() => {
+    monaco.editor.setTheme(theme === 'light' ? 'git-gym-light' : 'git-gym');
+  }, [theme]);
 
   // git switch / restore などでディスク側が変わったら、Undo できる形で中身を差し替える
   useEffect(() => {

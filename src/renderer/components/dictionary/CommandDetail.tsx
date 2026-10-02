@@ -5,6 +5,7 @@ import { appModel } from '@models/AppModel';
 import { CATEGORIES, type GitCommand } from '@data/commands';
 import { InlineText } from '../InlineText';
 import styles from './CommandDetail.module.css';
+import { t } from '@i18n/t';
 
 interface Props {
   command: GitCommand;
@@ -31,13 +32,13 @@ export const CommandDetail = observer(({ command, onSelectRelated, compact }: Pr
         <InlineText text={command.description} />
       </p>
 
-      <Section icon={BookOpenText} title="書き方">
+      <Section icon={BookOpenText} title={t('cmd.usage')}>
         {command.usage.map((u) => (
           <CommandLine key={u} command={u} />
         ))}
       </Section>
 
-      <Section icon={TerminalSquare} title="使用例">
+      <Section icon={TerminalSquare} title={t('cmd.examples')}>
         {command.examples.map((e) => (
           <div key={e.command} className={styles.example}>
             <CommandLine command={e.command} />
@@ -47,7 +48,7 @@ export const CommandDetail = observer(({ command, onSelectRelated, compact }: Pr
       </Section>
 
       {!compact && command.options.length > 0 && (
-        <Section icon={SlidersHorizontal} title="よく使うオプション">
+        <Section icon={SlidersHorizontal} title={t('cmd.options')}>
           <table className={styles.options}>
             <tbody>
               {command.options.map((o) => (
@@ -67,7 +68,7 @@ export const CommandDetail = observer(({ command, onSelectRelated, compact }: Pr
         <div className={styles.sourcetree}>
           <MousePointerClick size={16} />
           <span>
-            <b>SourceTree でいうと：</b>
+            <b>{t('cmd.sourcetree')}</b>
             {command.sourcetree}
           </span>
         </div>
@@ -83,7 +84,7 @@ export const CommandDetail = observer(({ command, onSelectRelated, compact }: Pr
       )}
 
       {!compact && onSelectRelated && command.related.length > 0 && (
-        <Section icon={Link2} title="関連するコマンド">
+        <Section icon={Link2} title={t('cmd.related')}>
           <div className={styles.related}>
             {command.related.map((r) => (
               <button key={r} className={styles.relatedButton} onClick={() => onSelectRelated(r)}>
@@ -109,7 +110,7 @@ function Section({ icon: Icon, title, children }: { icon: typeof BookOpenText; t
 }
 
 /** クリックでコピーできるコマンド表示 */
-function CommandLine({ command }: { command: string }) {
+const CommandLine = observer(({ command }: { command: string }) => {
   const [copied, setCopied] = useState(false);
   const copy = () => {
     void navigator.clipboard?.writeText(command);
@@ -118,10 +119,10 @@ function CommandLine({ command }: { command: string }) {
   };
 
   return (
-    <button className={styles.commandLine} onClick={copy} title="クリックでコピー">
+    <button className={styles.commandLine} onClick={copy} title={t('cmd.copy')}>
       <span className={styles.prompt}>$</span>
       <code>{command}</code>
       {copied ? <Check size={14} className={styles.copied} /> : <Copy size={14} className={styles.copyIcon} />}
     </button>
   );
-}
+});

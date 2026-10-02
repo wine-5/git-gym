@@ -19,6 +19,9 @@ import {
   GitBranch,
   FolderOpen,
   MousePointerClick,
+  Moon,
+  Sun,
+  Globe,
   type LucideIcon,
 } from 'lucide-react';
 import { appModel } from '@models/AppModel';
@@ -28,6 +31,8 @@ import { CHAPTERS } from '@data/lessons';
 import { COMMANDS } from '@data/commands';
 import { downloadText, progressCsv } from '@data/exportProgress';
 import { VSCODE_SHORTCUTS } from '../../hooks/useVsCodeShortcuts';
+import { LOCALES, type Locale } from '@i18n/locale';
+import { t } from '@i18n/t';
 import styles from './SettingsView.module.css';
 
 export const SettingsView = observer(() => {
@@ -43,7 +48,7 @@ export const SettingsView = observer(() => {
   const exportCsv = () => {
     const date = new Date().toISOString().slice(0, 10);
     downloadText(
-      `git-gym-学習記録-${date}.csv`,
+      t('settings.exportFileName', { date }),
       progressCsv({ completed: progress.completed, learned: progress.learned, language: language?.label ?? '' }),
     );
   };
@@ -52,93 +57,125 @@ export const SettingsView = observer(() => {
     <main className={styles.settings}>
       <div className={styles.inner}>
         <h1>
-          <Settings size={22} /> 設定
+          <Settings size={22} /> {t('settings.title')}
         </h1>
 
-        <Group title="表示">
-          <Row icon={Type} label="エディタの文字の大きさ">
+        <Group title={t('settings.groupDisplay')}>
+          <Row icon={Globe} label={t('settings.language')} note={t('settings.languageNote')}>
+            <select
+              className={styles.select}
+              value={settings.locale}
+              onChange={(e) => settings.setLocale(e.target.value as Locale)}
+            >
+              {LOCALES.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
+          </Row>
+          <Row icon={settings.theme === 'light' ? Sun : Moon} label={t('settings.theme')} note={t('settings.themeNote')}>
+            <div className={styles.segment}>
+              <button className={settings.theme === 'dark' ? styles.segmentOn : undefined} onClick={() => settings.setTheme('dark')}>
+                <Moon size={14} /> {t('settings.dark')}
+              </button>
+              <button className={settings.theme === 'light' ? styles.segmentOn : undefined} onClick={() => settings.setTheme('light')}>
+                <Sun size={14} /> {t('settings.light')}
+              </button>
+            </div>
+          </Row>
+          <Row icon={Type} label={t('settings.editorFontSize')}>
             <Stepper value={settings.editorFontSize} onChange={(v) => settings.setEditorFontSize(v)} />
           </Row>
-          <Row icon={TerminalSquare} label="ターミナルの文字の大きさ">
+          <Row icon={TerminalSquare} label={t('settings.terminalFontSize')}>
             <Stepper value={settings.terminalFontSize} onChange={(v) => settings.setTerminalFontSize(v)} />
           </Row>
-          <Row icon={LayoutPanelLeft} label="パネルの大きさ" note="ドラッグで変えた大きさを最初の状態に戻します">
-            <button className="btn" onClick={() => settings.resetLayout()}>
-              元に戻す
+          <Row
+            icon={LayoutPanelLeft}
+            label={t('settings.layout')}
+            note={t('settings.layoutNote')}
+          >
+            <button className="btn" onClick={() => appModel.layout.resetDock()}>
+              {t('settings.layoutReset')}
             </button>
           </Row>
         </Group>
 
-        <Group title="サウンド">
-          <Row icon={Music} label="BGM の音量">
+        <Group title={t('settings.groupSound')}>
+          <Row icon={Music} label={t('settings.bgmVolume')}>
             <VolumeSlider value={settings.bgmVolume} onChange={(v) => settings.setBgmVolume(v)} />
           </Row>
-          <Row icon={Volume2} label="効果音の音量">
+          <Row icon={Volume2} label={t('settings.seVolume')}>
             <VolumeSlider
               value={settings.seVolume}
               onChange={(v) => settings.setSeVolume(v)}
               onCommit={() => appModel.sound.play('success')}
             />
           </Row>
-          <Row icon={settings.muted ? VolumeX : Volume2} label="すべての音を消す" note="授業中など、音を出せないときに">
+          <Row icon={settings.muted ? VolumeX : Volume2} label={t('settings.muteAll')} note={t('settings.muteAllNote')}>
             <button className={settings.muted ? 'btn primary' : 'btn'} onClick={() => settings.toggleMuted()}>
-              {settings.muted ? 'ミュート中' : 'ミュートする'}
+              {settings.muted ? t('settings.muted') : t('settings.mute')}
             </button>
           </Row>
         </Group>
 
-        <Group title="学習のサポート">
+        <Group title={t('settings.groupSupport')}>
           <Row
             icon={MousePointerClick}
-            label="SourceTree との対応を表示する"
-            note="コマンド辞典や解説に「SourceTree でいうと、どのボタンの操作か」を出します"
+            label={t('settings.sourceTree')}
+            note={t('settings.sourceTreeNote')}
           >
             <button className={settings.showSourceTree ? 'btn primary' : 'btn'} onClick={() => settings.toggleSourceTree()}>
-              {settings.showSourceTree ? '表示中' : '表示しない'}
+              {settings.showSourceTree ? t('settings.shown') : t('settings.hidden')}
             </button>
           </Row>
         </Group>
 
-        <Group title="練習する言語">
+        <Group title={t('settings.groupPracticeLanguage')}>
           <Row
             icon={Languages}
-            label={language ? language.label : '未選択'}
-            note="練習用プロジェクトのコードがこの言語になります"
+            label={language ? language.label : t('settings.notSelected')}
+            note={t('settings.practiceLanguageNote')}
             leading={language && <img src={language.icon} alt="" className={styles.langIcon} />}
           >
             <button className="btn" onClick={() => appModel.navigate('language')}>
-              変更する
+              {t('settings.change')}
             </button>
           </Row>
         </Group>
 
-        <Group title="学習の記録">
+        <Group title={t('settings.groupRecord')}>
           <Row
             icon={GraduationCap}
-            label={`クリアしたレッスン ${progress.completed.size} / ${totalLessons}　・　習得したコマンド ${learnedCount} / ${COMMANDS.length}`}
-            note="CSV で書き出すと、Excel などで開いて先生に提出できます"
+            label={t('settings.recordSummary', {
+              lessons: progress.completed.size,
+              totalLessons,
+              learned: learnedCount,
+              totalCommands: COMMANDS.length,
+            })}
+            note={t('settings.recordNote')}
           >
             <button className="btn primary" onClick={exportCsv}>
-              <Download size={14} /> 書き出す
+              <Download size={14} /> {t('settings.export')}
             </button>
           </Row>
-          <Row icon={Trash2} label="進み具合をリセット" note="クリアの記録と習得したコマンドがすべて消えます" danger>
+          <Row icon={Trash2} label={t('settings.resetProgress')} note={t('settings.resetProgressNote')} danger>
             <button
               className={`btn ${styles.danger}`}
               onClick={() => {
-                if (window.confirm('進み具合をすべて消しますか？\nこの操作は元に戻せません。')) progress.resetAll();
+                if (window.confirm(t('settings.resetProgressConfirm'))) progress.resetAll();
               }}
             >
-              リセット
+              {t('settings.reset')}
             </button>
           </Row>
         </Group>
 
-        <Group title="ショートカット（VS Code と同じ）">
+        <Group title={t('settings.groupShortcuts')}>
           <table className={styles.shortcuts}>
             <tbody>
               {VSCODE_SHORTCUTS.map((s) => (
-                <tr key={s.keys}>
+                <tr key={s.id}>
                   <td>
                     <kbd>{s.keys}</kbd>
                   </td>
@@ -149,24 +186,24 @@ export const SettingsView = observer(() => {
           </table>
         </Group>
 
-        <Group title="アプリについて">
-          <Row icon={Info} label={`Git Gym ${info?.version ?? ''}`} note="Git のコマンドを体験しながら覚える学習アプリ">
+        <Group title={t('settings.groupAbout')}>
+          <Row icon={Info} label={`Git Gym ${info?.version ?? ''}`} note={t('settings.aboutNote')}>
             <span />
           </Row>
           <Row
             icon={GitBranch}
-            label={info?.gitVersion ?? 'Git が見つかりません'}
-            note={info?.gitBundled ? 'アプリに同梱した Git を使っています' : 'この PC にインストールされている Git を使っています'}
+            label={info?.gitVersion ?? t('settings.gitNotFound')}
+            note={info?.gitBundled ? t('settings.gitBundled') : t('settings.gitSystem')}
           >
             <span />
           </Row>
-          <Row icon={FolderOpen} label="練習用フォルダ" note={info?.practiceRoot ?? ''}>
+          <Row icon={FolderOpen} label={t('settings.practiceFolder')} note={info?.practiceRoot ?? ''}>
             <span />
           </Row>
         </Group>
 
         <p className={styles.footer}>
-          練習用のリポジトリはすべて本物の Git リポジトリです。エクスプローラーや SourceTree でも開けます。
+          {t('settings.footer')}
         </p>
       </div>
     </main>
@@ -220,16 +257,16 @@ function VolumeSlider({ value, onChange, onCommit }: { value: number; onChange: 
   );
 }
 
-function Stepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+const Stepper = observer(({ value, onChange }: { value: number; onChange: (v: number) => void }) => {
   return (
     <div className={styles.stepper}>
-      <button onClick={() => onChange(value - 1)} disabled={value <= FONT_SIZE_RANGE.min} title="小さく">
+      <button onClick={() => onChange(value - 1)} disabled={value <= FONT_SIZE_RANGE.min} title={t('settings.smaller')}>
         <Minus size={14} />
       </button>
       <span>{value}</span>
-      <button onClick={() => onChange(value + 1)} disabled={value >= FONT_SIZE_RANGE.max} title="大きく">
+      <button onClick={() => onChange(value + 1)} disabled={value >= FONT_SIZE_RANGE.max} title={t('settings.larger')}>
         <Plus size={14} />
       </button>
     </div>
   );
-}
+});

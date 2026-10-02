@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
+import { pick } from '../i18n';
 
 const MAX_FILES = 500;
 const MAX_FILE_BYTES = 1024 * 1024;
@@ -53,7 +54,14 @@ function resolveInside(root: string, relative: string): string {
   const rel = path.relative(root, resolved);
   const first = rel.split(path.sep)[0];
   if (!rel || rel.startsWith('..') || path.isAbsolute(rel) || first === '.git') {
-    throw new Error(`このファイルは扱えません: ${relative}`);
+    throw new Error(
+      pick({
+        ja: `このファイルは扱えません: ${relative}`,
+        en: `This file can't be used: ${relative}`,
+        zh: `无法处理这个文件：${relative}`,
+        ko: `이 파일은 다룰 수 없어요: ${relative}`,
+      }),
+    );
   }
   return resolved;
 }

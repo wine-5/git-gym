@@ -3,6 +3,7 @@ import type { RepoSnapshot } from '../../shared/repo';
 import type { SetupStep } from '../../shared/setup';
 import type { CommandResult } from '../../shared/terminal';
 import type { GitRunner } from '../git/GitRunner';
+import { pick } from '../i18n';
 import { isReadOnlyQuery } from '../git/readOnlyQuery';
 import { readRepo } from '../git/readRepo';
 import { TerminalSession } from '../terminal/TerminalSession';
@@ -59,7 +60,17 @@ export class WorkspaceHub {
   }
 
   async query(ref: WorkspaceRef, args: string[]): Promise<QueryResult> {
-    if (!isReadOnlyQuery(args)) throw new Error(`読み取り専用ではないコマンドです: git ${args.join(' ')}`);
+    if (!isReadOnlyQuery(args)) {
+      const command = `git ${args.join(' ')}`;
+      throw new Error(
+        pick({
+          ja: `読み取り専用ではないコマンドです: ${command}`,
+          en: `Not a read-only command: ${command}`,
+          zh: `不是只读命令：${command}`,
+          ko: `읽기 전용 명령어가 아니에요: ${command}`,
+        }),
+      );
+    }
     const result = await this.git.run(['-c', 'core.quotePath=false', ...args], this.get(ref).path, { env: this.gitEnv });
     return { stdout: result.stdout, exitCode: result.exitCode };
   }
@@ -101,7 +112,15 @@ export class WorkspaceHub {
 
   private get(ref: WorkspaceRef): OpenWorkspace {
     const workspace = this.workspaces.get(key(ref));
-    if (!workspace) throw new Error(`ワークスペースが開かれていません: ${key(ref)}`);
+    if (!workspace)
+      throw new Error(
+        pick({
+          ja: `ワークスペースが開かれていません: ${key(ref)}`,
+          en: `Workspace is not open: ${key(ref)}`,
+          zh: `工作区尚未打开：${key(ref)}`,
+          ko: `워크스페이스가 열려 있지 않아요: ${key(ref)}`,
+        }),
+      );
     return workspace;
   }
 }

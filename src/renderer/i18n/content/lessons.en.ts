@@ -376,7 +376,7 @@ const overlay: ContentOverlay = {
     '5-2': {
       title: 'Grab just one commit (cherry-pick)',
       description:
-        'The `feature/experiment` branch has an experimental commit and a commit that fixes the HP calculation bug ("HP の計算のバグを修正").\n' +
+        'The `feature/experiment` branch has an experimental commit and a commit "Fix HP calculation bug".\n' +
         'You want only the bug fix in `main` right away! Use `git cherry-pick` to bring over just that commit.',
       checks: [
         'Find the commit you want with `git log --oneline feature/experiment`',
@@ -385,7 +385,7 @@ const overlay: ContentOverlay = {
       hints: [
         '`git log --oneline feature/experiment` shows a short ID (hash) to the left of each commit.',
         '`git cherry-pick <hash>` brings just that commit\'s changes into your current branch.',
-        'Pick the hash of "HP の計算のバグを修正" (the HP bug fix). Don\'t bring over the experimental commit!',
+        'Pick the hash of "Fix HP calculation bug". Don\'t bring over the experimental commit!',
       ],
     },
     '5-3': {

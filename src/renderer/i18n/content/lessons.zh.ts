@@ -332,13 +332,13 @@ const overlay: ContentOverlay = {
     '5-2': {
       title: '只拿一个提交（cherry-pick）',
       description:
-        '`feature/experiment` 分支上有一个实验中的提交，还有一个“修复 HP 计算 bug”（HP の計算のバグを修正）的提交。\n' +
+        '`feature/experiment` 分支上有一个实验中的提交，还有一个“修复 HP 计算的 bug”的提交。\n' +
         '想先只把 bug 修复合并到 `main`！用 `git cherry-pick` 只把那个提交拿过来吧。',
       checks: ['用 `git log --oneline feature/experiment` 找到想要的提交', '只把修复 bug 的提交合并到 `main`'],
       hints: [
         '用 `git log --oneline feature/experiment` 可以看到每个提交左边的短 ID（哈希值）。',
         '用 `git cherry-pick <哈希值>` 可以只把那个提交的变更拿到当前分支。',
-        '选择“HP の計算のバグを修正”（修复 HP 计算 bug）的哈希值。不要把实验的提交也拿过来！',
+        '选择“修复 HP 计算的 bug”的哈希值。不要把实验的提交也拿过来！',
       ],
     },
     '5-3': {

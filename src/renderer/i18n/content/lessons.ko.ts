@@ -366,13 +366,13 @@ const overlay: ContentOverlay = {
     '5-2': {
       title: '하나만 가져오자 (cherry-pick)',
       description:
-        '`feature/experiment` 브랜치에는 실험 중인 커밋과 "HP 계산 버그 수정"(HP の計算のバグを修正) 커밋이 있어요.\n' +
+        '`feature/experiment` 브랜치에는 실험 중인 커밋과 "HP 계산 버그 수정" 커밋이 있어요.\n' +
         '버그 수정만 먼저 `main`에 가져오고 싶어요! `git cherry-pick`으로 그 커밋만 가져옵시다.',
       checks: ['`git log --oneline feature/experiment`로 가져올 커밋을 찾는다', '버그 수정 커밋만 `main`에 가져온다'],
       hints: [
         '`git log --oneline feature/experiment`로 각 커밋 왼쪽에 있는 짧은 ID(해시)를 볼 수 있어요.',
         '`git cherry-pick <해시>`로 그 커밋의 변경만 지금 브랜치로 가져올 수 있습니다.',
-        '"HP の計算のバグを修正"(HP 계산 버그 수정)의 해시를 고릅시다. 실험 커밋은 가져오지 않도록!',
+        '"HP 계산 버그 수정"의 해시를 고릅시다. 실험 커밋은 가져오지 않도록!',
       ],
     },
     '5-3': {

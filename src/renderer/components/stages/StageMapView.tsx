@@ -3,6 +3,7 @@ import { Star, Map as MapIcon, Swords } from 'lucide-react';
 import { appModel } from '@models/AppModel';
 import { ALL_STAGES, WORLDS } from '@data/stages';
 import styles from './StageMapView.module.css';
+import { t } from '@i18n/t';
 
 /** 練習モードのステージ選択。どのステージからでも遊べる */
 export const StageMapView = observer(() => {
@@ -17,9 +18,9 @@ export const StageMapView = observer(() => {
         <header className={styles.header}>
           <div>
             <h1>
-              <Swords size={24} /> 練習モード
+              <Swords size={24} /> {t('nav.stages')}
             </h1>
-            <p>1ステージ＝コマンド1つ。サクサク進めて、Git の操作を体に覚えさせよう！</p>
+            <p>{t('stages.lead')}</p>
           </div>
           <div className={styles.totalStars}>
             <Star size={20} fill="currentColor" />

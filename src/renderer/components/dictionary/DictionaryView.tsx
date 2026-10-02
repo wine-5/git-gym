@@ -5,6 +5,7 @@ import { appModel } from '@models/AppModel';
 import { CATEGORIES, COMMANDS, findCommand, type CommandCategory } from '@data/commands';
 import { CommandDetail } from './CommandDetail';
 import styles from './DictionaryView.module.css';
+import { t } from '@i18n/t';
 
 /** Git コマンドの一覧・検索と解説。成功させたことのあるコマンドには「習得済み」の印が付く */
 export const DictionaryView = observer(() => {
@@ -33,7 +34,7 @@ export const DictionaryView = observer(() => {
             <b>
               {learnedCount} / {COMMANDS.length}
             </b>
-            <span>コマンドを習得</span>
+            <span>{t('dict.learnedCount')}</span>
           </div>
           <div className={styles.collectionBar}>
             <i style={{ width: `${(learnedCount / COMMANDS.length) * 100}%` }} />
@@ -42,12 +43,12 @@ export const DictionaryView = observer(() => {
 
         <label className={styles.search}>
           <Search size={15} />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="コマンドや説明で検索…" spellCheck={false} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('dict.search')} spellCheck={false} />
         </label>
 
         <div className={styles.chips}>
           <button className={category === 'all' ? styles.chipActive : styles.chip} onClick={() => setCategory('all')}>
-            すべて
+            {t('dict.all')}
           </button>
           {CATEGORIES.map((c) => (
             <button
@@ -76,12 +77,12 @@ export const DictionaryView = observer(() => {
                     <code>git {c.name}</code>
                     <small>{c.summary}</small>
                   </span>
-                  {learned && <CheckCircle2 size={16} className={styles.learned} aria-label="習得済み" />}
+                  {learned && <CheckCircle2 size={16} className={styles.learned} aria-label={t('dict.learned')} />}
                 </button>
               </li>
             );
           })}
-          {filtered.length === 0 && <li className={styles.empty}>見つかりませんでした</li>}
+          {filtered.length === 0 && <li className={styles.empty}>{t('dict.notFound')}</li>}
         </ul>
       </aside>
 
@@ -89,12 +90,12 @@ export const DictionaryView = observer(() => {
         <div className={styles.contentInner}>
           {progress.learned.has(selected.name) && (
             <div className={styles.learnedBanner}>
-              <CheckCircle2 size={15} /> 習得済み！ 実際に使ったことのあるコマンドです
+              <CheckCircle2 size={15} /> {t('dict.learnedBanner')}
             </div>
           )}
           <CommandDetail command={selected} onSelectRelated={(name) => appModel.openDictionary(name)} />
           <button className={`btn ${styles.tryButton}`} onClick={() => appModel.navigate('sandbox')}>
-            <FlaskConical size={15} /> フリー練習で試してみる
+            <FlaskConical size={15} /> {t('dict.trySandbox')}
           </button>
         </div>
       </section>

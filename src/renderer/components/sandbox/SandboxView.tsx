@@ -5,13 +5,14 @@ import { appModel } from '@models/AppModel';
 import type { PracticeSession } from '@models/PracticeSession';
 import { PracticeLayout } from '../workspace/PracticeLayout';
 import styles from './SandboxView.module.css';
+import { t } from '@i18n/t';
 
 /** 自由に試すときのお題（判定はしない） */
 const IDEAS = [
-  { icon: GitBranch, title: 'ブランチを3つ作ってみる', detail: '作って切り替えて、グラフの枝の形を見てみよう', command: 'switch' },
-  { icon: Swords, title: 'わざとコンフリクトを起こす', detail: '2つのブランチで同じ行を変えてマージしてみよう', command: 'merge' },
-  { icon: Archive, title: 'stash を2回してみる', detail: 'stash list で並び方を確かめよう', command: 'stash' },
-  { icon: Cloud, title: 'push と pull を往復する', detail: 'origin も用意済み。push → fetch → log --all を見てみよう', command: 'push' },
+  { icon: GitBranch, id: 'branch', command: 'switch' },
+  { icon: Swords, id: 'conflict', command: 'merge' },
+  { icon: Archive, id: 'stash', command: 'stash' },
+  { icon: Cloud, id: 'remote', command: 'push' },
 ];
 
 export const SandboxView = observer(() => {
@@ -25,11 +26,11 @@ export const SandboxView = observer(() => {
   return <PracticeLayout session={session} left={<SandboxPanel session={session} />} />;
 });
 
-const SandboxPanel = ({ session }: { session: PracticeSession }) => (
+const SandboxPanel = observer(({ session }: { session: PracticeSession }) => (
   <section className={styles.panel}>
     <div className="panel-head">
       <span className={styles.headLabel}>
-        <FlaskConical size={13} /> フリー練習
+        <FlaskConical size={13} /> {t('nav.sandbox')}
       </span>
     </div>
 
@@ -38,25 +39,22 @@ const SandboxPanel = ({ session }: { session: PracticeSession }) => (
         <div className={styles.heroIcon}>
           <FlaskConical size={22} />
         </div>
-        <h2>自由に試そう</h2>
-        <p>
-          ここではどんなコマンドを打っても大丈夫。壊れても「最初からやり直す」でいつでも戻せます。
-          リモート（origin）も用意してあるので、push や pull も試せます。
-        </p>
+        <h2>{t('sandbox.heroTitle')}</h2>
+        <p>{t('sandbox.heroBody')}</p>
       </div>
 
       <div className={styles.sectionLabel}>
-        <Sparkles size={13} /> やってみよう
+        <Sparkles size={13} /> {t('sandbox.tryIt')}
       </div>
       <ul className={styles.ideas}>
         {IDEAS.map((idea) => (
-          <li key={idea.title}>
+          <li key={idea.id}>
             <idea.icon size={18} className={styles.ideaIcon} />
             <div>
-              <b>{idea.title}</b>
-              <span>{idea.detail}</span>
+              <b>{t(`sandbox.idea.${idea.id}`)}</b>
+              <span>{t(`sandbox.idea.${idea.id}Detail`)}</span>
               <button className={styles.ideaLink} onClick={() => appModel.openDictionary(idea.command)}>
-                git {idea.command} を調べる
+                {t('sandbox.lookUp', { cmd: idea.command })}
               </button>
             </div>
           </li>
@@ -68,19 +66,19 @@ const SandboxPanel = ({ session }: { session: PracticeSession }) => (
       <button
         className="btn"
         onClick={() => {
-          if (window.confirm('フリー練習のフォルダを最初の状態に戻しますか？\n変更はすべて消えます。')) void session.reset();
+          if (window.confirm(t('sandbox.resetConfirm'))) void session.reset();
         }}
       >
-        <RotateCcw size={14} /> 最初からやり直す
+        <RotateCcw size={14} /> {t('sandbox.reset')}
       </button>
       <div className={styles.footRow}>
         <button className="btn" onClick={() => session.reveal()}>
-          <FolderOpen size={14} /> フォルダを開く
+          <FolderOpen size={14} /> {t('sandbox.openFolder')}
         </button>
         <button className="btn" onClick={() => appModel.openDictionary()}>
-          <BookOpen size={14} /> コマンド辞典
+          <BookOpen size={14} /> {t('nav.dictionary')}
         </button>
       </div>
     </div>
   </section>
-);
+));

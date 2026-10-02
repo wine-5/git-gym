@@ -2,15 +2,16 @@ import { observer } from 'mobx-react-lite';
 import { appModel } from '@models/AppModel';
 import { LANGUAGES } from '@data/languages';
 import styles from './LanguageSelectView.module.css';
+import { t } from '@i18n/t';
 
 export const LanguageSelectView = observer(() => (
   <main className={styles.screen}>
     <div className={styles.inner}>
-      <h1>どの言語で練習しますか？</h1>
+      <h1>{t('langSelect.title')}</h1>
       <p className={styles.lead}>
-        練習用プロジェクトのコードがこの言語で用意されます。Git のコマンドはどの言語でも同じです。
+        {t('langSelect.lead1')}
         <br />
-        あとから右下のステータスバーでいつでも変更できます。
+        {t('langSelect.lead2')}
       </p>
       <div className={styles.grid}>
         {LANGUAGES.map((lang) => (

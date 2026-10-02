@@ -1,5 +1,10 @@
 import { CHAPTERS } from './lessons';
 import { COMMANDS } from './commands';
+import { t } from '@i18n/t';
+import { currentLocale, type Locale } from '@i18n/locale';
+
+/** 書き出した日時の書式に使う BCP 47 の言語タグ */
+const DATE_LOCALES: Record<Locale, string> = { ja: 'ja-JP', en: 'en-US', zh: 'zh-CN', ko: 'ko-KR' };
 
 interface ExportInput {
   completed: Set<string>;
@@ -10,18 +15,23 @@ interface ExportInput {
 /** 先生に提出できるよう、学習の記録を CSV（Excel で開ける BOM 付き UTF-8）にする */
 export function progressCsv({ completed, learned, language }: ExportInput, now = new Date()): string {
   const rows: string[][] = [
-    ['Git Gym 学習記録'],
-    ['書き出した日時', now.toLocaleString('ja-JP')],
-    ['練習した言語', language],
-    ['クリアしたレッスン', `${completed.size} / ${CHAPTERS.reduce((n, c) => n + c.lessons.length, 0)}`],
-    ['習得したコマンド', `${COMMANDS.filter((c) => learned.has(c.name)).length} / ${COMMANDS.length}`],
+    [t('csv.title')],
+    [t('csv.exportedAt'), now.toLocaleString(DATE_LOCALES[currentLocale()])],
+    [t('csv.language'), language],
+    [t('csv.lessonsCleared'), `${completed.size} / ${CHAPTERS.reduce((n, c) => n + c.lessons.length, 0)}`],
+    [t('csv.commandsLearned'), `${COMMANDS.filter((c) => learned.has(c.name)).length} / ${COMMANDS.length}`],
     [],
-    ['章', 'レッスン', 'タイトル', 'クリア'],
+    [t('csv.chapter'), t('csv.lesson'), t('csv.title2'), t('csv.cleared')],
     ...CHAPTERS.flatMap((chapter) =>
-      chapter.lessons.map((l) => [`第${chapter.number}章 ${chapter.title}`, l.id, l.title, completed.has(l.id) ? '○' : '']),
+      chapter.lessons.map((l) => [
+        `${t('chapterNo', { n: chapter.number })} ${chapter.title}`,
+        l.id,
+        l.title,
+        completed.has(l.id) ? '○' : '',
+      ]),
     ),
     [],
-    ['コマンド', '習得'],
+    [t('csv.command'), t('csv.learned')],
     ...COMMANDS.map((c) => [`git ${c.name}`, learned.has(c.name) ? '○' : '']),
   ];
   const escape = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);

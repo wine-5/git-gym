@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx';
+import { detectLocale, isLocale, setLocale as applyLocale, type Locale } from '@i18n/locale';
 
 const KEY = 'git-gym.settings';
 
@@ -17,6 +18,8 @@ interface SettingsData {
   /** レッスンのヒントを表示する（問題をまたいで引き継ぐ） */
   showHints: boolean;
   theme: Theme;
+  /** アプリの表示言語（保存が無ければ OS の言語） */
+  locale: Locale;
 }
 
 const DEFAULTS: SettingsData = {
@@ -28,15 +31,17 @@ const DEFAULTS: SettingsData = {
   showSourceTree: false,
   showHints: false,
   theme: 'dark',
+  locale: 'ja',
 };
 
 export const FONT_SIZE_RANGE = { min: 11, max: 24 };
 
 function load(): SettingsData {
   try {
-    return { ...DEFAULTS, ...(JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<SettingsData>) };
+    const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<SettingsData>;
+    return { ...DEFAULTS, ...saved, locale: isLocale(saved.locale) ? saved.locale : detectLocale() };
   } catch {
-    return DEFAULTS;
+    return { ...DEFAULTS, locale: detectLocale() };
   }
 }
 
@@ -50,6 +55,7 @@ export class SettingsModel {
   showSourceTree: boolean;
   showHints: boolean;
   theme: Theme;
+  locale: Locale;
 
   constructor() {
     const data = load();
@@ -62,6 +68,8 @@ export class SettingsModel {
     this.showHints = data.showHints;
     this.theme = data.theme;
     applyTheme(this.theme);
+    this.locale = data.locale;
+    shareLocale(this.locale);
     makeAutoObservable(this);
   }
 
@@ -92,6 +100,12 @@ export class SettingsModel {
 
   toggleSourceTree(): void {
     this.showSourceTree = !this.showSourceTree;
+    this.save();
+  }
+
+  setLocale(locale: Locale): void {
+    this.locale = locale;
+    shareLocale(locale);
     this.save();
   }
 
@@ -128,12 +142,19 @@ export class SettingsModel {
         showSourceTree: this.showSourceTree,
         showHints: this.showHints,
         theme: this.theme,
+        locale: this.locale,
       };
       localStorage.setItem(KEY, JSON.stringify(data));
     } catch {
       // 保存できなくても今回は使える
     }
   }
+}
+
+/** 画面の文言と、メインプロセス（ターミナルの案内・メニュー）の言語を切り替える */
+function shareLocale(locale: Locale): void {
+  applyLocale(locale);
+  void window.gitGym?.app.setLocale(locale);
 }
 
 /** global.css の :root[data-theme='light'] を有効にする */

@@ -15,7 +15,8 @@
   --purple: #b48cff;
   --yellow: #e8c46a;
   --red: #ff6b6b;
-  --font: 'Segoe UI', 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  --font: 'Segoe UI', 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', 'Microsoft YaHei UI', 'PingFang SC', 'Malgun Gothic',
+    'Apple SD Gothic Neo', sans-serif;
   --mono: 'Cascadia Code', Consolas, Menlo, 'Noto Sans Mono', monospace;
   color-scheme: dark;
 
@@ -162,4 +163,13 @@ button {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* 中国語・韓国語では、漢字やハングルがその言語の字形になるフォントを先に使う */
+:root:lang(zh) {
+  --font: 'Segoe UI', 'Microsoft YaHei UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+}
+
+:root:lang(ko) {
+  --font: 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
 }

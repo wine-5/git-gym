@@ -7,6 +7,7 @@ import { starsFor } from '@data/stages';
 import { fillPlaceholders } from '@data/lessons';
 import { complete } from '@data/completion';
 import { parseAnsi, stripAnsi, VSCODE_ANSI_COLORS } from '@data/ansi';
+import { highlightCommand } from '@data/commandHighlight';
 import type { CommandResult } from '@shared/terminal';
 
 const result = (stdout: string, stderr = '', exitCode = 0): CommandResult => ({ stdout, stderr, exitCode, cwd: '~' });
@@ -142,5 +143,30 @@ describe('parseAnsi', () => {
 
   it('色以外の制御は読み飛ばす', () => {
     expect(stripAnsi('remote: done\x1b[K\n\x1b[33mabc\x1b[m')).toBe('remote: done\nabc');
+  });
+});
+
+describe('highlightCommand', () => {
+  const kinds = (input: string) => highlightCommand(input).map((t) => `${t.kind}:${t.text}`);
+
+  it('コマンド・オプション・文字列を分ける', () => {
+    expect(kinds('git commit -m "saaaa"')).toEqual([
+      'command:git',
+      'plain: ',
+      'plain:commit',
+      'plain: ',
+      'parameter:-m',
+      'plain: ',
+      'string:"saaaa"',
+    ]);
+  });
+
+  it('閉じていない引用符は末尾まで文字列', () => {
+    expect(kinds("git commit -m 'abc")).toContain("string:'abc");
+  });
+
+  it('つなげると元の入力に戻る', () => {
+    const input = '  git  log --oneline "a b"x ';
+    expect(highlightCommand(input).map((t) => t.text).join('')).toBe(input);
   });
 });

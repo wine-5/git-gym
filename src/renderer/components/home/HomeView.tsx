@@ -9,8 +9,8 @@ import {
   Undo2,
   Sparkles,
   Users,
-  Lock,
   CheckCircle2,
+  Circle,
   Play,
   FlaskConical,
   BookOpen,
@@ -96,23 +96,14 @@ export const HomeView = observer(() => {
           {CHAPTERS.map((chapter) => {
             const doneCount = progress.doneCount(chapter);
             const isCurrent = chapter.id === current?.chapter.id;
-            const locked = !progress.isUnlocked(chapter);
             const completed = doneCount === chapter.lessons.length;
             const { icon: Icon, color } = CHAPTER_ICONS[chapter.id];
-            const className = [styles.chapterCard, isCurrent && styles.current, locked && styles.locked]
-              .filter(Boolean)
-              .join(' ');
+            const className = [styles.chapterCard, isCurrent && styles.current].filter(Boolean).join(' ');
             return (
-              <button
-                key={chapter.id}
-                className={className}
-                disabled={locked}
-                title={locked ? '前の章をすべてクリアすると開きます' : undefined}
-                onClick={() => openChapter(chapter)}
-              >
-                <div className={styles.cardHead}>
+              <div key={chapter.id} className={className}>
+                <button className={styles.cardHead} onClick={() => openChapter(chapter)} title="この章の続きから始める">
                   <div className={styles.chapterIcon} style={{ color, background: `${color}22` }}>
-                    {locked ? <Lock size={22} /> : <Icon size={22} />}
+                    <Icon size={22} />
                   </div>
                   <div>
                     <div className={styles.num}>
@@ -122,20 +113,39 @@ export const HomeView = observer(() => {
                     <h3>{chapter.title}</h3>
                   </div>
                   {completed && <CheckCircle2 className={styles.completed} size={20} />}
-                </div>
+                </button>
                 <div className={styles.desc}>{chapter.summary}</div>
                 <div className={styles.cmds}>
                   {chapter.commands.map((c) => (
                     <span key={c}>{c}</span>
                   ))}
                 </div>
+                {/* どのレッスンからでも始められる（確認したいコマンドだけやりたい人向け） */}
+                <ul className={styles.lessons}>
+                  {chapter.lessons.map((lesson) => {
+                    const done = progress.isDone(lesson.id);
+                    return (
+                      <li key={lesson.id}>
+                        <button className={styles.lessonRow} onClick={() => appModel.openLesson(lesson.id)}>
+                          {done ? (
+                            <CheckCircle2 size={14} className={styles.lessonDone} />
+                          ) : (
+                            <Circle size={14} className={styles.lessonTodo} />
+                          )}
+                          <span className={styles.lessonId}>{lesson.id}</span>
+                          <span className={styles.lessonTitle}>{lesson.title}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
                 <div className={styles.prog}>
                   <div className={styles.progBar}>
                     <i style={{ width: `${(doneCount / chapter.lessons.length) * 100}%` }} />
                   </div>
                   {doneCount}/{chapter.lessons.length}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

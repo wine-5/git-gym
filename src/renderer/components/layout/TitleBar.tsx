@@ -61,12 +61,14 @@ export const TitleBar = observer(() => {
 
       {inLesson && (
         <>
-          <div className={styles.steps} title="章内の進み具合">
+          <div className={styles.steps}>
+            {/* 章内の進み具合。押すとそのレッスンへ移動する */}
             {found.chapter.lessons.map((l, i) => (
-              <i
+              <button
                 key={l.id}
-                title={l.title}
+                title={`${l.id} ${l.title}`}
                 className={i === found.index ? styles.now : appModel.progress.isDone(l.id) ? styles.done : undefined}
+                onClick={() => i !== found.index && appModel.openLesson(l.id)}
               />
             ))}
           </div>

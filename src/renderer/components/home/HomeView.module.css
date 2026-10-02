@@ -103,13 +103,8 @@
   transition: transform 0.15s, border-color 0.15s;
 }
 
-.chapterCard:not(:disabled):hover {
+.chapterCard:hover {
   border-color: var(--text-mute);
-  transform: translateY(-2px);
-}
-
-.chapterCard:disabled {
-  cursor: not-allowed;
 }
 
 .chapterCard h3 {
@@ -120,6 +115,62 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+}
+
+.lessons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lessonRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-dim);
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.lessonRow:hover {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+.lessonDone {
+  flex: none;
+  color: var(--green);
+}
+
+.lessonTodo {
+  flex: none;
+  color: var(--text-mute);
+}
+
+.lessonId {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+.lessonTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chapterIcon {
@@ -135,10 +186,6 @@
   margin-left: auto;
   color: var(--green);
   align-self: flex-start;
-}
-
-.chapterCard.locked {
-  opacity: 0.5;
 }
 
 .chapterCard.current {

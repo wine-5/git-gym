@@ -136,11 +136,6 @@
   animation: pulse 1.6s ease-in-out infinite;
 }
 
-.locked {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .num {
   line-height: 1;
 }

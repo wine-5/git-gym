@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { EMPTY_PROGRESS, type ProgressData } from '@shared/progress';
 import { CHAPTERS, type Chapter } from '@data/lessons';
 
-/** クリアしたレッスンと、章のロック状態 */
+/** クリアしたレッスン・習得したコマンド・ステージの星 */
 export class ProgressModel {
   completed = new Set<string>();
   lastLessonId: string | null = null;
@@ -39,14 +39,6 @@ export class ProgressModel {
 
   get percent(): number {
     return Math.round((this.completed.size / this.totalLessons) * 100);
-  }
-
-  /** 最初の章はいつでも、それ以降は前の章をすべてクリアしたら開く */
-  isUnlocked(chapter: Chapter): boolean {
-    const index = CHAPTERS.indexOf(chapter);
-    if (index <= 0) return true;
-    const prev = CHAPTERS[index - 1];
-    return this.doneCount(prev) === prev.lessons.length;
   }
 
   markDone(lessonId: string): void {

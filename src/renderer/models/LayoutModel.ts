@@ -2,95 +2,69 @@ import { makeAutoObservable } from 'mobx';
 
 const KEY = 'git-gym.layout';
 
-/** パネルを置ける場所（左の欄・ファイル一覧の場所・下・右上・右下） */
-export type DockSlotId = 'left' | 'tree' | 'bottom' | 'sideTop' | 'sideBottom';
-/** 場所を入れ替えられるパネル */
-export type DockPanelId = 'mission' | 'files' | 'terminal' | 'graph' | 'areas';
-export type DockLayout = Record<DockSlotId, DockPanelId>;
+/** 練習画面のパネル。Unity のエディタのように、ドラッグで自由に配置できる */
+export type DockPanelId = 'mission' | 'files' | 'editor' | 'terminal' | 'graph' | 'areas';
 
-export const DOCK_SLOTS: DockSlotId[] = ['left', 'tree', 'bottom', 'sideTop', 'sideBottom'];
-const DEFAULT_DOCK: DockLayout = { left: 'mission', tree: 'files', bottom: 'terminal', sideTop: 'graph', sideBottom: 'areas' };
+/** 閉じられるパネル（ミッションとエディタは常に出しておく） */
+export type ClosablePanelId = 'files' | 'terminal' | 'graph' | 'areas';
 
-interface LayoutData {
-  terminalOpen: boolean;
-  explorerOpen: boolean;
-  sideOpen: boolean;
-  dock: DockLayout;
-}
+type LayoutData = Record<ClosablePanelId, boolean>;
 
-const DEFAULTS: LayoutData = { terminalOpen: true, explorerOpen: true, sideOpen: true, dock: DEFAULT_DOCK };
-
-/** 保存されていた配置が、5つのパネルを1つずつ置いた形になっているか */
-function isValidDock(dock: unknown): dock is DockLayout {
-  if (!dock || typeof dock !== 'object') return false;
-  const panels = DOCK_SLOTS.map((slot) => (dock as Record<string, unknown>)[slot]);
-  return new Set(panels).size === DOCK_SLOTS.length && panels.every((p) => Object.values(DEFAULT_DOCK).includes(p as DockPanelId));
-}
+const DEFAULTS: LayoutData = { files: true, terminal: true, graph: true, areas: true };
 
 /**
- * VS Code のように開け閉めできるパネル（ターミナル・ファイル一覧・右の欄）の状態と、
- * Unity のエディタのようにドラッグで入れ替えたパネルの配置
+ * VS Code のように開け閉めできるパネル（ターミナル・ファイル一覧・コミットグラフ・ファイルの居場所）の状態。
+ * パネルの配置そのものは PracticeDock が dockview の形式で保存する
  */
 export class LayoutModel {
-  terminalOpen: boolean;
-  explorerOpen: boolean;
-  sideOpen: boolean;
-  dock: DockLayout;
-  /** ドラッグ中のパネルがあった場所（ドロップ先の候補を目立たせるため） */
-  draggingSlot: DockSlotId | null = null;
+  open: LayoutData;
+  /** 配置を最初の状態に戻すよう頼まれた回数（PracticeDock がこれを見て並べ直す） */
+  dockResetCount = 0;
 
   constructor() {
     let data = DEFAULTS;
     try {
-      data = { ...DEFAULTS, ...(JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<LayoutData>) };
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<LayoutData>;
+      data = { ...DEFAULTS, ...saved };
     } catch {
       // 読めなければ全部開いた状態にする
     }
-    this.terminalOpen = data.terminalOpen;
-    this.explorerOpen = data.explorerOpen;
-    this.sideOpen = data.sideOpen;
-    this.dock = isValidDock(data.dock) ? { ...data.dock } : { ...DEFAULT_DOCK };
+    this.open = { files: data.files, terminal: data.terminal, graph: data.graph, areas: data.areas };
     makeAutoObservable(this);
   }
 
-  /** パネルが開いているか（Ctrl+J などで閉じたものは隠す） */
+  get terminalOpen(): boolean {
+    return this.open.terminal;
+  }
+
+  get explorerOpen(): boolean {
+    return this.open.files;
+  }
+
+  /** 右の欄（コミットグラフ・ファイルの居場所）のどちらかが開いているか */
+  get sideOpen(): boolean {
+    return this.open.graph || this.open.areas;
+  }
+
   isPanelOpen(panel: DockPanelId): boolean {
-    switch (panel) {
-      case 'terminal':
-        return this.terminalOpen;
-      case 'files':
-        return this.explorerOpen;
-      case 'graph':
-      case 'areas':
-        return this.sideOpen;
-      default:
-        return true;
-    }
+    return panel === 'mission' || panel === 'editor' ? true : this.open[panel];
   }
 
-  isSlotOpen(slot: DockSlotId): boolean {
-    return this.isPanelOpen(this.dock[slot]);
-  }
-
-  /** 2つの場所のパネルを入れ替える */
-  swapPanels(a: DockSlotId, b: DockSlotId): void {
-    if (a === b) return;
-    this.dock = { ...this.dock, [a]: this.dock[b], [b]: this.dock[a] };
+  setPanelOpen(panel: ClosablePanelId, open: boolean): void {
+    if (this.open[panel] === open) return;
+    this.open = { ...this.open, [panel]: open };
     this.save();
   }
 
+  /** パネルの配置を最初の状態に戻す（閉じていたパネルも開く） */
   resetDock(): void {
-    this.dock = { ...DEFAULT_DOCK };
+    this.open = { ...DEFAULTS };
     this.save();
-  }
-
-  setDragging(slot: DockSlotId | null): void {
-    this.draggingSlot = slot;
+    this.dockResetCount++;
   }
 
   setTerminalOpen(open: boolean): void {
-    this.terminalOpen = open;
-    this.save();
+    this.setPanelOpen('terminal', open);
   }
 
   toggleTerminal(): void {
@@ -98,28 +72,23 @@ export class LayoutModel {
   }
 
   setExplorerOpen(open: boolean): void {
-    this.explorerOpen = open;
-    this.save();
+    this.setPanelOpen('files', open);
   }
 
   toggleExplorer(): void {
     this.setExplorerOpen(!this.explorerOpen);
   }
 
+  /** Ctrl+Alt+B：右の欄をまとめて開け閉めする */
   toggleSide(): void {
-    this.sideOpen = !this.sideOpen;
+    const open = !this.sideOpen;
+    this.open = { ...this.open, graph: open, areas: open };
     this.save();
   }
 
   private save(): void {
     try {
-      const data: LayoutData = {
-        terminalOpen: this.terminalOpen,
-        explorerOpen: this.explorerOpen,
-        sideOpen: this.sideOpen,
-        dock: this.dock,
-      };
-      localStorage.setItem(KEY, JSON.stringify(data));
+      localStorage.setItem(KEY, JSON.stringify(this.open));
     } catch {
       // 保存できなくても今回は使える
     }

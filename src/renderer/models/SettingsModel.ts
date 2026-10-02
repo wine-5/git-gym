@@ -12,9 +12,19 @@ interface SettingsData {
   muted: boolean;
   /** SourceTree でいうとどの操作かを解説に出す */
   showSourceTree: boolean;
+  /** レッスンのヒントを表示する（問題をまたいで引き継ぐ） */
+  showHints: boolean;
 }
 
-const DEFAULTS: SettingsData = { editorFontSize: 14, terminalFontSize: 13, bgmVolume: 0.35, seVolume: 0.7, muted: false, showSourceTree: false };
+const DEFAULTS: SettingsData = {
+  editorFontSize: 14,
+  terminalFontSize: 13,
+  bgmVolume: 0.35,
+  seVolume: 0.7,
+  muted: false,
+  showSourceTree: false,
+  showHints: false,
+};
 
 export const FONT_SIZE_RANGE = { min: 11, max: 24 };
 
@@ -34,6 +44,7 @@ export class SettingsModel {
   seVolume: number;
   muted: boolean;
   showSourceTree: boolean;
+  showHints: boolean;
 
   constructor() {
     const data = load();
@@ -43,6 +54,7 @@ export class SettingsModel {
     this.seVolume = data.seVolume;
     this.muted = data.muted;
     this.showSourceTree = data.showSourceTree;
+    this.showHints = data.showHints;
     makeAutoObservable(this);
   }
 
@@ -76,6 +88,11 @@ export class SettingsModel {
     this.save();
   }
 
+  toggleHints(): void {
+    this.showHints = !this.showHints;
+    this.save();
+  }
+
   /** パネルの大きさを初期状態に戻す（usePanelSize が保存している値を消す） */
   resetLayout(): void {
     try {
@@ -96,6 +113,7 @@ export class SettingsModel {
         seVolume: this.seVolume,
         muted: this.muted,
         showSourceTree: this.showSourceTree,
+        showHints: this.showHints,
       };
       localStorage.setItem(KEY, JSON.stringify(data));
     } catch {

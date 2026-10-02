@@ -19,6 +19,8 @@ import {
   GitBranch,
   FolderOpen,
   MousePointerClick,
+  Moon,
+  Sun,
   type LucideIcon,
 } from 'lucide-react';
 import { appModel } from '@models/AppModel';
@@ -56,6 +58,16 @@ export const SettingsView = observer(() => {
         </h1>
 
         <Group title="表示">
+          <Row icon={settings.theme === 'light' ? Sun : Moon} label="テーマ" note="画面全体の明るさ（エディタとターミナルも切り替わります）">
+            <div className={styles.segment}>
+              <button className={settings.theme === 'dark' ? styles.segmentOn : undefined} onClick={() => settings.setTheme('dark')}>
+                <Moon size={14} /> ダーク
+              </button>
+              <button className={settings.theme === 'light' ? styles.segmentOn : undefined} onClick={() => settings.setTheme('light')}>
+                <Sun size={14} /> ライト
+              </button>
+            </div>
+          </Row>
           <Row icon={Type} label="エディタの文字の大きさ">
             <Stepper value={settings.editorFontSize} onChange={(v) => settings.setEditorFontSize(v)} />
           </Row>

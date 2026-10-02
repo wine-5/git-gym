@@ -22,6 +22,8 @@ function createWindow(): void {
     icon: app.isPackaged ? undefined : path.join(app.getAppPath(), 'assets', 'icon', 'icon.png'),
     backgroundColor: '#1e1f24',
     autoHideMenuBar: true,
+    // 画面いっぱいに広げてから見せる（小さいウィンドウが一瞬見えないように）
+    show: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
@@ -31,6 +33,10 @@ function createWindow(): void {
     },
   });
 
+  win.once('ready-to-show', () => {
+    win.maximize();
+    win.show();
+  });
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 }
 

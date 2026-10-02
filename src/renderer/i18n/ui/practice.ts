@@ -77,9 +77,9 @@ const dict: UiDictionary = {
     'stage.retry': 'やり直す',
 
     // エディタ
-    'editor.conflictCurrent': '▼ 今のブランチの内容',
-    'editor.conflictSeparator': '▲ 今のブランチ ／ ▼ 取り込むブランチ',
-    'editor.conflictIncoming': '▲ 取り込もうとしたブランチの内容',
+    'editor.conflictCurrent': '▼ 今のブランチの内容（Ours）',
+    'editor.conflictSeparator': '▲ 今のブランチ（Ours） ／ ▼ 取り込むブランチ（Theirs）',
+    'editor.conflictIncoming': '▲ 取り込もうとしたブランチの内容（Theirs）',
     'editor.closeTab': '閉じる',
     'editor.files': 'ファイル',
 
@@ -158,9 +158,9 @@ const dict: UiDictionary = {
     'stage.allClear': 'All stages cleared! Back to map',
     'stage.retry': 'Start over',
 
-    'editor.conflictCurrent': '▼ Your current branch',
-    'editor.conflictSeparator': '▲ Current branch / ▼ Incoming branch',
-    'editor.conflictIncoming': '▲ The branch you tried to merge in',
+    'editor.conflictCurrent': '▼ Your current branch (ours)',
+    'editor.conflictSeparator': '▲ Current branch (ours) / ▼ Incoming branch (theirs)',
+    'editor.conflictIncoming': '▲ The branch you tried to merge in (theirs)',
     'editor.closeTab': 'Close',
     'editor.files': 'Files',
 
@@ -237,9 +237,9 @@ const dict: UiDictionary = {
     'stage.allClear': '全部关卡通关！返回地图',
     'stage.retry': '重新开始',
 
-    'editor.conflictCurrent': '▼ 当前分支的内容',
-    'editor.conflictSeparator': '▲ 当前分支 ／ ▼ 要合并进来的分支',
-    'editor.conflictIncoming': '▲ 试图合并进来的分支的内容',
+    'editor.conflictCurrent': '▼ 当前分支的内容（Ours）',
+    'editor.conflictSeparator': '▲ 当前分支（Ours） ／ ▼ 要合并进来的分支（Theirs）',
+    'editor.conflictIncoming': '▲ 试图合并进来的分支的内容（Theirs）',
     'editor.closeTab': '关闭',
     'editor.files': '文件',
 
@@ -317,9 +317,9 @@ const dict: UiDictionary = {
     'stage.allClear': '모든 스테이지 클리어! 맵으로',
     'stage.retry': '다시 하기',
 
-    'editor.conflictCurrent': '▼ 현재 브랜치의 내용',
-    'editor.conflictSeparator': '▲ 현재 브랜치 / ▼ 가져올 브랜치',
-    'editor.conflictIncoming': '▲ 가져오려고 한 브랜치의 내용',
+    'editor.conflictCurrent': '▼ 현재 브랜치의 내용 (Ours)',
+    'editor.conflictSeparator': '▲ 현재 브랜치 (Ours) / ▼ 가져올 브랜치 (Theirs)',
+    'editor.conflictIncoming': '▲ 가져오려고 한 브랜치의 내용 (Theirs)',
     'editor.closeTab': '닫기',
     'editor.files': '파일',
 

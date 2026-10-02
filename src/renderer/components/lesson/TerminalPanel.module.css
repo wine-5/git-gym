@@ -88,7 +88,7 @@
 }
 
 .command {
-  color: var(--text);
+  color: var(--terminal-fg);
 }
 
 .output {
@@ -144,14 +144,51 @@
   gap: 8px;
 }
 
+.inputWrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
 .input {
   flex: 1;
+  min-width: 0;
+  padding: 0;
   background: none;
   border: none;
   outline: none;
-  color: var(--text);
+  /* 文字は後ろの色分け（.mirror）で見せるので透明にする。カーソルと選択範囲だけ表示する */
+  color: transparent;
   font: inherit;
-  caret-color: var(--accent);
+  caret-color: var(--terminal-fg);
+}
+
+.input::selection {
+  color: transparent;
+  background: rgba(90, 169, 255, 0.35);
+}
+
+.mirror {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  white-space: pre;
+  pointer-events: none;
+  color: var(--terminal-fg);
+}
+
+/* PowerShell（PSReadLine）の既定の色：コマンド＝黄、オプション＝灰、文字列＝水色 */
+.tok-command {
+  color: var(--ansi-11);
+}
+
+.tok-parameter {
+  color: var(--ansi-8);
+}
+
+.tok-string {
+  color: var(--ansi-6);
 }
 
 .input::placeholder {

@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { TerminalSquare, CheckCircle2, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame, X } from 'lucide-react';
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
 import { complete, type CompletionSource } from '@data/completion';
+import { highlightCommand } from '@data/commandHighlight';
 import { parseAnsi, VSCODE_ANSI_COLORS, type AnsiStyle } from '@data/ansi';
 import { t } from '@i18n/t';
 import styles from './TerminalPanel.module.css';
@@ -22,6 +23,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
   const [input, setInput] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mirrorRef = useRef<HTMLDivElement>(null);
 
   /** Enter を押したときにターミナルにフォーカスがあったか（実行後にフォーカスを戻すため） */
   const refocusAfterRun = useRef(false);
@@ -120,18 +122,27 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
         {/* 実行中も入力欄は残す。visibility: hidden にするとフォーカスが外れるので、透明にするだけにする */}
         <div className={styles.inputRow} style={terminal.running ? { opacity: 0 } : undefined}>
           <Prompt cwd={terminal.cwd} branch={branch} />
-          <input
-            ref={inputRef}
-            data-terminal-input
-            className={styles.input}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            spellCheck={false}
-            autoFocus
-            readOnly={terminal.running}
-            placeholder={t('terminal.placeholder')}
-          />
+          {/* 入力欄の文字は透明にして、後ろに色分けした同じ文字を重ねる（PowerShell と同じ色分け） */}
+          <div className={styles.inputWrap}>
+            <div ref={mirrorRef} className={styles.mirror} aria-hidden>
+              <CommandText text={input} />
+            </div>
+            <input
+              ref={inputRef}
+              data-terminal-input
+              className={styles.input}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              // 長いコマンドで入力欄が横にスクロールしたら、色分けもそろえて動かす
+              onScroll={(e) => mirrorRef.current?.scrollTo({ left: e.currentTarget.scrollLeft })}
+              onSelect={(e) => mirrorRef.current?.scrollTo({ left: e.currentTarget.scrollLeft })}
+              spellCheck={false}
+              autoFocus
+              readOnly={terminal.running}
+              placeholder={t('terminal.placeholder')}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -148,6 +159,19 @@ function Prompt({ cwd, branch }: { cwd?: string; branch?: string }) {
   );
 }
 
+/** 打ったコマンドを、コマンド名・オプション・文字列で色分けして表示する */
+function CommandText({ text }: { text: string }) {
+  return (
+    <>
+      {highlightCommand(text).map((token, i) => (
+        <span key={i} className={styles[`tok-${token.kind}`]}>
+          {token.text}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function Line({ line }: { line: TerminalLine }) {
   switch (line.kind) {
     case 'command':
@@ -155,7 +179,9 @@ function Line({ line }: { line: TerminalLine }) {
         <div className={styles.line}>
           <Decoration exitCode={line.exitCode} />
           <Prompt cwd={line.cwd} branch={line.branch} />
-          <span className={styles.command}>{line.text}</span>
+          <span className={styles.command}>
+            <CommandText text={line.text} />
+          </span>
         </div>
       );
     case 'success':

@@ -124,11 +124,11 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
               {stars === 3 ? 'ノーミスでクリア！完ぺきです' : 'クリア！ノーミスなら星3つです'}
             </p>
             {next ? (
-              <button className={`btn primary ${styles.nextButton}`} onClick={() => appModel.openStage(next.id)}>
+              <button className={`btn primary ${styles.nextButton}`} onClick={() => appModel.openStage(next.id)} autoFocus>
                 次のステージへ <ArrowRight size={15} />
               </button>
             ) : (
-              <button className={`btn primary ${styles.nextButton}`} onClick={() => appModel.navigate('stages')}>
+              <button className={`btn primary ${styles.nextButton}`} onClick={() => appModel.navigate('stages')} autoFocus>
                 全ステージクリア！マップへ <MapIcon size={15} />
               </button>
             )}

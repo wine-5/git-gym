@@ -95,7 +95,7 @@ export const SettingsView = observer(() => {
             label={t('settings.layout')}
             note={t('settings.layoutNote')}
           >
-            <button className="btn" onClick={() => (settings.resetLayout(), appModel.layout.resetDock())}>
+            <button className="btn" onClick={() => appModel.layout.resetDock()}>
               {t('settings.layoutReset')}
             </button>
           </Row>

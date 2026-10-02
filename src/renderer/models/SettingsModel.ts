@@ -120,17 +120,6 @@ export class SettingsModel {
     this.save();
   }
 
-  /** パネルの大きさを初期状態に戻す（usePanelSize が保存している値を消す） */
-  resetLayout(): void {
-    try {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith('git-gym.panel.'))
-        .forEach((k) => localStorage.removeItem(k));
-    } catch {
-      // 保存できない環境では何もしない
-    }
-  }
-
   private save(): void {
     try {
       const data: SettingsData = {

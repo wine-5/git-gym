@@ -1,4 +1,5 @@
 import type { SetupStep } from '@shared/setup';
+import { includesRepoText } from '@i18n/repoText';
 import type { Chapter } from '../lessonTypes';
 import type { ProjectTemplate } from '../projects';
 import { git, initialRepo } from '../setupHelpers';
@@ -76,7 +77,7 @@ export const remoteChapter: Chapter = {
         '`git pull` で取り込んで、最新の状態にしましょう。',
       setup: teammatePushed,
       checks: [
-        { label: '`git pull` で取り込む', test: async (q) => (await q.fileAt('HEAD', 'README.md'))?.includes('チームメイト') ?? false },
+        { label: '`git pull` で取り込む', test: async (q) => includesRepoText(await q.fileAt('HEAD', 'README.md'), 'チームメイト') },
         { label: '`git log --oneline` で仲間のコミットを確かめる', test: (_q, c) => c.ran(/^git log/) },
         { label: '`cat README.md` で中身も確かめる', test: (_q, c) => c.ran(/^(cat|type) README\.md/) },
       ],

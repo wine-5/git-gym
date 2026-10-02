@@ -107,7 +107,7 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
           </>
         ) : (
           <div className={styles.result}>
-            <Confetti count={50} />
+            <Confetti count={120} />
             <div className={styles.resultTitle}>STAGE CLEAR!</div>
             <div className={styles.bigStars}>
               {[1, 2, 3].map((n) => (

@@ -17,25 +17,11 @@ export interface AnsiSegment {
   style: AnsiStyle;
 }
 
-/** VS Code（Dark Modern / Dark+）のターミナルと同じ 16 色 */
-export const VSCODE_ANSI_COLORS = [
-  '#000000', // black
-  '#cd3131', // red
-  '#0dbc79', // green
-  '#e5e510', // yellow
-  '#2472c8', // blue
-  '#bc3fbc', // magenta
-  '#11a8cd', // cyan
-  '#e5e5e5', // white
-  '#666666', // bright black
-  '#f14c4c', // bright red
-  '#23d18b', // bright green
-  '#f5f543', // bright yellow
-  '#3b8eea', // bright blue
-  '#d670d6', // bright magenta
-  '#29b8db', // bright cyan
-  '#e5e5e5', // bright white
-];
+/**
+ * 16 色（黒・赤・緑・黄・青・紫・水色・白 と、その明るい版）。
+ * 実際の色は global.css の --ansi-0〜15 で、VS Code のダーク／ライトのテーマと同じにしてある
+ */
+export const VSCODE_ANSI_COLORS = Array.from({ length: 16 }, (_, i) => `var(--ansi-${i})`);
 
 // eslint-disable-next-line no-control-regex
 const ESCAPE = /\x1b\[([0-9;]*)([A-Za-z])|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[()][A-Za-z0-9]/g;
@@ -44,6 +30,7 @@ const ESCAPE = /\x1b\[([0-9;]*)([A-Za-z])|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b
 function color256(n: number): string | undefined {
   if (n < 0 || n > 255) return undefined;
   if (n < 16) return VSCODE_ANSI_COLORS[n];
+  // 216 色と灰色はテーマに関係なく同じ色にする
   if (n < 232) {
     const i = n - 16;
     const level = (v: number) => (v === 0 ? 0 : 55 + v * 40);

@@ -1,6 +1,4 @@
 .terminal {
-  /* VS Code のターミナルの文字色 */
-  --terminal-fg: #cccccc;
   display: grid;
   grid-template-rows: 32px 1fr;
   min-height: 0;

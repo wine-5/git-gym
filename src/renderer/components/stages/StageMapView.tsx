@@ -1,10 +1,10 @@
 import { observer } from 'mobx-react-lite';
-import { Star, Lock, Map as MapIcon, Swords } from 'lucide-react';
+import { Star, Map as MapIcon, Swords } from 'lucide-react';
 import { appModel } from '@models/AppModel';
 import { ALL_STAGES, WORLDS } from '@data/stages';
 import styles from './StageMapView.module.css';
 
-/** 練習モードのステージ選択。前のステージをクリアすると次が開く */
+/** 練習モードのステージ選択。どのステージからでも遊べる */
 export const StageMapView = observer(() => {
   const { progress } = appModel;
   const cleared = (id: string) => progress.stageStars.has(id);
@@ -38,11 +38,9 @@ export const StageMapView = observer(() => {
             </h2>
             <ol className={styles.path}>
               {world.stages.map((stage, i) => {
-                const index = ALL_STAGES.indexOf(stage);
-                const locked = index > 0 && !cleared(ALL_STAGES[index - 1].id) && !cleared(stage.id);
                 const stars = progress.stageStars.get(stage.id) ?? 0;
                 const isNext = stage.id === nextId;
-                const className = [styles.node, locked && styles.locked, stars > 0 && styles.cleared, isNext && styles.next]
+                const className = [styles.node, stars > 0 && styles.cleared, isNext && styles.next]
                   .filter(Boolean)
                   .join(' ');
                 return (
@@ -50,11 +48,10 @@ export const StageMapView = observer(() => {
                     {i > 0 && <span className={stars > 0 || isNext ? `${styles.link} ${styles.linkOn}` : styles.link} />}
                     <button
                       className={className}
-                      disabled={locked}
                       onClick={() => appModel.openStage(stage.id)}
-                      title={locked ? '前のステージをクリアすると遊べます' : stage.description}
+                      title={stage.description}
                     >
-                      {locked ? <Lock size={18} /> : <span className={styles.num}>{i + 1}</span>}
+                      <span className={styles.num}>{i + 1}</span>
                     </button>
                     <span className={styles.title}>{stage.title}</span>
                     <span className={styles.stars}>

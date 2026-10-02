@@ -21,6 +21,7 @@ import {
   MousePointerClick,
   Moon,
   Sun,
+  Globe,
   type LucideIcon,
 } from 'lucide-react';
 import { appModel } from '@models/AppModel';
@@ -30,6 +31,8 @@ import { CHAPTERS } from '@data/lessons';
 import { COMMANDS } from '@data/commands';
 import { downloadText, progressCsv } from '@data/exportProgress';
 import { VSCODE_SHORTCUTS } from '../../hooks/useVsCodeShortcuts';
+import { LOCALES, type Locale } from '@i18n/locale';
+import { t } from '@i18n/t';
 import styles from './SettingsView.module.css';
 
 export const SettingsView = observer(() => {
@@ -58,6 +61,19 @@ export const SettingsView = observer(() => {
         </h1>
 
         <Group title="表示">
+          <Row icon={Globe} label={t('settings.language')} note={t('settings.languageNote')}>
+            <select
+              className={styles.select}
+              value={settings.locale}
+              onChange={(e) => settings.setLocale(e.target.value as Locale)}
+            >
+              {LOCALES.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
+          </Row>
           <Row icon={settings.theme === 'light' ? Sun : Moon} label="テーマ" note="画面全体の明るさ（エディタとターミナルも切り替わります）">
             <div className={styles.segment}>
               <button className={settings.theme === 'dark' ? styles.segmentOn : undefined} onClick={() => settings.setTheme('dark')}>

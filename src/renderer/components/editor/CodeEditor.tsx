@@ -17,6 +17,18 @@ monaco.editor.defineTheme('git-gym', {
   },
 });
 
+monaco.editor.defineTheme('git-gym-light', {
+  base: 'vs',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.background': '#ffffff',
+    'editorLineNumber.foreground': '#8b8c96',
+    'editorLineNumber.activeForeground': '#1f2024',
+    'editorCursor.foreground': '#e0432a',
+  },
+});
+
 /** コンフリクトの「今のブランチ側」「取り込む側」を色分けし、目印の行に説明を添える */
 function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IModelDeltaDecoration[] {
   const whole = (line: number, className: string, note?: string): monaco.editor.IModelDeltaDecoration => ({
@@ -57,13 +69,14 @@ interface Props {
   value: string;
   onChange: (path: string, value: string) => void;
   fontSize?: number;
+  theme?: 'dark' | 'light';
 }
 
 /**
  * ファイルごとに Monaco のモデルを持ち、タブ切り替えで差し替える。
  * モデルを使い回すので、タブを切り替えても Undo 履歴やカーソル位置が残る。
  */
-export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
+export function CodeEditor({ path, value, onChange, fontSize = 14, theme = 'dark' }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const viewStates = useRef(new Map<string, monaco.editor.ICodeEditorViewState | null>());
@@ -72,7 +85,7 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
 
   useEffect(() => {
     const editor = monaco.editor.create(containerRef.current!, {
-      theme: 'git-gym',
+      theme: theme === 'light' ? 'git-gym-light' : 'git-gym',
       model: null,
       minimap: { enabled: false },
       fontSize: 14,
@@ -128,6 +141,11 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
   useEffect(() => {
     editorRef.current?.updateOptions({ fontSize });
   }, [fontSize]);
+
+  // Monaco のテーマは全エディタ共通なので、設定が変わったら切り替える
+  useEffect(() => {
+    monaco.editor.setTheme(theme === 'light' ? 'git-gym-light' : 'git-gym');
+  }, [theme]);
 
   // git switch / restore などでディスク側が変わったら、Undo できる形で中身を差し替える
   useEffect(() => {

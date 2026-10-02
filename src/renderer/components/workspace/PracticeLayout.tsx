@@ -70,6 +70,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
                 value={workspace.activeContent}
                 onChange={(path, value) => workspace.update(path, value)}
                 fontSize={appModel.settings.editorFontSize}
+                theme={appModel.settings.theme}
               />
             ) : (
               <div className={styles.noFile}>

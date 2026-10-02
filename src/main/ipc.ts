@@ -6,6 +6,8 @@ import type { ProgressStore } from './progressStore';
 import type { GitRunner } from './git/GitRunner';
 import type { PracticeFolders } from './workspace/PracticeFolders';
 import type { WorkspaceHub } from './workspace/WorkspaceHub';
+import { setMainLocale } from './i18n';
+import { setAppMenu } from './appMenu';
 
 /** レンダラーからの呼び出しを WorkspaceHub につなぐ */
 export function registerIpc(
@@ -21,6 +23,10 @@ export function registerIpc(
       gitBundled: info.gitPath !== 'git',
       practiceRoot: info.folders.root,
     };
+  });
+  ipcMain.handle(IPC.appSetLocale, (_e, locale: string) => {
+    setMainLocale(locale);
+    setAppMenu();
   });
   ipcMain.handle(IPC.workspaceOpen, (_e, ref: WorkspaceRef, displayName: string, setup?: SetupStep[]) =>
     hub.open(ref, displayName, setup),

@@ -47,6 +47,7 @@ export const IPC = {
   progressLoad: 'progress:load',
   progressSave: 'progress:save',
   appInfo: 'app:info',
+  appSetLocale: 'app:setLocale',
 } as const;
 
 /** preload からレンダラーへ公開する API */
@@ -78,6 +79,8 @@ export interface GitGymApi {
   };
   app: {
     info(): Promise<AppInfo>;
+    /** 表示言語をメインプロセス（ターミナルの案内・メニュー）にも伝える */
+    setLocale(locale: string): Promise<void>;
   };
   progress: {
     load(): Promise<ProgressData>;

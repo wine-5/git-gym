@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { observer } from 'mobx-react-lite';
-import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame, X } from 'lucide-react';
+import { TerminalSquare, CheckCircle2, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame, X } from 'lucide-react';
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
 import { complete, type CompletionSource } from '@data/completion';
+import { parseAnsi, VSCODE_ANSI_COLORS, type AnsiStyle } from '@data/ansi';
 import styles from './TerminalPanel.module.css';
 
 interface Props {
@@ -129,6 +130,7 @@ function Line({ line }: { line: TerminalLine }) {
     case 'command':
       return (
         <div className={styles.line}>
+          <Decoration exitCode={line.exitCode} />
           <Prompt cwd={line.cwd} branch={line.branch} />
           <span className={styles.command}>{line.text}</span>
         </div>
@@ -139,13 +141,6 @@ function Line({ line }: { line: TerminalLine }) {
           <CheckCircle2 size={14} /> {line.text}
         </div>
       );
-    case 'error':
-      return (
-        <div className={`${styles.block} ${styles.error}`}>
-          <XCircle size={14} className={styles.blockIcon} />
-          <span>{line.text}</span>
-        </div>
-      );
     case 'hint':
       return (
         <div className={`${styles.feedback} ${styles.hint}`}>
@@ -153,6 +148,48 @@ function Line({ line }: { line: TerminalLine }) {
         </div>
       );
     default:
-      return <div className={`${styles.block} ${styles.output}`}>{line.text}</div>;
+      return (
+        <div className={`${styles.block} ${styles.output}`}>
+          <AnsiText text={line.text} />
+        </div>
+      );
   }
+}
+
+/** VS Code のコマンドの印: 実行中は白抜き、成功は青い丸、失敗は赤い丸 */
+function Decoration({ exitCode }: { exitCode?: number }) {
+  if (exitCode === undefined) return <span className={`${styles.decoration} ${styles.decorationRunning}`} title="実行中" />;
+  return exitCode === 0 ? (
+    <span className={`${styles.decoration} ${styles.decorationSuccess}`} title="成功" />
+  ) : (
+    <span className={`${styles.decoration} ${styles.decorationError}`} title={`失敗（終了コード ${exitCode}）`} />
+  );
+}
+
+/** VS Code と同じく、太字の標準色は明るい色で表示する */
+function cssFor(style: AnsiStyle): CSSProperties | undefined {
+  let { fg, bg } = style;
+  const index = fg ? VSCODE_ANSI_COLORS.indexOf(fg) : -1;
+  if (style.bold && index >= 0 && index < 8) fg = VSCODE_ANSI_COLORS[index + 8];
+  if (style.inverse) [fg, bg] = [bg ?? 'var(--bg-terminal)', fg ?? 'var(--terminal-fg)'];
+  const css: CSSProperties = {};
+  if (fg) css.color = fg;
+  if (bg) css.background = bg;
+  if (style.bold) css.fontWeight = 700;
+  if (style.dim) css.opacity = 0.5;
+  if (style.italic) css.fontStyle = 'italic';
+  if (style.underline) css.textDecoration = 'underline';
+  return Object.keys(css).length ? css : undefined;
+}
+
+function AnsiText({ text }: { text: string }) {
+  return (
+    <span>
+      {parseAnsi(text).map((segment, i) => (
+        <span key={i} style={cssFor(segment.style)}>
+          {segment.text}
+        </span>
+      ))}
+    </span>
+  );
 }

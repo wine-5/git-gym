@@ -74,8 +74,12 @@ export const SettingsView = observer(() => {
           <Row icon={TerminalSquare} label="ターミナルの文字の大きさ">
             <Stepper value={settings.terminalFontSize} onChange={(v) => settings.setTerminalFontSize(v)} />
           </Row>
-          <Row icon={LayoutPanelLeft} label="パネルの大きさ" note="ドラッグで変えた大きさを最初の状態に戻します">
-            <button className="btn" onClick={() => settings.resetLayout()}>
+          <Row
+            icon={LayoutPanelLeft}
+            label="パネルの大きさと配置"
+            note="パネルの見出しをドラッグすると場所を入れ替えられます。変えた大きさと配置を最初の状態に戻します"
+          >
+            <button className="btn" onClick={() => (settings.resetLayout(), appModel.layout.resetDock())}>
               元に戻す
             </button>
           </Row>

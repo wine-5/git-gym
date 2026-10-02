@@ -10,11 +10,14 @@ export interface TerminalHooks {
 }
 
 export interface TerminalLine {
-  kind: 'command' | 'output' | 'error' | 'success' | 'hint';
+  kind: 'command' | 'output' | 'success' | 'hint';
+  /** output は git などの出力そのまま（色の指定を含む） */
   text: string;
   /** command のときのプロンプト表示 */
   cwd?: string;
   branch?: string;
+  /** command の終了コード（実行中は undefined）。VS Code と同じく左に成功・失敗の印を出す */
+  exitCode?: number;
 }
 
 /** 1つの練習用リポジトリに紐づくターミナルの状態 */
@@ -44,7 +47,8 @@ export class TerminalModel {
 
     this.history.push(trimmed);
     this.historyIndex = this.history.length;
-    this.lines.push({ kind: 'command', text: trimmed, cwd: this.cwd, branch });
+    this.lines.push({ kind: 'command', text: trimmed, cwd: this.cwd, branch, exitCode: undefined });
+    const commandLine = this.lines[this.lines.length - 1];
     this.running = true;
 
     let result: CommandResult;
@@ -59,12 +63,13 @@ export class TerminalModel {
       this.running = false;
       this.cwd = result.cwd;
       this.streak = result.exitCode === 0 ? this.streak + 1 : 0;
+      commandLine.exitCode = result.exitCode;
       if (result.clear) {
         this.lines = [];
       } else {
+        // 本物のターミナルと同じく stderr も同じ見た目で出す（失敗はコマンド行の印で分かる）
         this.push('output', result.stdout);
-        // git は成功時の案内も stderr に出すので、失敗したときだけエラー表示にする
-        this.push(result.exitCode === 0 ? 'output' : 'error', result.stderr);
+        this.push('output', result.stderr);
       }
     });
     this.hooks.afterExecute?.(trimmed, result);

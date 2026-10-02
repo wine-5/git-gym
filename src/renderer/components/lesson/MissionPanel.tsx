@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Target, CheckCircle2, Circle, CircleDot, Lightbulb, BookOpen, ListChecks } from 'lucide-react';
+import { Target, CheckCircle2, Circle, CircleDot, Lightbulb, LightbulbOff, BookOpen, ListChecks, ChevronDown } from 'lucide-react';
 import { fillPlaceholders, type Chapter } from '@data/lessons';
 import type { LessonRunner } from '@models/LessonRunner';
 import { appModel } from '@models/AppModel';
@@ -20,7 +20,9 @@ export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) =
   const [explaining, setExplaining] = useState(false);
   const fill = (text: string) => fillPlaceholders(text, runner.vars);
   const nowIndex = done.indexOf(false);
-  const shownHints = lesson.hints.slice(0, hintCount);
+  // ヒントは最初は隠しておき、表示するかどうかは問題をまたいで覚えておく
+  const { showHints } = appModel.settings;
+  const shownHints = showHints ? lesson.hints.slice(0, hintCount) : [];
 
   return (
     <section className={styles.panel}>
@@ -69,15 +71,20 @@ export const MissionPanel = observer(({ chapter, lessonIndex, runner }: Props) =
             <InlineText text={fill(hint)} />
           </div>
         ))}
+        {showHints && hintCount < lesson.hints.length && (
+          <button className={styles.moreHint} onClick={() => setHintCount((n) => Math.min(n + 1, lesson.hints.length))}>
+            <ChevronDown size={14} /> 次のヒント
+          </button>
+        )}
       </div>
 
       <div className={styles.foot}>
         <button
-          className="btn"
-          disabled={hintCount >= lesson.hints.length}
-          onClick={() => setHintCount((n) => Math.min(n + 1, lesson.hints.length))}
+          className={showHints ? 'btn primary' : 'btn'}
+          onClick={() => appModel.settings.toggleHints()}
+          title="表示するかどうかは次の問題にも引き継がれます"
         >
-          <Lightbulb size={14} /> 次のヒント
+          {showHints ? <LightbulbOff size={14} /> : <Lightbulb size={14} />} {showHints ? 'ヒントを隠す' : 'ヒントを表示'}
         </button>
         <button className="btn" onClick={() => setExplaining(true)}>
           <BookOpen size={14} /> 解説を見る

@@ -55,7 +55,9 @@ module.exports = {
         },
         devContentSecurityPolicy:
           "default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self' data:;",
-        port: 8890,
+        // F5 で起動中でも、別のポートでもう1つ起動して確認できるようにする
+        port: Number(process.env.GITGYM_DEV_PORT) || 8890,
+        loggerPort: Number(process.env.GITGYM_LOGGER_PORT) || 9000,
       },
     },
   ],

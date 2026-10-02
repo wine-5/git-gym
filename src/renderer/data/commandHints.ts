@@ -1,4 +1,5 @@
 import type { CommandResult } from '@shared/terminal';
+import { stripAnsi } from './ansi';
 
 const GIT_SUBCOMMANDS = new Set([
   'init', 'status', 'add', 'commit', 'log', 'diff', 'branch', 'switch', 'checkout', 'merge', 'restore',
@@ -81,7 +82,7 @@ export function hintFor(line: string, result: CommandResult): string | null {
     return `Git のコマンドは先頭に git を付けます: git ${line.trim()}`;
   }
 
-  const text = `${result.stdout}\n${result.stderr}`;
+  const text = stripAnsi(`${result.stdout}\n${result.stderr}`);
   const sub = first === 'git' ? line.trim().split(/\s+/)[1] : undefined;
   for (const rule of RULES) {
     if (rule.only && (!sub || !rule.only.includes(sub))) continue;

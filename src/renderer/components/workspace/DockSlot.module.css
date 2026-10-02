@@ -1,0 +1,51 @@
+.slot {
+  position: relative;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 掴める見出し */
+.handle {
+  cursor: grab;
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+/* ドラッグ中、置ける場所をうっすら示す */
+.candidate::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px dashed var(--accent);
+  border-radius: 8px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.over::after {
+  opacity: 1;
+  background: var(--accent-soft);
+}
+
+.dropHint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}

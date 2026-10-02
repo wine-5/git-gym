@@ -40,6 +40,13 @@ function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IMo
   });
 }
 
+/** いま表示しているエディタ（ショートカットの Ctrl+1 でフォーカスするため） */
+let activeEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+
+export function focusEditor(): void {
+  activeEditor?.focus();
+}
+
 interface Props {
   path: string;
   value: string;
@@ -73,6 +80,7 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
       smoothScrolling: true,
     });
     editorRef.current = editor;
+    activeEditor = editor;
     const conflicts = editor.createDecorationsCollection();
     const refreshConflicts = () => {
       const model = editor.getModel();
@@ -92,6 +100,7 @@ export function CodeEditor({ path, value, onChange, fontSize = 14 }: Props) {
       editor.dispose();
       monaco.editor.getModels().forEach((m) => m.dispose());
       editorRef.current = null;
+      if (activeEditor === editor) activeEditor = null;
     };
   }, []);
 

@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { GitBranch, FilePen, Layers, Volume2, VolumeX } from 'lucide-react';
+import { GitBranch, FilePen, Layers, Volume2, VolumeX, TerminalSquare, PanelLeft, PanelRight } from 'lucide-react';
 import { appModel } from '@models/AppModel';
 import { getLanguage } from '@data/languages';
 import styles from './StatusBar.module.css';
@@ -30,6 +30,31 @@ export const StatusBar = observer(() => {
         </>
       )}
       <div className={styles.spacer} />
+      {session && (
+        <>
+          <button
+            className={appModel.layout.explorerOpen ? `${styles.language} ${styles.on}` : styles.language}
+            onClick={() => appModel.layout.toggleExplorer()}
+            title="ファイル一覧を開く / 閉じる（Ctrl+B）"
+          >
+            <PanelLeft size={14} />
+          </button>
+          <button
+            className={appModel.layout.terminalOpen ? `${styles.language} ${styles.on}` : styles.language}
+            onClick={() => appModel.layout.toggleTerminal()}
+            title="ターミナルを開く / 閉じる（Ctrl+` または Ctrl+J）"
+          >
+            <TerminalSquare size={14} />
+          </button>
+          <button
+            className={appModel.layout.sideOpen ? `${styles.language} ${styles.on}` : styles.language}
+            onClick={() => appModel.layout.toggleSide()}
+            title="コミットグラフを開く / 閉じる（Ctrl+Alt+B）"
+          >
+            <PanelRight size={14} />
+          </button>
+        </>
+      )}
       <button
         className={styles.language}
         onClick={() => appModel.settings.toggleMuted()}

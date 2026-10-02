@@ -47,3 +47,7 @@
   width: 14px;
   height: 14px;
 }
+
+.on {
+  color: var(--text);
+}

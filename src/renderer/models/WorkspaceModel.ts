@@ -75,6 +75,18 @@ export class WorkspaceModel {
     }
   }
 
+  /** 開いているタブを順に切り替える（step: 1 で次、-1 で前。端までいったら反対側に回る） */
+  cycleTab(step: number): void {
+    if (this.openTabs.length === 0) return;
+    const index = this.activePath ? this.openTabs.indexOf(this.activePath) : -1;
+    const next = (index + step + this.openTabs.length) % this.openTabs.length;
+    this.activePath = this.openTabs[next];
+  }
+
+  closeActive(): void {
+    if (this.activePath) this.close(this.activePath);
+  }
+
   update(path: string, content: string): void {
     if (this.files.get(path) === content) return;
     this.files.set(path, content);

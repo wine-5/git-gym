@@ -5,6 +5,7 @@ import { hintFor } from '@data/commandHints';
 import { progressCsv } from '@data/exportProgress';
 import { starsFor } from '@data/stages';
 import { fillPlaceholders } from '@data/lessons';
+import { complete } from '@data/completion';
 import type { CommandResult } from '@shared/terminal';
 
 const result = (stdout: string, stderr = '', exitCode = 0): CommandResult => ({ stdout, stderr, exitCode, cwd: '~' });
@@ -86,5 +87,36 @@ describe('progressCsv', () => {
     expect(csv).toContain('1-1,リポジトリを作ろう,○');
     expect(csv).toContain('git init,○');
     expect(csv).toContain('1-2,状態を確認しよう,\r\n');
+  });
+});
+
+describe('complete', () => {
+  const source = {
+    subcommands: ['commit', 'checkout', 'cherry-pick', 'status', 'switch'],
+    branches: ['main', 'feature/jump'],
+    files: ['Player.cs', 'Program.cs', 'README.md'],
+  };
+
+  it('1つに決まればスペースまで付ける', () => {
+    expect(complete('git sta', source)).toEqual({ value: 'git status ', candidates: [] });
+    expect(complete('gi', source)).toEqual({ value: 'git ', candidates: [] });
+  });
+
+  it('複数あれば共通部分まで伸ばして候補を返す', () => {
+    expect(complete('git ch', source)).toEqual({ value: 'git che', candidates: ['checkout', 'cherry-pick'] });
+    expect(complete('git c', source).candidates).toEqual(['checkout', 'cherry-pick', 'commit']);
+  });
+
+  it('ブランチを取るコマンドではブランチ名も補完する', () => {
+    expect(complete('git switch fea', source)).toEqual({ value: 'git switch feature/jump ', candidates: [] });
+  });
+
+  it('それ以外はファイル名を補完する', () => {
+    expect(complete('git add Pl', source)).toEqual({ value: 'git add Player.cs ', candidates: [] });
+    expect(complete('cat P', source)).toEqual({ value: 'cat P', candidates: ['Player.cs', 'Program.cs'] });
+  });
+
+  it('候補が無ければそのまま', () => {
+    expect(complete('git xyz', source)).toEqual({ value: 'git xyz', candidates: [] });
   });
 });

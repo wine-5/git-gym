@@ -1,7 +1,7 @@
 // 画面確認用: 起動中の Electron を CDP で操作してスクリーンショットを撮る
 // 1. npx electron-forge start -- --remote-debugging-port=9334
 // 2. node scripts/ui-check.mjs 9334 <出力フォルダ> <steps.json>
-// steps: {drag, dx, dy} / {eval, print} / {term: "git status"} / {editor: "テキスト"} / {type} / {key} / {wait} / {shot: "名前"}
+// steps: {key, code, keyCode, modifiers} / {drag, dx, dy} / {eval, print} / {term: "git status"} / {editor: "テキスト"} / {type} / {key} / {wait} / {shot: "名前"}
 import { writeFileSync, readFileSync } from 'node:fs';
 const [port, out, stepsFile] = process.argv.slice(2);
 const steps = JSON.parse(readFileSync(stepsFile, 'utf8'));
@@ -27,7 +27,13 @@ for (const s of steps) {
   if (s.editor) { const r = await send('Runtime.evaluate',{expression:"(()=>{const b=document.querySelector('.monaco-editor .view-lines').getBoundingClientRect();return [b.left+60,b.top+8]})()",returnByValue:true}); const [x,y]=r.result.result.value; for (const type of ['mousePressed','mouseReleased']) await send('Input.dispatchMouseEvent',{type,x,y,button:'left',clickCount:1}); await sleep(200); await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Home',code:'Home',windowsVirtualKeyCode:36}); await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Home',code:'Home'}); await send('Input.insertText',{text:s.editor}); }
   if (s.eval) { const r = await send('Runtime.evaluate', { expression: s.eval, awaitPromise: true, returnByValue: true }); if (s.print) console.log(JSON.stringify(r.result?.result?.value ?? r.result)); }
   if (s.type) { for (const ch of s.type) await send('Input.insertText', { text: ch }); }
-  if (s.key) { await send('Input.dispatchKeyEvent', { type: 'keyDown', key: s.key, code: s.key, windowsVirtualKeyCode: s.key === 'Enter' ? 13 : 0 }); await send('Input.dispatchKeyEvent', { type: 'keyUp', key: s.key, code: s.key }); }
+  if (s.key) {
+    // {key, code?, keyCode?, modifiers?}: modifiers は Alt=1, Ctrl=2, Meta=4, Shift=8 の和
+    const keyCode = s.keyCode ?? ({ Enter: 13, Tab: 9 }[s.key] ?? 0);
+    const base = { key: s.key, code: s.code ?? s.key, windowsVirtualKeyCode: keyCode, modifiers: s.modifiers ?? 0 };
+    await send('Input.dispatchKeyEvent', { type: 'rawKeyDown', ...base });
+    await send('Input.dispatchKeyEvent', { type: 'keyUp', ...base });
+  }
   if (s.drag !== undefined) {
     // {drag: 境目の番号, dx, dy}: role=separator の要素をマウスでドラッグする
     const r = await send('Runtime.evaluate', { expression: `(()=>{const b=document.querySelectorAll('[role=separator]')[${s.drag}].getBoundingClientRect();return [b.left+b.width/2,b.top+b.height/2]})()`, returnByValue: true });

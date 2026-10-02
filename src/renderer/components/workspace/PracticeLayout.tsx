@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { GitGraph, FolderTree, MousePointerClick } from 'lucide-react';
 import type { PracticeSession } from '@models/PracticeSession';
 import { appModel } from '@models/AppModel';
+import { COMMANDS } from '@data/commands';
 import { CodeEditor } from '../editor/CodeEditor';
 import { EditorTabs } from '../editor/EditorTabs';
 import { FileTree } from '../editor/FileTree';
@@ -11,6 +12,7 @@ import { CommitGraph } from '../lesson/CommitGraph';
 import { FileAreas } from '../lesson/FileAreas';
 import { Splitter } from '../layout/Splitter';
 import { usePanelSize } from '../../hooks/usePanelSize';
+import { useVsCodeShortcuts } from '../../hooks/useVsCodeShortcuts';
 import styles from './PracticeLayout.module.css';
 
 interface Props {
@@ -31,19 +33,35 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
   const areasHeight = usePanelSize('areas', 236, 150, 520);
 
   const { workspace, repo, fileStates } = session;
+  const { layout } = appModel;
+  useVsCodeShortcuts(layout, workspace);
 
   return (
     <main
       className={styles.layout}
-      style={{ gridTemplateColumns: `${leftPanel.size}px auto minmax(0, 1fr) auto ${side.size}px` }}
+      style={{
+        gridTemplateColumns: layout.sideOpen
+          ? `${leftPanel.size}px auto minmax(0, 1fr) auto ${side.size}px`
+          : `${leftPanel.size}px auto minmax(0, 1fr)`,
+      }}
     >
       {left}
       <Splitter direction="columns" {...leftPanel.splitter()} />
 
-      <section className={styles.center} style={{ gridTemplateRows: `minmax(0, 1fr) auto ${terminalHeight.size}px` }}>
-        <div className={styles.editorArea} style={{ gridTemplateColumns: `${tree.size}px auto minmax(0, 1fr)` }}>
-          <FileTree workspace={workspace} projectName={session.displayName} fileStates={fileStates} />
-          <Splitter direction="columns" {...tree.splitter()} />
+      <section
+        className={styles.center}
+        style={{ gridTemplateRows: layout.terminalOpen ? `minmax(0, 1fr) auto ${terminalHeight.size}px` : 'minmax(0, 1fr)' }}
+      >
+        <div
+          className={styles.editorArea}
+          style={{ gridTemplateColumns: layout.explorerOpen ? `${tree.size}px auto minmax(0, 1fr)` : 'minmax(0, 1fr)' }}
+        >
+          {layout.explorerOpen && (
+            <>
+              <FileTree workspace={workspace} projectName={session.displayName} fileStates={fileStates} />
+              <Splitter direction="columns" {...tree.splitter()} />
+            </>
+          )}
           <div className={styles.editor}>
             <EditorTabs workspace={workspace} fileStates={fileStates} />
             {workspace.activePath ? (
@@ -61,35 +79,47 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
             )}
           </div>
         </div>
-        <Splitter direction="rows" {...terminalHeight.splitter(true)} />
-        <TerminalPanel
-          terminal={session.terminal}
-          branch={repo.branch ?? undefined}
-          onReveal={() => session.reveal()}
-          fontSize={appModel.settings.terminalFontSize}
-        />
+        {layout.terminalOpen && (
+          <>
+            <Splitter direction="rows" {...terminalHeight.splitter(true)} />
+            <TerminalPanel
+              terminal={session.terminal}
+              branch={repo.branch ?? undefined}
+              onReveal={() => session.reveal()}
+              onClose={() => layout.setTerminalOpen(false)}
+              completion={() => ({
+                subcommands: COMMANDS.map((c) => c.name),
+                branches: repo.commits.flatMap((c) => c.refs.filter((r) => r.kind !== 'head').map((r) => r.name)),
+                files: workspace.paths,
+              })}
+              fontSize={appModel.settings.terminalFontSize}
+            />
+          </>
+        )}
       </section>
 
-      <Splitter direction="columns" {...side.splitter(true)} />
-      <section className={styles.side}>
-        <div className="panel-head">
-          <span className={styles.headLabel}>
-            <GitGraph size={13} /> コミットグラフ
-          </span>
-        </div>
-        <div className={styles.graphScroll}>
-          <CommitGraph repo={repo} />
-        </div>
-        <Splitter direction="rows" {...areasHeight.splitter(true)} />
-        <div className={styles.areas} style={{ height: areasHeight.size }}>
+      {layout.sideOpen && <Splitter direction="columns" {...side.splitter(true)} />}
+      {layout.sideOpen && (
+        <section className={styles.side}>
           <div className="panel-head">
             <span className={styles.headLabel}>
-              <FolderTree size={13} /> ファイルの居場所
+              <GitGraph size={13} /> コミットグラフ
             </span>
           </div>
-          <FileAreas repo={repo} />
-        </div>
-      </section>
+          <div className={styles.graphScroll}>
+            <CommitGraph repo={repo} />
+          </div>
+          <Splitter direction="rows" {...areasHeight.splitter(true)} />
+          <div className={styles.areas} style={{ height: areasHeight.size }}>
+            <div className="panel-head">
+              <span className={styles.headLabel}>
+                <FolderTree size={13} /> ファイルの居場所
+              </span>
+            </div>
+            <FileAreas repo={repo} />
+          </div>
+        </section>
+      )}
     </main>
   );
 });

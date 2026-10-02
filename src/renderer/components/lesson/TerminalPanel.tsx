@@ -1,27 +1,44 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { observer } from 'mobx-react-lite';
-import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame } from 'lucide-react';
+import { TerminalSquare, CheckCircle2, XCircle, Lightbulb, ChevronRight, Trash2, FolderOpen, Loader2, Flame, X } from 'lucide-react';
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
+import { complete, type CompletionSource } from '@data/completion';
 import styles from './TerminalPanel.module.css';
 
 interface Props {
   terminal: TerminalModel;
   branch?: string;
   onReveal?: () => void;
+  /** パネルを閉じる（Ctrl+` / Ctrl+J でも開け閉めできる） */
+  onClose?: () => void;
+  /** Tab 補完の候補（ブランチ名・ファイル名など） */
+  completion?: () => CompletionSource;
   fontSize?: number;
 }
 
-export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }: Props) => {
+export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, completion, fontSize }: Props) => {
   const [input, setInput] = useState('');
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  /** Enter を押したときにターミナルにフォーカスがあったか（実行後にフォーカスを戻すため） */
+  const refocusAfterRun = useRef(false);
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
   }, [terminal.lines.length, terminal.running]);
 
+  // 実行が終わったら入力欄にフォーカスを戻して、続けてコマンドを打てるようにする
+  useEffect(() => {
+    if (!terminal.running && refocusAfterRun.current) {
+      refocusAfterRun.current = false;
+      inputRef.current?.focus();
+    }
+  }, [terminal.running]);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      refocusAfterRun.current = true;
       void terminal.execute(input, branch);
       setInput('');
     } else if (e.key === 'ArrowUp') {
@@ -30,6 +47,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setInput(terminal.next());
+    } else if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && completion) {
+      e.preventDefault();
+      const result = complete(input, completion());
+      setInput(result.value);
+      if (result.candidates.length > 0) terminal.push('output', result.candidates.join('    '));
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
       terminal.clear();
@@ -56,6 +78,11 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
         <button className={styles.iconButton} onClick={() => terminal.clear()} title="クリア（Ctrl+L）">
           <Trash2 size={13} />
         </button>
+        {onClose && (
+          <button className={styles.iconButton} onClick={onClose} title="パネルを閉じる（Ctrl+J）">
+            <X size={14} />
+          </button>
+        )}
       </div>
       <div className={styles.body} style={{ fontSize }} ref={bodyRef} onClick={() => inputRef.current?.focus()}>
         {terminal.lines.map((line, i) => (
@@ -66,11 +93,12 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, fontSize }:
             <Loader2 size={14} className={styles.spin} /> 実行中…
           </div>
         )}
-        {/* 実行中も入力欄は残す（作り直すとフォーカスがエディタから奪われるため） */}
-        <div className={styles.inputRow} style={terminal.running ? { visibility: 'hidden' } : undefined}>
+        {/* 実行中も入力欄は残す。visibility: hidden にするとフォーカスが外れるので、透明にするだけにする */}
+        <div className={styles.inputRow} style={terminal.running ? { opacity: 0 } : undefined}>
           <Prompt cwd={terminal.cwd} branch={branch} />
           <input
             ref={inputRef}
+            data-terminal-input
             className={styles.input}
             value={input}
             onChange={(e) => setInput(e.target.value)}

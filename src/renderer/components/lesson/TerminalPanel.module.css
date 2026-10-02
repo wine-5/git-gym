@@ -1,4 +1,6 @@
 .terminal {
+  /* VS Code のターミナルの文字色 */
+  --terminal-fg: #cccccc;
   display: grid;
   grid-template-rows: 32px 1fr;
   min-height: 0;
@@ -50,7 +52,8 @@
 }
 
 .body {
-  padding: 10px 14px;
+  /* 左の余白にコマンドの成功・失敗の印を出す（VS Code と同じ） */
+  padding: 10px 14px 10px 24px;
   overflow: auto;
   font-family: var(--mono);
   font-size: 13px;
@@ -59,6 +62,7 @@
 }
 
 .line {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -89,18 +93,35 @@
 }
 
 .output {
-  color: var(--text-dim);
-  padding-left: 20px;
+  color: var(--terminal-fg);
 }
 
-.error {
-  color: var(--red);
+.decoration {
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+}
+
+.decorationRunning {
+  border: 1px solid var(--text-mute);
+}
+
+.decorationSuccess {
+  background: #1b81a8;
+}
+
+.decorationError {
+  background: #f14c4c;
 }
 
 .feedback {
   font-family: var(--font);
   font-size: 12px;
-  margin: 4px 0 4px 20px;
+  margin: 4px 0;
   padding: 4px 10px;
   border-radius: 6px;
   display: inline-flex;
@@ -143,11 +164,6 @@
   gap: 8px;
   white-space: pre-wrap;
   word-break: break-all;
-}
-
-.blockIcon {
-  flex: none;
-  margin-top: 4px;
 }
 
 .spin {

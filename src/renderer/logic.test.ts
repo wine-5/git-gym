@@ -6,6 +6,7 @@ import { progressCsv } from '@data/exportProgress';
 import { starsFor } from '@data/stages';
 import { fillPlaceholders } from '@data/lessons';
 import { complete } from '@data/completion';
+import { parseAnsi, stripAnsi, VSCODE_ANSI_COLORS } from '@data/ansi';
 import type { CommandResult } from '@shared/terminal';
 
 const result = (stdout: string, stderr = '', exitCode = 0): CommandResult => ({ stdout, stderr, exitCode, cwd: '~' });
@@ -118,5 +119,28 @@ describe('complete', () => {
 
   it('候補が無ければそのまま', () => {
     expect(complete('git xyz', source)).toEqual({ value: 'git xyz', candidates: [] });
+  });
+});
+
+describe('parseAnsi', () => {
+  it('git status の赤・緑を区間に分ける', () => {
+    const segments = parseAnsi('\x1b[32mmodified:   a.txt\x1b[m\n\x1b[31mb.txt\x1b[m\n');
+    expect(segments).toEqual([
+      { text: 'modified:   a.txt', style: { fg: VSCODE_ANSI_COLORS[2] } },
+      { text: '\n', style: {} },
+      { text: 'b.txt', style: { fg: VSCODE_ANSI_COLORS[1] } },
+      { text: '\n', style: {} },
+    ]);
+  });
+
+  it('太字・明るい色・256 色を読む', () => {
+    const [bold, bright, indexed] = parseAnsi('\x1b[1;33mA\x1b[0;91mB\x1b[38;5;196mC');
+    expect(bold.style).toEqual({ bold: true, fg: VSCODE_ANSI_COLORS[3] });
+    expect(bright.style).toEqual({ fg: VSCODE_ANSI_COLORS[9] });
+    expect(indexed.style.fg).toBe('rgb(255, 0, 0)');
+  });
+
+  it('色以外の制御は読み飛ばす', () => {
+    expect(stripAnsi('remote: done\x1b[K\n\x1b[33mabc\x1b[m')).toBe('remote: done\nabc');
   });
 });

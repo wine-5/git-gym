@@ -21,6 +21,16 @@ const BLOCKED_GIT_OPTIONS = ['-C', '--git-dir', '--work-tree', '--exec-path'];
 const MAX_CAT_BYTES = 200 * 1024;
 
 /**
+ * 本物のターミナル（VS Code など）で打ったときと同じ見た目にする設定。
+ * パイプ越しだと git は色やブランチ名の表示（decorate）を省くので、明示的に有効にする。
+ * git config は -c の値まで一覧に出てしまうので付けない。
+ */
+function terminalLookArgs(args: string[]): string[] {
+  if (args[0] === 'config') return [];
+  return ['-c', 'color.ui=always', '-c', 'log.decorate=short'];
+}
+
+/**
  * 練習用リポジトリ1つぶんのターミナル。
  * 本物のシェルは使わず、git と少数の補助コマンドだけを root 配下で実行する。
  */
@@ -75,7 +85,7 @@ export class TerminalSession {
     const blocked = args.find((a) => BLOCKED_GIT_OPTIONS.some((o) => a === o || a.startsWith(`${o}=`)));
     if (blocked) return this.fail(`${blocked} はこのアプリでは使えません`);
 
-    const result = await this.git.run(args, this.cwd, { env: this.gitEnv });
+    const result = await this.git.run([...terminalLookArgs(args), ...args], this.cwd, { env: this.gitEnv });
     let stderr = result.stderr;
     if (result.timedOut) stderr += '\n（時間がかかりすぎたので止めました）';
     if (result.truncated) stderr += '\n（出力が多すぎるので途中までにしました）';

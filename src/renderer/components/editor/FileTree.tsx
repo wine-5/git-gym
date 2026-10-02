@@ -5,6 +5,7 @@ import type { WorkspaceModel } from '@models/WorkspaceModel';
 import { FILE_STATE_MARKS } from '../fileStates';
 import { FileIcon } from './FileIcon';
 import { focusEditorSoon } from './CodeEditor';
+import { t } from '@i18n/t';
 import styles from './FileTree.module.css';
 
 interface Props {
@@ -17,7 +18,7 @@ export const FileTree = observer(({ workspace, projectName, fileStates }: Props)
   <div className={styles.tree}>
     <div className="panel-head">
       <span className={styles.headLabel}>
-        <Files size={13} /> ファイル
+        <Files size={13} /> {t('editor.files')}
       </span>
     </div>
     <div className={styles.folder}>

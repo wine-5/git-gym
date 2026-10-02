@@ -1,5 +1,7 @@
 import { MapPin, GitBranch, Cloud, Tag, PencilLine, GitMerge, FolderX, GitCommitHorizontal, type LucideIcon } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
 import { EmptyState } from '../EmptyState';
+import { t } from '@i18n/t';
 import type { CommitRef, RefKind, RepoSnapshot } from '@shared/repo';
 import { assignColumns, type LaidOutCommit } from './graphLayout';
 import styles from './CommitGraph.module.css';
@@ -20,11 +22,12 @@ const REF_ICONS: Record<RefKind, LucideIcon> = {
   tag: Tag,
 };
 
-const REF_TITLES: Record<RefKind, string> = {
-  head: 'HEAD：いま自分がいる場所',
-  local: 'ローカルブランチ',
-  remote: 'リモートブランチ（GitHub などにある状態）',
-  tag: 'タグ',
+/** ラベルの説明のキー（表示言語に合わせて描画のたびに引く） */
+const REF_TITLE_KEYS: Record<RefKind, string> = {
+  head: 'graph.ref.head',
+  local: 'graph.ref.local',
+  remote: 'graph.ref.remote',
+  tag: 'graph.ref.tag',
 };
 
 const laneColor = (col: number) => LANE_COLORS[col % LANE_COLORS.length];
@@ -34,13 +37,13 @@ interface Props {
   repo: RepoSnapshot;
 }
 
-export function CommitGraph({ repo }: Props) {
+export const CommitGraph = observer(({ repo }: Props) => {
   if (!repo.initialized) {
     return (
       <EmptyState
         icon={FolderX}
-        title="まだ Git リポジトリではありません"
-        description="このフォルダで Git を使い始めるには、リポジトリを作りましょう"
+        title={t('graph.notRepoTitle')}
+        description={t('graph.notRepoDesc')}
         command="git init"
       />
     );
@@ -49,9 +52,9 @@ export function CommitGraph({ repo }: Props) {
     return (
       <EmptyState
         icon={GitCommitHorizontal}
-        title="まだコミットがありません"
-        description="ファイルをステージに乗せてコミットすると、ここに履歴が並びます"
-        command='git commit -m "メッセージ"'
+        title={t('graph.noCommitsTitle')}
+        description={t('graph.noCommitsDesc')}
+        command={t('graph.commitExample')}
       />
     );
   }
@@ -111,9 +114,9 @@ export function CommitGraph({ repo }: Props) {
         {offset > 0 && (
           <div className={`${styles.row} ${styles.pending}`} style={{ height: ROW_H }}>
             <div className={styles.message}>
-              <PencilLine size={13} /> まだコミットしていない変更
+              <PencilLine size={13} /> {t('graph.pending')}
             </div>
-            <div className={styles.meta}>{pendingCount} ファイル</div>
+            <div className={styles.meta}>{t('graph.pendingFiles', { count: pendingCount })}</div>
           </div>
         )}
         {commits.map((c) => (
@@ -140,7 +143,7 @@ export function CommitGraph({ repo }: Props) {
       </div>
     </div>
   );
-}
+});
 
 function Edge({ child, parent, y1, y2, isMergeParent }: { child: LaidOutCommit; parent: LaidOutCommit; y1: number; y2: number; isMergeParent: boolean }) {
   const x1 = cx(child.col);
@@ -190,7 +193,7 @@ function Node({ commit, y, isHead }: { commit: LaidOutCommit; y: number; isHead:
   );
 }
 
-function RefBadge({ commitRef, color }: { commitRef: CommitRef; color: string }) {
+const RefBadge = observer(({ commitRef, color }: { commitRef: CommitRef; color: string }) => {
   const Icon = REF_ICONS[commitRef.kind];
   const style =
     commitRef.kind === 'head'
@@ -200,9 +203,9 @@ function RefBadge({ commitRef, color }: { commitRef: CommitRef; color: string })
         : { background: 'transparent', color: 'var(--text-dim)', borderColor: 'var(--border)' };
 
   return (
-    <span className={styles.ref} style={style} title={REF_TITLES[commitRef.kind]}>
+    <span className={styles.ref} style={style} title={t(REF_TITLE_KEYS[commitRef.kind])}>
       <Icon size={11} strokeWidth={2.5} />
       {commitRef.name}
     </span>
   );
-}
+});

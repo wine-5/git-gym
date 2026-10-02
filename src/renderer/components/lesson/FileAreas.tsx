@@ -1,27 +1,28 @@
+import { observer } from 'mobx-react-lite';
 import { FolderOpen, PackageCheck, Archive, ArrowRight, type LucideIcon } from 'lucide-react';
 import { iconForPath } from '@data/languages';
 import type { FileChange, RepoSnapshot } from '@shared/repo';
 import { FILE_STATE_MARKS } from '../fileStates';
+import { t } from '@i18n/t';
 import styles from './FileAreas.module.css';
 
-
-export function FileAreas({ repo }: { repo: RepoSnapshot }) {
+export const FileAreas = observer(({ repo }: { repo: RepoSnapshot }) => {
   return (
     <div className={styles.flow}>
-      <Area icon={FolderOpen} color="#e8c46a" title="作業ツリー" sub="編集中のファイル" files={repo.working} />
+      <Area icon={FolderOpen} color="#e8c46a" title={t('areas.working')} sub={t('areas.workingSub')} files={repo.working} />
       <Step command="add" />
-      <Area icon={PackageCheck} color="#4cc38a" title="ステージ" sub="次のコミットに入れる" files={repo.staged} />
+      <Area icon={PackageCheck} color="#4cc38a" title={t('areas.staged')} sub={t('areas.stagedSub')} files={repo.staged} />
       <Step command="commit" />
       <div className={styles.area}>
-        <AreaHead icon={Archive} color="#5aa9ff" title="リポジトリ" sub="記録された履歴" />
+        <AreaHead icon={Archive} color="#5aa9ff" title={t('areas.repo')} sub={t('areas.repoSub')} />
         <div className={styles.repoCount}>
           <b>{repo.commits.length}</b>
-          <span>コミット</span>
+          <span>{t('areas.commits')}</span>
         </div>
       </div>
     </div>
   );
-}
+});
 
 function AreaHead({ icon: Icon, color, title, sub }: { icon: LucideIcon; color: string; title: string; sub: string }) {
   return (
@@ -35,12 +36,12 @@ function AreaHead({ icon: Icon, color, title, sub }: { icon: LucideIcon; color: 
   );
 }
 
-function Area({ files, ...head }: { icon: LucideIcon; color: string; title: string; sub: string; files: FileChange[] }) {
+const Area = observer(({ files, ...head }: { icon: LucideIcon; color: string; title: string; sub: string; files: FileChange[] }) => {
   return (
     <div className={styles.area}>
       <AreaHead {...head} />
       {files.length === 0 ? (
-        <div className={styles.empty}>からっぽ</div>
+        <div className={styles.empty}>{t('areas.empty')}</div>
       ) : (
         files.map((f) => {
           const mark = FILE_STATE_MARKS[f.state];
@@ -58,7 +59,7 @@ function Area({ files, ...head }: { icon: LucideIcon; color: string; title: stri
       )}
     </div>
   );
-}
+});
 
 function Step({ command }: { command: string }) {
   return (

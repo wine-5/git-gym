@@ -8,6 +8,7 @@ import { findStage, nextStage, starsFor, type Stage, type World } from '@data/st
 import { PracticeLayout } from '../workspace/PracticeLayout';
 import { InlineText } from '../InlineText';
 import { Confetti } from '../effects/Confetti';
+import { t } from '@i18n/t';
 import styles from './StageView.module.css';
 
 export const StageView = observer(() => {
@@ -63,10 +64,10 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
     <section className={styles.panel} style={{ '--world': world.color } as React.CSSProperties}>
       <div className="panel-head">
         <span className={styles.headLabel}>
-          <Swords size={13} /> 練習モード
+          <Swords size={13} /> {t('stage.head')}
         </span>
         <button className={styles.mapLink} onClick={() => appModel.navigate('stages')}>
-          <MapIcon size={12} /> マップ
+          <MapIcon size={12} /> {t('stage.map')}
         </button>
       </div>
 
@@ -81,7 +82,7 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
 
         <div className={stars !== null ? `${styles.mission} ${styles.missionDone}` : styles.mission}>
           <div className={styles.missionLabel}>
-            {stars !== null ? <CheckCircle2 size={14} /> : <Target size={14} />} ミッション
+            {stars !== null ? <CheckCircle2 size={14} /> : <Target size={14} />} {t('mission.head')}
           </div>
           <p>
             <InlineText text={fill(stage.description)} />
@@ -94,14 +95,14 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
               <div key={i} className={i === 1 ? `${styles.hint} ${styles.answer}` : styles.hint}>
                 <Lightbulb size={14} />
                 <span>
-                  {i === 1 && <b>答え：</b>}
+                  {i === 1 && <b>{t('stage.answer')}</b>}
                   <InlineText text={fill(hint)} />
                 </span>
               </div>
             ))}
             {hintLevel < stage.hints.length && (
               <button className={`btn ${styles.hintButton}`} onClick={() => setHintLevel((n) => n + 1)}>
-                <Lightbulb size={14} /> {hintLevel === 0 ? 'ヒントを見る' : '答えを見る（星は最大2つ）'}
+                <Lightbulb size={14} /> {hintLevel === 0 ? t('stage.showHint') : t('stage.showAnswer')}
               </button>
             )}
           </>
@@ -121,15 +122,15 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
               ))}
             </div>
             <p className={styles.resultNote}>
-              {stars === 3 ? 'ノーミスでクリア！完ぺきです' : 'クリア！ノーミスなら星3つです'}
+              {stars === 3 ? t('stage.perfect') : t('stage.cleared')}
             </p>
             {next ? (
               <button className={`btn primary ${styles.nextButton}`} onClick={() => appModel.openStage(next.id)} autoFocus>
-                次のステージへ <ArrowRight size={15} />
+                {t('stage.next')} <ArrowRight size={15} />
               </button>
             ) : (
               <button className={`btn primary ${styles.nextButton}`} onClick={() => appModel.navigate('stages')} autoFocus>
-                全ステージクリア！マップへ <MapIcon size={15} />
+                {t('stage.allClear')} <MapIcon size={15} />
               </button>
             )}
           </div>
@@ -138,7 +139,7 @@ const StagePanel = observer(({ world, stage, index, runner }: PanelProps) => {
 
       <div className={styles.foot}>
         <button className="btn" onClick={retry}>
-          <RotateCcw size={14} /> やり直す
+          <RotateCcw size={14} /> {t('stage.retry')}
         </button>
       </div>
     </section>

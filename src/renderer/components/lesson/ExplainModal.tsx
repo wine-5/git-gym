@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { BookOpen, X, ArrowRight } from 'lucide-react';
 import { COMMANDS, type GitCommand } from '@data/commands';
 import type { Lesson } from '@data/lessons';
 import { CommandDetail } from '../dictionary/CommandDetail';
+import { t } from '@i18n/t';
 import styles from './ExplainModal.module.css';
 
 /** レッスンの説明・チェック・ヒントに出てくる git コマンドを、出てきた順に集める */
@@ -19,7 +21,7 @@ interface Props {
 }
 
 /** レッスンで使うコマンドの解説 */
-export function ExplainModal({ lesson, onClose, onOpenDictionary }: Props) {
+export const ExplainModal = observer(({ lesson, onClose, onOpenDictionary }: Props) => {
   const commands = commandsInLesson(lesson);
   const [selected, setSelected] = useState(commands[0]?.name);
   const command = commands.find((c) => c.name === selected);
@@ -29,8 +31,8 @@ export function ExplainModal({ lesson, onClose, onOpenDictionary }: Props) {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal>
         <header className={styles.header}>
           <BookOpen size={18} />
-          <span>解説：{lesson.title}</span>
-          <button className={styles.close} onClick={onClose} title="閉じる">
+          <span>{t('explain.title', { title: lesson.title })}</span>
+          <button className={styles.close} onClick={onClose} title={t('explain.close')}>
             <X size={18} />
           </button>
         </header>
@@ -53,18 +55,18 @@ export function ExplainModal({ lesson, onClose, onOpenDictionary }: Props) {
           {command ? (
             <CommandDetail command={command} compact />
           ) : (
-            <p className={styles.none}>このレッスンで使うコマンドの解説はありません。</p>
+            <p className={styles.none}>{t('explain.none')}</p>
           )}
         </div>
 
         {command && (
           <footer className={styles.footer}>
             <button className="btn" onClick={() => onOpenDictionary(command.name)}>
-              コマンド辞典で詳しく見る <ArrowRight size={14} />
+              {t('explain.openDictionary')} <ArrowRight size={14} />
             </button>
           </footer>
         )}
       </div>
     </div>
   );
-}
+});

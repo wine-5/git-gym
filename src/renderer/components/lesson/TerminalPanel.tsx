@@ -4,6 +4,7 @@ import { TerminalSquare, CheckCircle2, Lightbulb, ChevronRight, Trash2, FolderOp
 import type { TerminalLine, TerminalModel } from '@models/TerminalModel';
 import { complete, type CompletionSource } from '@data/completion';
 import { parseAnsi, VSCODE_ANSI_COLORS, type AnsiStyle } from '@data/ansi';
+import { t } from '@i18n/t';
 import styles from './TerminalPanel.module.css';
 
 interface Props {
@@ -85,24 +86,24 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
     <div className={styles.terminal}>
       <div className={styles.head} data-dock-handle>
         <span className={styles.tab}>
-          <TerminalSquare size={13} /> ターミナル
+          <TerminalSquare size={13} /> {t('terminal.tab')}
         </span>
         {terminal.streak >= 3 && (
-          <span key={terminal.streak} className={styles.combo} title="失敗せずに続けて成功したコマンドの数">
+          <span key={terminal.streak} className={styles.combo} title={t('terminal.comboTitle')}>
             <Flame size={13} /> {terminal.streak} COMBO
           </span>
         )}
         <span className={styles.cwd}>{terminal.cwd}</span>
         {onReveal && (
-          <button className={styles.iconButton} onClick={onReveal} title="フォルダを開く">
+          <button className={styles.iconButton} onClick={onReveal} title={t('terminal.reveal')}>
             <FolderOpen size={13} />
           </button>
         )}
-        <button className={styles.iconButton} onClick={() => terminal.clear()} title="クリア（Ctrl+L）">
+        <button className={styles.iconButton} onClick={() => terminal.clear()} title={t('terminal.clear')}>
           <Trash2 size={13} />
         </button>
         {onClose && (
-          <button className={styles.iconButton} onClick={onClose} title="パネルを閉じる（Ctrl+J）">
+          <button className={styles.iconButton} onClick={onClose} title={t('terminal.close')}>
             <X size={14} />
           </button>
         )}
@@ -113,7 +114,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
         ))}
         {terminal.running && (
           <div className={`${styles.line} ${styles.output}`}>
-            <Loader2 size={14} className={styles.spin} /> 実行中…
+            <Loader2 size={14} className={styles.spin} /> {t('terminal.running')}
           </div>
         )}
         {/* 実行中も入力欄は残す。visibility: hidden にするとフォーカスが外れるので、透明にするだけにする */}
@@ -129,7 +130,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
             spellCheck={false}
             autoFocus
             readOnly={terminal.running}
-            placeholder="git コマンドを入力…（help で使えるコマンド一覧）"
+            placeholder={t('terminal.placeholder')}
           />
         </div>
       </div>
@@ -179,14 +180,14 @@ function Line({ line }: { line: TerminalLine }) {
 }
 
 /** VS Code のコマンドの印: 実行中は白抜き、成功は青い丸、失敗は赤い丸 */
-function Decoration({ exitCode }: { exitCode?: number }) {
-  if (exitCode === undefined) return <span className={`${styles.decoration} ${styles.decorationRunning}`} title="実行中" />;
+const Decoration = observer(({ exitCode }: { exitCode?: number }) => {
+  if (exitCode === undefined) return <span className={`${styles.decoration} ${styles.decorationRunning}`} title={t('terminal.statusRunning')} />;
   return exitCode === 0 ? (
-    <span className={`${styles.decoration} ${styles.decorationSuccess}`} title="成功" />
+    <span className={`${styles.decoration} ${styles.decorationSuccess}`} title={t('terminal.statusSuccess')} />
   ) : (
-    <span className={`${styles.decoration} ${styles.decorationError}`} title={`失敗（終了コード ${exitCode}）`} />
+    <span className={`${styles.decoration} ${styles.decorationError}`} title={t('terminal.statusFailed', { code: exitCode })} />
   );
-}
+});
 
 /** VS Code と同じく、太字の標準色は明るい色で表示する */
 function cssFor(style: AnsiStyle): CSSProperties | undefined {

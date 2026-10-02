@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as monaco from 'monaco-editor';
+import { reaction } from 'mobx';
 import { monacoLanguageForPath } from '@data/languages';
+import { currentLocale } from '@i18n/locale';
+import { t } from '@i18n/t';
 import { findConflicts } from './conflictRegions';
 import styles from './CodeEditor.module.css';
 
@@ -42,9 +45,9 @@ function conflictDecorations(model: monaco.editor.ITextModel): monaco.editor.IMo
   });
   return findConflicts(model.getValue()).flatMap((r) => {
     const out = [
-      whole(r.start, 'gg-conflict-marker', '   ▼ 今のブランチの内容'),
-      whole(r.separator, 'gg-conflict-marker', '   ▲ 今のブランチ ／ ▼ 取り込むブランチ'),
-      whole(r.end, 'gg-conflict-marker', '   ▲ 取り込もうとしたブランチの内容'),
+      whole(r.start, 'gg-conflict-marker', `   ${t('editor.conflictCurrent')}`),
+      whole(r.separator, 'gg-conflict-marker', `   ${t('editor.conflictSeparator')}`),
+      whole(r.end, 'gg-conflict-marker', `   ${t('editor.conflictIncoming')}`),
     ];
     for (let l = r.start + 1; l < r.separator; l++) out.push(whole(l, 'gg-conflict-current'));
     for (let l = r.separator + 1; l < r.end; l++) out.push(whole(l, 'gg-conflict-incoming'));
@@ -111,10 +114,13 @@ export function CodeEditor({ path, value, onChange, fontSize = 14, theme = 'dark
       refreshConflicts();
     });
     const modelSub = editor.onDidChangeModel(refreshConflicts);
+    // 表示言語を変えたら、コンフリクトの説明も描き直す
+    const disposeLocale = reaction(() => currentLocale(), refreshConflicts);
 
     return () => {
       sub.dispose();
       modelSub.dispose();
+      disposeLocale();
       editor.dispose();
       monaco.editor.getModels().forEach((m) => m.dispose());
       editorRef.current = null;

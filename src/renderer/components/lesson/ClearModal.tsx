@@ -1,6 +1,8 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Trophy, ArrowRight, RotateCcw, Home, Star } from 'lucide-react';
 import { Confetti } from '../effects/Confetti';
+import { t } from '@i18n/t';
 import styles from './ClearModal.module.css';
 
 interface Props {
@@ -17,7 +19,7 @@ const CLEAR_TEXT = 'MISSION CLEAR!';
 const MEDAL_LAYERS = 10;
 
 /** レッスンをクリアしたときのお祝い。回転しながら飛んでくる立体のメダルと光の演出 */
-export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, onClose }: Props) {
+export const ClearModal = observer(({ lessonTitle, nextTitle, onNext, onRetry, onHome, onClose }: Props) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   // 開いたら「次へ」（無ければ最初のボタン）を選んだ状態にして、Enter ですぐ進めるようにする
@@ -74,7 +76,7 @@ export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, on
             <i className={`${styles.sparkle} ${styles.s2}`} />
             <i className={`${styles.sparkle} ${styles.s3}`} />
           </div>
-          <div className={styles.clear} aria-label="ミッションクリア">
+          <div className={styles.clear} aria-label={t('clear.ariaLabel')}>
             {[...CLEAR_TEXT].map((ch, i) => (
               <span key={i} style={{ animationDelay: `${0.55 + i * 0.045}s` }}>
                 {ch === ' ' ? ' ' : ch}
@@ -83,23 +85,21 @@ export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, on
           </div>
           <div className={styles.title}>{lessonTitle}</div>
           <p className={styles.message}>
-            {onNext
-              ? 'よくできました。Git の操作が1つ身につきました。'
-              : '全コース修了です！おめでとうございます。もう実際のチーム開発で Git を使えます。フリー練習やコマンド辞典で復習もしてみましょう。'}
+            {onNext ? t('clear.message') : t('clear.messageFinal')}
           </p>
 
           <div className={styles.actions}>
             {onNext && nextTitle && (
               <button className={`btn primary ${styles.next}`} onClick={onNext}>
-                次へ：{nextTitle} <ArrowRight size={16} />
+                {t('clear.next', { title: nextTitle })} <ArrowRight size={16} />
               </button>
             )}
             <div className={styles.sub}>
               <button className="btn" onClick={onRetry}>
-                <RotateCcw size={14} /> もう一度
+                <RotateCcw size={14} /> {t('clear.retry')}
               </button>
               <button className="btn" onClick={onHome}>
-                <Home size={14} /> ホームへ
+                <Home size={14} /> {t('clear.home')}
               </button>
             </div>
           </div>
@@ -107,4 +107,4 @@ export function ClearModal({ lessonTitle, nextTitle, onNext, onRetry, onHome, on
       </div>
     </>
   );
-}
+});

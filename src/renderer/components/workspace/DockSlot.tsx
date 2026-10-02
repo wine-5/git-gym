@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type R
 import { observer } from 'mobx-react-lite';
 import { ArrowLeftRight } from 'lucide-react';
 import type { DockSlotId, LayoutModel } from '@models/LayoutModel';
+import { t } from '@i18n/t';
 import styles from './DockSlot.module.css';
 
 /** ドラッグ中のデータの種類（ファイルや文字のドラッグと区別する） */
@@ -22,6 +23,8 @@ interface Props {
 export const DockSlot = observer(({ slot, layout, style, children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const [over, setOver] = useState(false);
+  // 描画中に引いておくと、表示言語を変えたときに描き直されて見出しの説明も切り替わる
+  const handleTitle = t('dock.handleTitle');
 
   // 中身のパネルが変わるたびに、見出しを掴めるようにする
   useEffect(() => {
@@ -29,7 +32,11 @@ export const DockSlot = observer(({ slot, layout, style, children }: Props) => {
     if (!head) return;
     head.draggable = true;
     head.classList.add(styles.handle);
-    head.title = head.title || '見出しをドラッグすると、別の場所のパネルと入れ替えられます';
+    // パネル自身の説明があればそちらを残す。前にここで付けた説明なら今の言語のものに替える
+    if (!head.title || head.dataset.dockTitle === head.title) {
+      head.title = handleTitle;
+      head.dataset.dockTitle = handleTitle;
+    }
   });
 
   const isDockDrag = (e: DragEvent) => e.dataTransfer.types.includes(MIME);
@@ -80,7 +87,7 @@ export const DockSlot = observer(({ slot, layout, style, children }: Props) => {
       {children}
       {over && dragging !== slot && (
         <div className={styles.dropHint}>
-          <ArrowLeftRight size={18} /> ここと入れ替える
+          <ArrowLeftRight size={18} /> {t('dock.dropHere')}
         </div>
       )}
     </div>

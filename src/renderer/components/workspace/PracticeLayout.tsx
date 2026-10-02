@@ -15,6 +15,7 @@ import { Splitter } from '../layout/Splitter';
 import { DockSlot } from './DockSlot';
 import { usePanelSize } from '../../hooks/usePanelSize';
 import { useVsCodeShortcuts } from '../../hooks/useVsCodeShortcuts';
+import { t } from '@i18n/t';
 import styles from './PracticeLayout.module.css';
 
 interface Props {
@@ -65,7 +66,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
           <section className={styles.panel}>
             <div className="panel-head">
               <span className={styles.headLabel}>
-                <GitGraph size={13} /> コミットグラフ
+                <GitGraph size={13} /> {t('layout.graph')}
               </span>
             </div>
             <div className={styles.scroll}>
@@ -78,7 +79,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
           <section className={styles.panel}>
             <div className="panel-head">
               <span className={styles.headLabel}>
-                <FolderTree size={13} /> ファイルの居場所
+                <FolderTree size={13} /> {t('layout.areas')}
               </span>
             </div>
             <div className={styles.scroll}>
@@ -141,7 +142,7 @@ export const PracticeLayout = observer(({ session, left }: Props) => {
             ) : (
               <div className={styles.noFile}>
                 <MousePointerClick size={36} />
-                左のファイル一覧からファイルを開いてください
+                {t('layout.noFile')}
               </div>
             )}
           </div>

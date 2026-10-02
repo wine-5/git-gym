@@ -1,4 +1,6 @@
 import { useRef, type PointerEvent } from 'react';
+import { observer } from 'mobx-react-lite';
+import { t } from '@i18n/t';
 import styles from './Splitter.module.css';
 
 interface Props {
@@ -12,7 +14,7 @@ interface Props {
 }
 
 /** VS Code のように、ドラッグでパネルの大きさを変える境目 */
-export function Splitter({ direction, onDrag, onDragStart, onReset }: Props) {
+export const Splitter = observer(({ direction, onDrag, onDragStart, onReset }: Props) => {
   const start = useRef<number | null>(null);
 
   const handleDown = (e: PointerEvent<HTMLDivElement>) => {
@@ -42,9 +44,9 @@ export function Splitter({ direction, onDrag, onDragStart, onReset }: Props) {
       onPointerUp={handleUp}
       onPointerCancel={handleUp}
       onDoubleClick={onReset}
-      title="ドラッグで大きさを変更（ダブルクリックで元に戻す）"
+      title={t('layout.splitterTitle')}
       role="separator"
       aria-orientation={direction === 'columns' ? 'vertical' : 'horizontal'}
     />
   );
-}
+});

@@ -5,6 +5,7 @@ import type { WorkspaceModel } from '@models/WorkspaceModel';
 import { FILE_STATE_MARKS } from '../fileStates';
 import { FileIcon } from './FileIcon';
 import { focusEditorSoon } from './CodeEditor';
+import { t } from '@i18n/t';
 import styles from './EditorTabs.module.css';
 
 interface Props {
@@ -31,7 +32,7 @@ export const EditorTabs = observer(({ workspace, fileStates }: Props) => (
         )}
         <button
           className={styles.close}
-          title="閉じる"
+          title={t('editor.closeTab')}
           onClick={(e) => {
             e.stopPropagation();
             workspace.close(path);

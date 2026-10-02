@@ -2,6 +2,8 @@ import { makeAutoObservable } from 'mobx';
 
 const KEY = 'git-gym.settings';
 
+export type Theme = 'dark' | 'light';
+
 interface SettingsData {
   editorFontSize: number;
   terminalFontSize: number;
@@ -14,6 +16,7 @@ interface SettingsData {
   showSourceTree: boolean;
   /** レッスンのヒントを表示する（問題をまたいで引き継ぐ） */
   showHints: boolean;
+  theme: Theme;
 }
 
 const DEFAULTS: SettingsData = {
@@ -24,6 +27,7 @@ const DEFAULTS: SettingsData = {
   muted: false,
   showSourceTree: false,
   showHints: false,
+  theme: 'dark',
 };
 
 export const FONT_SIZE_RANGE = { min: 11, max: 24 };
@@ -45,6 +49,7 @@ export class SettingsModel {
   muted: boolean;
   showSourceTree: boolean;
   showHints: boolean;
+  theme: Theme;
 
   constructor() {
     const data = load();
@@ -55,6 +60,8 @@ export class SettingsModel {
     this.muted = data.muted;
     this.showSourceTree = data.showSourceTree;
     this.showHints = data.showHints;
+    this.theme = data.theme;
+    applyTheme(this.theme);
     makeAutoObservable(this);
   }
 
@@ -88,6 +95,12 @@ export class SettingsModel {
     this.save();
   }
 
+  setTheme(theme: Theme): void {
+    this.theme = theme;
+    applyTheme(theme);
+    this.save();
+  }
+
   toggleHints(): void {
     this.showHints = !this.showHints;
     this.save();
@@ -114,12 +127,18 @@ export class SettingsModel {
         muted: this.muted,
         showSourceTree: this.showSourceTree,
         showHints: this.showHints,
+        theme: this.theme,
       };
       localStorage.setItem(KEY, JSON.stringify(data));
     } catch {
       // 保存できなくても今回は使える
     }
   }
+}
+
+/** global.css の :root[data-theme='light'] を有効にする */
+function applyTheme(theme: Theme): void {
+  document.documentElement.dataset.theme = theme;
 }
 
 function clamp(size: number): number {

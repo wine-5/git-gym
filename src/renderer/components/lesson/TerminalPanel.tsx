@@ -79,6 +79,30 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
     queued.current = [];
   }, [terminal]);
 
+  /**
+   * ターミナルをクリックしたら入力欄に移る。ただし、ドラッグで文字を選択したときは移らない
+   * （入力欄に移ると選択が外れてコピーできなくなるため。次にクリックしたときに選択が外れる）
+   */
+  const focusInputUnlessSelecting = () => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && bodyRef.current?.contains(selection.anchorNode)) return;
+    inputRef.current?.focus();
+  };
+
+  // 選択したあとに文字キーを打ったら、VS Code と同じく入力欄に移ってそのまま打てるようにする
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+      const selection = window.getSelection();
+      const selectingHere = selection && !selection.isCollapsed && bodyRef.current?.contains(selection.anchorNode);
+      // エディタなど、ほかの入力欄で打っているときは横取りしない
+      const typingElsewhere = document.activeElement?.closest('input, textarea, [contenteditable="true"]');
+      if (selectingHere && !typingElsewhere) inputRef.current?.focus();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, []);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       refocusAfterRun.current = true;
@@ -132,7 +156,7 @@ export const TerminalPanel = observer(({ terminal, branch, onReveal, onClose, co
           </button>
         )}
       </div>
-      <div className={styles.body} style={{ fontSize }} ref={bodyRef} onClick={() => inputRef.current?.focus()}>
+      <div className={styles.body} style={{ fontSize }} ref={bodyRef} onClick={focusInputUnlessSelecting}>
         {terminal.lines.map((line, i) => (
           <Line key={i} line={line} />
         ))}
